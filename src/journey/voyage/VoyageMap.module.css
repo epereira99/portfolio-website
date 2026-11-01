@@ -1,0 +1,31 @@
+/* Above the 3D canvas, below the header and bottom bar (z 20/30). */
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, #00000000 55%, #5a3d1a55 100%),
+    #ead9b5;
+}
+
+.svg {
+  width: 100%;
+  height: 100%;
+  padding: 72px 12px 96px; /* keep the route clear of the header and the bottom bar */
+}
+
+.label {
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+}
+
+.bob {
+  animation: bob 2.4s ease-in-out infinite;
+}
+
+@keyframes bob {
+  50% {
+    transform: translateY(-3px) rotate(-3deg);
+  }
+}

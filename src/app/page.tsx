@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { ScrollDriver } from "@/journey/ScrollDriver";
+import { VoyageMap } from "@/journey/voyage/VoyageMap";
 import { StageHeader } from "@/ui/StageHeader";
 import { JourneyOverlay } from "@/ui/JourneyOverlay";
 import { BottomBar } from "@/ui/BottomBar";
@@ -14,6 +15,7 @@ export default function Home() {
     <>
       <ScrollDriver />
       <JourneyCanvas />
+      <VoyageMap />
       <StageHeader />
       <main>
         <JourneyOverlay />
