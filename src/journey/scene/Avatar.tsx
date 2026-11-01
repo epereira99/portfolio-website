@@ -23,6 +23,8 @@ export function Avatar() {
     idle.play();
   }, [actions]);
 
+  // three.js animation actions are mutated every frame by design (R3F pattern)
+  // eslint-disable-next-line react-hooks/immutability
   useFrame(({ clock }) => {
     const { walk, idle } = actions;
     const g = group.current;
@@ -35,6 +37,7 @@ export function Avatar() {
 
     const now = clock.elapsedTime;
     if (Math.abs(d - last.current.d) > 1e-4) last.current = { d, movedAt: now };
+    // eslint-disable-next-line react-hooks/immutability
     walk.time = walkClipTime(d, STRIDE, walk.getClip().duration);
     const walking = now - last.current.movedAt < 0.3 ? 1 : 0;
     const w = walk.getEffectiveWeight() + (walking - walk.getEffectiveWeight()) * 0.2;

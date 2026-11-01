@@ -9,6 +9,16 @@
   animation: in 0.3s ease-out both;
 }
 
+/* Soft scrim keeps the text readable over bright skies (spec §10) */
+.block::before {
+  content: "";
+  position: absolute;
+  inset: -48px -64px;
+  z-index: -1;
+  background: radial-gradient(closest-side, #0d0f14a6, #0d0f1400);
+  pointer-events: none;
+}
+
 .photo {
   width: 84px;
   height: 84px;

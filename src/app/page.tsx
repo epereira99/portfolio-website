@@ -2,6 +2,10 @@
 
 import dynamic from "next/dynamic";
 import { ScrollDriver } from "@/journey/ScrollDriver";
+import { StageHeader } from "@/ui/StageHeader";
+import { JourneyOverlay } from "@/ui/JourneyOverlay";
+import { BottomBar } from "@/ui/BottomBar";
+import { ProjectDialog } from "@/ui/ProjectDialog";
 
 const JourneyCanvas = dynamic(() => import("@/journey/scene/JourneyCanvas").then((m) => m.JourneyCanvas), { ssr: false });
 
@@ -10,6 +14,12 @@ export default function Home() {
     <>
       <ScrollDriver />
       <JourneyCanvas />
+      <StageHeader />
+      <main>
+        <JourneyOverlay />
+      </main>
+      <BottomBar />
+      <ProjectDialog />
     </>
   );
 }
