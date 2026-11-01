@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "e2e": "playwright test",
-    "gen:map": "node tools/map/make-europe.mjs"
+    "gen:map": "node tools/map/make-europe.mjs",
+    "gen:landmarks": "for id in arcada bom_jesus uminho dom_luis clerigos jonkoping_university stadshuset; do /Applications/Blender.app/Contents/MacOS/Blender -b -P tools/blender/landmarks/$id.py -- public/models/landmarks/$(echo $id | tr _ -).glb | grep -E 'wrote|Error' || exit 1; done"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
