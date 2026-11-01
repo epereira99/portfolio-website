@@ -13,6 +13,7 @@ import { CityArt } from "../art/CityArt";
 import { Ground } from "../art/Ground";
 import { LandmarkModels } from "../art/LandmarkModels";
 import { WaterSurface } from "../art/WaterSurface";
+import { DebugStats } from "../art/DebugStats";
 
 export function JourneyCanvas() {
   return (
@@ -31,6 +32,7 @@ export function JourneyCanvas() {
             <Nau />
           </Suspense>
           <CameraRig />
+          <DebugStats />
         </Canvas>
       </Quiet>
     </div>

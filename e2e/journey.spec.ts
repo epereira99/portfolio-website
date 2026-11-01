@@ -160,3 +160,17 @@ test.describe("the ending", () => {
     expect(errors).toEqual([]);
   });
 });
+
+test("every city stays within the laptop budget (draw calls and triangles)", async ({ page }) => {
+  await page.goto("/");
+  for (const s of [0.2, 2.6, 3.6, 5.6, 7.6, 9]) {
+    await scrollToScreens(page, s);
+    // wait for two fresh frames of stats after the scroll
+    const first = await page.waitForFunction(() => (window as unknown as { __journeyStats?: { frame: number } }).__journeyStats?.frame, null, { timeout: 15000 });
+    const start = (await first.jsonValue()) as number;
+    await page.waitForFunction((f) => ((window as unknown as { __journeyStats: { frame: number } }).__journeyStats.frame ?? 0) > f + 2, start);
+    const stats = await page.evaluate(() => (window as unknown as { __journeyStats: { calls: number; triangles: number } }).__journeyStats);
+    expect(stats.calls, `draw calls at s=${s}`).toBeLessThanOrEqual(120);
+    expect(stats.triangles, `triangles at s=${s}`).toBeLessThanOrEqual(600_000);
+  }
+});
