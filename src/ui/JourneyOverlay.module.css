@@ -1,0 +1,76 @@
+.block {
+  position: fixed;
+  left: max(16px, 6vw);
+  top: 16vh;
+  z-index: 10;
+  max-width: min(440px, calc(100vw - 32px));
+  color: var(--text);
+  text-shadow: 0 1px 10px #0007;
+  animation: in 0.3s ease-out both;
+}
+
+.photo {
+  width: 84px;
+  height: 84px;
+  margin-bottom: 18px;
+  border-radius: 50%;
+  border: 2px solid #fff8;
+  background: #ffffff33;
+}
+
+.name {
+  margin: 0;
+  font-size: clamp(34px, 5vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.role {
+  margin: 8px 0 12px;
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.stage {
+  margin: 0;
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 6px 0 8px;
+  font-size: clamp(26px, 3.4vw, 38px);
+  line-height: 1.1;
+}
+
+.text {
+  margin: 0;
+  color: var(--muted-on-scene);
+}
+
+.more {
+  margin-top: 16px;
+  padding: 10px 18px;
+  border: 1px solid var(--glass-line);
+  border-radius: 999px;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  font: 600 14px/1 var(--font);
+  cursor: pointer;
+  text-shadow: none;
+}
+
+.more:hover {
+  background: var(--glass-hover);
+}
+
+@keyframes in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
