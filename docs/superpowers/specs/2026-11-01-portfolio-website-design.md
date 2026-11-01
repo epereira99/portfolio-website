@@ -100,9 +100,9 @@ Explicitly excluded: the multi-agent job application system **[Eduardo]**, Polyh
 ### Stages
 | # | City | Stage header | Landmarks **[my call: specific picks]** | Mood **[my call]** |
 |---|---|---|---|---|
-| 1 | Braga | BSc Computer Science · Universidade do Minho · 2017–2022 | Bom Jesus do Monte staircase, UMinho campus | morning, warm granite & cream; **no water** |
+| 1 | Braga | BSc Computer Science · Universidade do Minho · 2017–2022 | **[Eduardo]** Arcada, Bom Jesus do Monte staircase, Universidade do Minho (Gualtar) | morning, warm granite & cream; **no water** |
 | 2 | Porto | Deloitte · Cloud & DevOps → Integration Software · 2022–2024 | Dom Luís I bridge, Ribeira riverfront, azulejo façades, Clérigos tower | golden hour, orange roofs, blue-white tiles; Douro river |
-| 3 | Jönköping | MSc AI Engineering · Jönköping University · 2024–2026 | Lake Vättern, red Swedish cottages, pines, snow | winter blue |
+| 3 | Jönköping | MSc AI Engineering · Jönköping University · 2024–2026 | Lake Vättern, red Swedish cottages, pines, snow, **[Eduardo]** Jönköping University | winter blue |
 | 4 | Stockholm | Effektify & personal projects · 2026–now | Gamla Stan façades, waterfront | evening lights on the water |
 
 Effektify started in Aug 2026 (CV). The Saab thesis, Jordbruksverket placement and JIBS awards happened during the Jönköping stage.
