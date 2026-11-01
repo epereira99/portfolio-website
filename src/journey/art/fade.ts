@@ -1,4 +1,4 @@
-import type { Material, WebGLProgramParametersWithUniforms } from "three";
+import { MeshDepthMaterial, RGBADepthPacking, type Material, type WebGLProgramParametersWithUniforms } from "three";
 
 // Buildings ahead fade in as you approach (Eduardo, spec §7).
 export const FADE_FULL = 22; // fully visible within 22 path units ahead
@@ -10,7 +10,7 @@ export function fadeAhead(along: number, avatarAlong: number): number {
   return 1 - t * t * (3 - 2 * t);
 }
 
-/** Shared uniform: the walker's path distance, updated every frame by <ApproachFadeDriver/>. */
+/** Shared uniform: the walker's path distance, updated every frame by <CityArt/>. */
 export const APPROACH = { value: 0 };
 
 /**
@@ -31,8 +31,8 @@ export function applyApproachFade(material: Material, opts: { alongAttribute: tr
     shader.fragmentShader = shader.fragmentShader
       .replace("#include <common>", "#include <common>\nvarying float vAlong;\nuniform float uAvatarAlong;")
       .replace(
-        "#include <dithering_fragment>",
-        `#include <dithering_fragment>
+        "#include <clipping_planes_fragment>", // present in both the colour and the shadow (depth) shaders
+        `#include <clipping_planes_fragment>
         float fadeT = clamp((vAlong - uAvatarAlong - ${FADE_FULL.toFixed(1)}) / ${(FADE_START - FADE_FULL).toFixed(1)}, 0.0, 1.0);
         float fade = 1.0 - fadeT * fadeT * (3.0 - 2.0 * fadeT);
         ivec2 p = ivec2(mod(gl_FragCoord.xy, 4.0));
@@ -42,4 +42,11 @@ export function applyApproachFade(material: Material, opts: { alongAttribute: tr
         if (fade <= bayer) discard;`,
       );
   };
+}
+
+/** Shadow-pass material with the same fade, so buildings that are still hidden cast no shadow. */
+export function approachDepthMaterial(opts: { alongAttribute: true } | { along: number }): MeshDepthMaterial {
+  const depth = new MeshDepthMaterial({ depthPacking: RGBADepthPacking });
+  applyApproachFade(depth, opts);
+  return depth;
 }

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { MeshStandardMaterial } from "three";
+import { MeshDepthMaterial, MeshStandardMaterial, RGBADepthPacking } from "three";
 import { buildCityGeometry } from "./buildCity";
-import { FADE_FULL, FADE_START, applyApproachFade, fadeAhead } from "./fade";
+import { FADE_FULL, FADE_START, applyApproachFade, approachDepthMaterial, fadeAhead } from "./fade";
 import { cityLayout } from "./layout";
 
 describe("fadeAhead", () => {
@@ -39,10 +39,24 @@ test("applyApproachFade adds the walker's position and a dithered discard to the
   const shader = {
     uniforms: {} as Record<string, { value: unknown }>,
     vertexShader: "#include <common>\n#include <begin_vertex>",
-    fragmentShader: "#include <common>\n#include <dithering_fragment>",
+    fragmentShader: "#include <common>\n#include <clipping_planes_fragment>",
   };
   m.onBeforeCompile(shader as never, undefined as never);
   expect(shader.uniforms.uAvatarAlong).toBeDefined();
   expect(shader.vertexShader).toContain("aAlong");
+  expect(shader.fragmentShader).toContain("discard");
+});
+
+test("hidden buildings cast no shadow: the shadow pass fades the same way", () => {
+  const depth = approachDepthMaterial({ along: 120 });
+  expect(depth).toBeInstanceOf(MeshDepthMaterial);
+  expect(depth.depthPacking).toBe(RGBADepthPacking);
+  const shader = {
+    uniforms: {} as Record<string, { value: unknown }>,
+    vertexShader: "#include <common>\n#include <begin_vertex>",
+    fragmentShader: "#include <common>\n#include <clipping_planes_fragment>",
+  };
+  depth.onBeforeCompile(shader as never, undefined as never);
+  expect(shader.uniforms.uAvatarAlong).toBeDefined();
   expect(shader.fragmentShader).toContain("discard");
 });

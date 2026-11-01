@@ -7,7 +7,7 @@ import { getScreens } from "../progress";
 import type { SegmentId } from "../timeline";
 import { avatarPose } from "../voyage/poses";
 import { buildCityGeometry } from "./buildCity";
-import { APPROACH, applyApproachFade } from "./fade";
+import { APPROACH, applyApproachFade, approachDepthMaterial } from "./fade";
 import { cityLayout } from "./layout";
 
 const CITIES: SegmentId[] = ["braga", "porto", "jonkoping", "stockholm"];
@@ -20,6 +20,7 @@ export function CityArt() {
     applyApproachFade(m, { alongAttribute: true });
     return m;
   }, []);
+  const depth = useMemo(() => approachDepthMaterial({ alongAttribute: true }), []);
 
   // The shared fade uniform follows the walker (landmarks read it too).
   useFrame(() => {
@@ -29,7 +30,7 @@ export function CityArt() {
   return (
     <group>
       {geometries.map((geometry, i) => (
-        <mesh key={CITIES[i]} geometry={geometry} material={material} castShadow receiveShadow />
+        <mesh key={CITIES[i]} geometry={geometry} material={material} customDepthMaterial={depth} castShadow receiveShadow />
       ))}
     </group>
   );

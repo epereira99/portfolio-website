@@ -7,7 +7,7 @@ import { useScreens } from "../progress";
 import { Quiet } from "../scene/Quiet";
 import { LANDMARKS, landmarkPosition, type Landmark, type LandmarkId } from "./landmarks";
 import { landmarksToLoad } from "./loading";
-import { applyApproachFade } from "./fade";
+import { applyApproachFade, approachDepthMaterial } from "./fade";
 
 function Model({ landmark }: { landmark: Landmark }) {
   const { scene } = useGLTF(landmark.url);
@@ -18,6 +18,7 @@ function Model({ landmark }: { landmark: Landmark }) {
       if (child instanceof Mesh) {
         child.material = (child.material as Material).clone();
         applyApproachFade(child.material as Material, { along: landmark.along });
+        child.customDepthMaterial = approachDepthMaterial({ along: landmark.along }); // no shadow while hidden
         child.castShadow = child.receiveShadow = true;
       }
     });
