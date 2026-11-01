@@ -23,9 +23,8 @@ describe("CITY_STYLE", () => {
 
 describe("lightingAt", () => {
   test("mid-city is that city's own light", () => {
-    const { walls, roofs, ground, walkway, trim, water, waterColor, ...porto } = CITY_STYLE.porto;
-    void walls, roofs, ground, walkway, trim, water, waterColor;
-    expect(lightingAt(2.5)).toEqual(porto);
+    const { sky, fog, sun, ambient } = CITY_STYLE.porto;
+    expect(lightingAt(2.5)).toEqual({ sky, fog, sun, ambient });
   });
 
   test("halfway across a boundary is halfway between the two cities", () => {
@@ -37,7 +36,6 @@ describe("lightingAt", () => {
     let prev = lightingAt(0);
     for (let s = 0.01; s <= 9; s += 0.01) {
       const next = lightingAt(s);
-      for (const key of ["sky", "fog"] as const) void key;
       for (const [x, y] of [
         [prev.sky, next.sky],
         [prev.sun.color, next.sun.color],
