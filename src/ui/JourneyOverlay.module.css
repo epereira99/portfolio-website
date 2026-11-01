@@ -86,6 +86,17 @@
   text-shadow: none;
 }
 
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.actions .more {
+  display: inline-block;
+  text-decoration: none;
+}
+
 .more:hover {
   background: var(--glass-hover);
 }

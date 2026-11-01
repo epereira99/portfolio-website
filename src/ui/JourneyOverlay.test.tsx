@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { setScreens } from "@/journey/progress";
 import { JourneyOverlay } from "./JourneyOverlay";
@@ -46,4 +46,35 @@ test("shows nothing between projects", () => {
   at(4);
   expect(screen.queryByRole("heading")).toBeNull();
   expect(screen.queryByRole("button", { name: /read more/i })).toBeNull();
+});
+
+describe("the ending", () => {
+  test("invites the visitor into the next chapter with ways to get in touch", () => {
+    at(9);
+    expect(screen.getByRole("heading", { name: "The next chapter starts here." })).toBeInTheDocument();
+    expect(screen.getByText("Want to be part of it?")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Email me" })).toHaveAttribute("href", "mailto:eduardoluisvp99@gmail.com");
+  });
+
+  test("LinkedIn opens in a new tab without access to this page", () => {
+    at(9);
+    const link = screen.getByRole("link", { name: "LinkedIn" });
+    expect(link).toHaveAttribute("href", "https://www.linkedin.com/in/eduardopereira-/");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link.getAttribute("rel")).toMatch(/noopener/);
+    expect(link.getAttribute("rel")).toMatch(/noreferrer/);
+  });
+
+  test("no CV button until there is a CV to download", () => {
+    at(9);
+    expect(screen.queryByRole("link", { name: "Download CV" })).toBeNull();
+  });
+
+  test("fades in with scroll as the avatar turns", () => {
+    at(8.5);
+    const block = () => screen.getByRole("heading", { name: "The next chapter starts here." }).parentElement!;
+    expect(block().style.opacity).toBe("0");
+    act(() => setScreens(8.75));
+    expect(block().style.opacity).toBe("1");
+  });
 });

@@ -2,6 +2,7 @@
 
 import { projectBySlug } from "@/content/projects";
 import { STAGES } from "@/content/stages";
+import { CV_URL, EMAIL, ENDING, LINKEDIN } from "@/content/contact";
 import { useScreens } from "@/journey/progress";
 import { overlayAt } from "@/journey/timeline";
 import { useOpenProject } from "./useOpenProject";
@@ -21,6 +22,29 @@ export function JourneyOverlay() {
           MSc in AI Engineering. Based in Stockholm, open to new roles. Scroll to walk through my journey from Braga to
           Stockholm.
         </p>
+      </div>
+    );
+  }
+
+  if (overlay.kind === "ending") {
+    return (
+      <div className={styles.block} key="ending" style={{ opacity: Math.min(overlay.t / 0.4, 1) }}>
+        <p className={styles.stage}>Stockholm · Today</p>
+        <h2 className={styles.chapterTitle}>{ENDING.title}</h2>
+        <p className={styles.text}>{ENDING.line}</p>
+        <div className={styles.actions}>
+          <a className={styles.more} href={`mailto:${EMAIL}`}>
+            Email me
+          </a>
+          <a className={styles.more} href={LINKEDIN} target="_blank" rel="noopener noreferrer">
+            LinkedIn
+          </a>
+          {CV_URL && (
+            <a className={styles.more} href={CV_URL} download>
+              Download CV
+            </a>
+          )}
+        </div>
       </div>
     );
   }
