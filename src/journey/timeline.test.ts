@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import {
   CHAPTER_SCREENS,
   INTRO_END,
+  chapterDelay,
   TOTAL_SCREENS,
   overlayAt,
   segmentAt,
@@ -45,18 +46,23 @@ describe("overlayAt", () => {
   test("announces each stage with a chapter title as you enter it", () => {
     expect(overlayAt(0.5)).toEqual({ kind: "chapter", stage: "braga", t: 0 });
     expect(overlayAt(1.5)).toEqual({ kind: "chapter", stage: "porto", t: 0 });
-    expect(overlayAt(5.1)).toMatchObject({ kind: "chapter", stage: "jonkoping" });
+    expect(overlayAt(5.35)).toMatchObject({ kind: "chapter", stage: "jonkoping" });
     expect(overlayAt(7.0)).toMatchObject({ kind: "chapter", stage: "stockholm" });
     const mid = overlayAt(1.5 + CHAPTER_SCREENS / 2);
     expect(mid.kind === "chapter" && mid.t).toBeCloseTo(0.5);
     expect(overlayAt(1.5 + CHAPTER_SCREENS).kind).not.toBe("chapter");
   });
 
+  test("in Jönköping the welcome banner speaks first, then the chapter title", () => {
+    expect(overlayAt(5.1)).toEqual({ kind: "none" });
+    expect(overlayAt(5.35)).toMatchObject({ kind: "chapter", stage: "jonkoping" });
+  });
+
   test("chapter titles never overlap a project", () => {
     for (let s = 0; s <= 8.5; s += 0.01) {
       const o = overlayAt(s);
       if (o.kind !== "chapter") continue;
-      expect(s - segmentStart(o.stage)).toBeLessThan(CHAPTER_SCREENS + (o.stage === "braga" ? INTRO_END : 0));
+      expect(s - segmentStart(o.stage)).toBeLessThan(CHAPTER_SCREENS + chapterDelay(o.stage));
     }
     expect(overlayAt(2.0)).toEqual({ kind: "project", slug: "mambu-migration" });
   });

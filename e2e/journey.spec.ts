@@ -119,3 +119,12 @@ test("with reduced motion the map's ship holds still", async ({ page }) => {
   await expect(bob).toHaveCount(1);
   expect(await bob.evaluate((el) => getComputedStyle(el).animationIterationCount)).toBe("1");
 });
+
+test("entering Porto announces the Deloitte chapter, and the header keeps it in view", async ({ page }) => {
+  await page.goto("/");
+  await scrollToScreens(page, 1.6);
+  await expect(page.getByRole("heading", { level: 2, name: "Deloitte" })).toBeVisible();
+  await expect(page.getByText("Chapter 2 · Porto")).toBeVisible();
+  await scrollToScreens(page, 2.2);
+  await expect(page.getByRole("navigation", { name: "Journey" }).getByText("Deloitte", { exact: true })).toBeVisible();
+});

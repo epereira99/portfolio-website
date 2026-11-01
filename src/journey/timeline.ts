@@ -38,6 +38,11 @@ export function segmentAt(s: number): SegmentId {
 
 export const CHAPTER_SCREENS = 0.33; // how long a stage's chapter title holds after entering it
 
+/** Screens into a stage before its chapter title: Braga waits for the home intro, Jönköping for the welcome banner. */
+export function chapterDelay(id: StageId): number {
+  return id === "braga" ? INTRO_END : id === "jonkoping" ? 0.3 : 0;
+}
+
 export function stageProgress(s: number): number {
   const x = clamp(s);
   const id = segmentAt(x);
@@ -56,12 +61,13 @@ export function overlayAt(s: number): Overlay {
   const x = clamp(s);
   const id = segmentAt(x);
   if (id === "voyage") return { kind: "none" };
-  const chapterFrom = segmentStart(id) + (id === "braga" ? INTRO_END : 0);
+  const chapterFrom = segmentStart(id) + chapterDelay(id);
+  if (x < chapterFrom) return { kind: "none" };
   if (x - chapterFrom < CHAPTER_SCREENS) return { kind: "chapter", stage: id, t: (x - chapterFrom) / CHAPTER_SCREENS };
   const projects = projectsForStage(id);
   if (projects.length === 0) return { kind: "none" };
   const seg = SEGMENTS.find((g) => g.id === id)!;
-  const from = segmentStart(id) + (id === "braga" ? INTRO_END : 0.25);
+  const from = chapterFrom + CHAPTER_SCREENS; // projects begin where the chapter title ends
   const slot = (segmentStart(id) + seg.screens - from) / projects.length;
   const k = Math.floor((x - from) / slot);
   if (k < 0 || k >= projects.length) return { kind: "none" };
