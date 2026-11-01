@@ -37,6 +37,15 @@ test("clicking a city jumps to the start of its stage", () => {
   expect(scrollTo).toHaveBeenLastCalledWith({ top: 7 * 800, behavior: "smooth" });
 });
 
+test("chapter jumps don't animate when the visitor prefers reduced motion", () => {
+  vi.spyOn(window, "matchMedia").mockImplementation(
+    (q: string) => ({ matches: q.includes("reduce"), media: q }) as MediaQueryList,
+  );
+  at(2);
+  fireEvent.click(screen.getByRole("button", { name: "Stockholm" }));
+  expect(scrollTo).toHaveBeenLastCalledWith({ top: 7 * 800, behavior: "auto" });
+});
+
 test("stays out of the way during the home intro", () => {
   const { container } = at(0.2);
   expect(container.querySelector("nav")).toHaveAttribute("aria-hidden", "true");

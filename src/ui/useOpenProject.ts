@@ -3,6 +3,7 @@ import { projectBySlug } from "@/content/projects";
 
 // Which project's dialog is open, mirrored to ?project=<slug> so it can be shared.
 let slug: string | null = null;
+let returnFocus: HTMLElement | null = null;
 const listeners = new Set<() => void>();
 
 function set(next: string | null) {
@@ -12,6 +13,22 @@ function set(next: string | null) {
   else url.searchParams.delete("project");
   window.history.replaceState(window.history.state, "", url);
   listeners.forEach((fn) => fn());
+}
+
+/** returnTo: where focus goes on close, for openers that disappear (e.g. a fan card). */
+export function openProject(next: string, returnTo?: HTMLElement | null): void {
+  returnFocus = returnTo ?? null;
+  set(next);
+}
+
+export function closeProject(): void {
+  set(null);
+}
+
+export function takeReturnFocus(): HTMLElement | null {
+  const el = returnFocus;
+  returnFocus = null;
+  return el;
 }
 
 export function syncOpenProjectFromUrl(): void {
@@ -30,9 +47,5 @@ const subscribe = (fn: () => void) => {
 
 export function useOpenProject() {
   const current = useSyncExternalStore(subscribe, () => slug, () => null);
-  return {
-    slug: current,
-    open: (next: string) => set(next),
-    close: () => set(null),
-  };
+  return { slug: current, open: openProject, close: closeProject };
 }

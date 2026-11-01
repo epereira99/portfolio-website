@@ -24,6 +24,17 @@ test("walking into Porto shows its stage and first project, and a project opens 
   expect(y).toBe(2 * vh);
 });
 
+test("keyboard focus stays inside an open project and the walk stays put", async ({ page }) => {
+  await page.goto("/");
+  await scrollToScreens(page, 2);
+  await page.getByRole("button", { name: "Read more" }).click();
+  for (let i = 0; i < 8; i++) await page.keyboard.press("Tab");
+  expect(await page.evaluate(() => !!document.activeElement?.closest("dialog"))).toBe(true);
+  await page.keyboard.press("Enter");
+  const [y, vh] = await page.evaluate(() => [window.scrollY, window.innerHeight]);
+  expect(y).toBe(2 * vh);
+});
+
 test("a shared project link opens its dialog", async ({ page }) => {
   await page.goto("/?project=financial-hub");
   await expect(page.getByRole("dialog").getByRole("heading", { name: "Financial Hub" })).toBeVisible();

@@ -12,6 +12,7 @@ const positions = fanPositions(PROJECTS.length);
 export function BottomBar() {
   const [fanOpen, setFanOpen] = useState(false);
   const bar = useRef<HTMLDivElement>(null);
+  const projectsButton = useRef<HTMLButtonElement>(null);
   const { open } = useOpenProject();
 
   useEffect(() => {
@@ -38,7 +39,7 @@ export function BottomBar() {
               style={{ "--x": `${positions[i].x}px`, "--y": `${positions[i].y}px`, "--i": i } as CSSProperties}
               onClick={() => {
                 setFanOpen(false);
-                open(p.slug);
+                open(p.slug, projectsButton.current); // the card unmounts, so focus returns to Projects
               }}
             >
               <span className={styles.graphic} style={{ background: p.color }} aria-hidden />
@@ -47,7 +48,13 @@ export function BottomBar() {
           ))}
         </div>
       )}
-      <button type="button" className={styles.pill} aria-expanded={fanOpen} onClick={() => setFanOpen((o) => !o)}>
+      <button
+        ref={projectsButton}
+        type="button"
+        className={styles.pill}
+        aria-expanded={fanOpen}
+        onClick={() => setFanOpen((o) => !o)}
+      >
         Projects
       </button>
       <Link href="/about" className={styles.pill}>

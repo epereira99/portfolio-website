@@ -20,7 +20,12 @@ export function StageHeader() {
             type="button"
             className={styles.city}
             aria-current={st.id === current ? "step" : undefined}
-            onClick={() => scrollToScreens(segmentStart(st.id), "smooth")}
+            onClick={() =>
+              scrollToScreens(
+                segmentStart(st.id),
+                window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+              )
+            }
           >
             {st.city}
           </button>

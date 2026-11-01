@@ -2,6 +2,7 @@ import { beforeEach, expect, test } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { PROJECTS } from "@/content/projects";
 import { BottomBar } from "./BottomBar";
+import { ProjectDialog } from "./ProjectDialog";
 
 beforeEach(() => window.history.replaceState(null, "", "/"));
 
@@ -28,6 +29,22 @@ test("Escape collapses the fan", () => {
   fireEvent.click(projectsButton());
   fireEvent.keyDown(window, { key: "Escape" });
   expect(projectsButton()).toHaveAttribute("aria-expanded", "false");
+});
+
+test("closing a project opened from the fan returns focus to Projects", () => {
+  render(
+    <>
+      <BottomBar />
+      <ProjectDialog />
+    </>,
+  );
+  projectsButton().focus();
+  fireEvent.click(projectsButton());
+  const card = screen.getByRole("button", { name: "Financial Hub" });
+  card.focus();
+  fireEvent.click(card);
+  fireEvent.click(screen.getByRole("button", { name: "Close" }));
+  expect(document.activeElement).toBe(projectsButton());
 });
 
 test("About me links to the about page", () => {
