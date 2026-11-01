@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Home mockup</title>
+<style>
+  :root{--text:#f4f1ea;--muted:#d6cfc2;--acc:#5eead4}
+  *{box-sizing:border-box;margin:0}
+  html,body{height:100%}
+  body{font:15px/1.5 system-ui,-apple-system,sans-serif;color:var(--text);overflow:hidden;
+       background:linear-gradient(#f6b980 0%,#e98b6d 38%,#6d5a8a 70%,#2b2540 100%)}
+  /* placeholder for the 3D scene: path vanishing into the distance + walker from behind */
+  .scene{position:fixed;inset:0}
+  .scene svg{width:100%;height:100%}
+  .note{position:fixed;top:10px;left:50%;transform:translateX(-50%);font-size:12px;background:#0007;padding:4px 10px;border-radius:99px;z-index:30}
+  .intro{position:fixed;left:6vw;top:16vh;max-width:440px;z-index:5}
+  .photo{width:84px;height:84px;border-radius:50%;background:#ffffff33;border:2px solid #fff8;display:grid;place-items:center;font-size:12px;color:#fff;margin-bottom:18px}
+  .intro h1{font-size:clamp(34px,5vw,56px);line-height:1.05;letter-spacing:-.02em}
+  .intro .role{font-size:18px;color:var(--acc);font-weight:600;margin:8px 0 12px;text-shadow:0 1px 8px #0005}
+  .intro p{color:var(--muted);text-shadow:0 1px 8px #0006}
+  .hint{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);font-size:13px;color:#fffc;animation:nudge 1.8s ease-in-out infinite;z-index:5}
+  @keyframes nudge{50%{transform:translate(-50%,6px)}}
+  /* bottom bar with two buttons */
+  .bar{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:flex;gap:14px;z-index:20}
+  .btn{position:relative;border:1px solid #ffffff40;background:#15121fcc;backdrop-filter:blur(10px);color:#fff;
+       padding:12px 22px;border-radius:99px;font:600 15px system-ui;cursor:pointer;transition:background .2s,transform .2s}
+  .btn:hover{background:#221d33;transform:translateY(-2px)}
+  /* fan of project icons, arranged on a semicircle above the Projects button */
+  /* fan origin sits between the two buttons */
+  .fan{position:absolute;left:50%;top:0;width:0;height:0}
+  .item{position:absolute;left:0;top:0;width:118px;margin:-70px 0 0 -59px;border-radius:14px;border:1px solid #ffffff22;cursor:pointer;
+        padding:0;overflow:hidden;background:#161a22;color:#fff;text-align:left;box-shadow:0 14px 30px -10px #000c;
+        transform:translate(0,0) scale(.2);opacity:0;pointer-events:none;
+        transition:transform .45s cubic-bezier(.3,1.4,.5,1),opacity .25s,box-shadow .2s;transition-delay:calc(var(--i)*35ms)}
+  .item .g{height:84px;display:grid;place-items:center}
+  .item svg{width:52px;height:52px}
+  .item .lbl{display:block;padding:7px 9px 9px;font:600 11.5px/1.25 system-ui}
+  .bar.open .item{opacity:1;pointer-events:auto;transform:translate(var(--x),var(--y)) scale(1);transition-delay:calc(var(--i)*35ms),calc(var(--i)*35ms),0s}
+  .bar.open .item:hover{transform:translate(var(--x),var(--y)) scale(1.1);z-index:2;box-shadow:0 20px 40px -10px #000;transition-delay:0s}
+  /* detail card */
+  .overlay{position:fixed;inset:0;background:#05070bb0;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .3s;z-index:40}
+  .overlay.on{opacity:1;pointer-events:auto}
+  .card{position:fixed;left:50%;top:50%;width:min(720px,92vw);max-height:88vh;overflow:auto;background:#161a22;border:1px solid #262c38;
+        border-radius:20px;z-index:50;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;
+        transition:transform .45s cubic-bezier(.2,.9,.2,1),opacity .3s}
+  .card.on{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto}
+  .card .viz{height:220px;display:grid;place-items:center}
+  .card .viz svg{width:120px;height:120px}
+  .card .b{padding:20px 24px 26px}
+  .stage{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+  .card h3{font-size:24px;margin:4px 0 8px}
+  .card p{color:#b7bfcf}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .tags span{font-size:12px;padding:3px 9px;border-radius:99px;background:#202633;color:#c5cbd8}
+  .x{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;border:0;background:#0009;color:#fff;font-size:18px;cursor:pointer}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:0s!important}}
+</style></head>
+<body>
+<div class="note">Mockup · the sunset and path are a stand-in for the 3D Braga scene</div>
+
+<div class="scene"><svg viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice">
+  <path d="M0 430 Q250 360 500 410 T1000 400 V700 H0Z" fill="#4b3d63"/>
+  <path d="M0 470 Q300 430 520 455 T1000 450 V700 H0Z" fill="#33294a"/>
+  <path d="M470 430 L530 430 L760 700 L240 700Z" fill="#c9b79c" opacity=".55"/>
+  <!-- walker seen from behind -->
+  <g transform="translate(500 560)" fill="#1a1426">
+    <circle cx="0" cy="-92" r="15"/><rect x="-20" y="-76" width="40" height="52" rx="12"/>
+    <rect x="-17" y="-28" width="13" height="44" rx="6"/><rect x="4" y="-28" width="13" height="44" rx="6"/>
+  </g></svg></div>
+
+<div class="intro">
+  <div class="photo">photo</div>
+  <h1>Eduardo Pereira</h1>
+  <div class="role">AI / ML / Software Engineer</div>
+  <p>MSc in AI Engineering. Based in Stockholm, open to new roles. Scroll to walk through my journey from Braga to Stockholm.</p>
+</div>
+
+<div class="hint">↓ scroll to start the journey</div>
+
+<div class="bar">
+  <div class="fan" id="fan"></div>
+  <button class="btn" id="proj" aria-expanded="false">Projects</button>
+  <button class="btn" onclick="alert('Goes to the About page')">About me</button>
+</div>
+
+<div class="overlay" id="ov"></div>
+<div class="card" id="card" role="dialog" aria-modal="true"><button class="x" aria-label="Close">✕</button>
+  <div class="viz" id="cviz"></div>
+  <div class="b"><div class="stage" id="cst"></div><h3 id="ct"></h3><p id="cd"></p><div class="tags" id="ctags"></div>
+  <p style="margin-top:18px;color:#7d8597">Placeholder: problem, what I built, result.</p></div></div>
+
+<script>
+  const P=[
+    {t:'Shooting performance from motion',s:'Jönköping · Saab thesis',d:'Neural networks predicting marksmanship from motion capture.',tags:['PyTorch','Motion capture'],c:'#1b2440',
+     i:'<circle cx="20" cy="8" r="4" fill="none" stroke="#5eead4" stroke-width="2"/><path d="M20 12v12M20 15l-7 6M20 15l9 2M20 24l-4 10M20 24l4 10" stroke="#5eead4" stroke-width="2" fill="none"/><circle cx="34" cy="17" r="3" fill="#f472b6"/>'},
+    {t:'U-Net land segmentation',s:'Jönköping · Jordbruksverket',d:'Computer vision on orthophotos and elevation data.',tags:['U-Net','Computer vision'],c:'#1f3a24',
+     i:'<rect x="4" y="4" width="32" height="32" fill="#3d6b3a"/><rect x="7" y="7" width="12" height="10" fill="#c9a24a"/><path d="M22 10q8-2 12 4v8q-6 2-12-2z" fill="#5eead4"/>'},
+    {t:'Financial Hub',s:'Stockholm · Personal project',d:'Multi-bank finance app with tenant isolation and LLM categorization.',tags:['Next.js','PostgreSQL','Claude'],c:'#2a2145',
+     i:'<rect x="6" y="20" width="5" height="14" fill="#a78bfa"/><rect x="14" y="12" width="5" height="22" fill="#a78bfa"/><rect x="22" y="24" width="5" height="10" fill="#a78bfa"/><rect x="30" y="8" width="5" height="26" fill="#a78bfa"/>'},
+    {t:'Deal reconciliation agents',s:'Stockholm · Effektify',d:'AI agents keep Slack and HubSpot in sync, used daily by sales.',tags:['Python','AI agents'],c:'#3a2216',
+     i:'<rect x="3" y="14" width="13" height="13" rx="3" fill="#ff7a59"/><rect x="24" y="14" width="13" height="13" rx="3" fill="#a24aa3"/><path d="M16 18h8M24 23h-8" stroke="#fff" stroke-width="2"/>'},
+    {t:'Azure ML integrations',s:'Porto · Deloitte',d:'Connecting client systems to Azure Machine Learning models.',tags:['C#/.NET','Azure ML'],c:'#12304a',
+     i:'<path d="M8 30L18 8h6L14 30z" fill="#4aa3ff"/><path d="M20 30l8-12 6 12z" fill="#9ad0ff"/>'},
+    {t:'Mambu migration tool',s:'Porto · Deloitte',d:'Automated core-banking config migrations, reused across clients.',tags:['Python','REST','AWS'],c:'#2d2d2d',
+     i:'<rect x="5" y="8" width="12" height="24" rx="2" fill="#5eead4"/><rect x="23" y="8" width="12" height="24" rx="2" fill="#fde68a"/><path d="M17 20h6" stroke="#fff" stroke-width="2"/>'}
+  ];
+  const fan=document.getElementById('fan'),proj=document.getElementById('proj'),bar=document.querySelector('.bar'),STEP=130,RX=420,RY=170;
+  // spread icons evenly along an upper semicircle (180° → 0°)
+  P.forEach((p,k)=>{
+    // even horizontal spacing so cards never overlap; height follows an elliptical arc
+    const x=(k-(P.length-1)/2)*STEP, y=-Math.sqrt(1-(x/RX)**2)*RY-40, b=document.createElement('button');
+    b.className='item';b.style.setProperty('--i',k);
+    b.style.setProperty('--x',Math.round(x)+'px');b.style.setProperty('--y',Math.round(y)+'px');
+    b.innerHTML=`<span class="g" style="background:${p.c}"><svg viewBox="0 0 40 40">${p.i}</svg></span><span class="lbl">${p.t}</span>`;
+    b.onclick=e=>{e.stopPropagation();show(p)};fan.append(b);
+  });
+  const hint=document.querySelector('.hint');
+  const toggle=on=>{bar.classList.toggle('open',on);proj.setAttribute('aria-expanded',on);hint.style.opacity=on?0:''};
+  proj.onclick=()=>toggle(!bar.classList.contains('open'));
+  document.addEventListener('click',e=>{if(!bar.contains(e.target))toggle(false)});
+  const card=document.getElementById('card'),ov=document.getElementById('ov');
+  function show(p){
+    toggle(false);
+    document.getElementById('cviz').style.background=p.c;document.getElementById('cviz').innerHTML=`<svg viewBox="0 0 40 40">${p.i}</svg>`;
+    cst.textContent=p.s;ct.textContent=p.t;cd.textContent=p.d;ctags.innerHTML=p.tags.map(t=>`<span>${t}</span>`).join('');
+    card.classList.add('on');ov.classList.add('on');card.querySelector('.x').focus();
+  }
+  const hide=()=>{card.classList.remove('on');ov.classList.remove('on')};
+  card.querySelector('.x').onclick=hide;ov.onclick=hide;
+  addEventListener('keydown',e=>{if(e.key==='Escape'){hide();toggle(false)}});
+</script>
+</body></html>

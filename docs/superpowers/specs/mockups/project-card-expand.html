@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projects mockup</title>
+<style>
+  :root{--bg:#0d0f14;--card:#161a22;--line:#262c38;--text:#e9ecf2;--muted:#8b93a5;--acc:#5eead4}
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,sans-serif;padding:32px 24px 80px}
+  .wrap{max-width:1040px;margin:0 auto}
+  .note{color:var(--muted);font-size:13px;margin-bottom:28px}
+  h1{font-size:40px;letter-spacing:-.02em;margin-bottom:6px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;
+        opacity:0;transform:translateY(24px);transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .3s,box-shadow .3s}
+  .card.in{opacity:1;transform:none;transition:opacity .6s,transform .6s cubic-bezier(.2,.8,.2,1)}
+  .card:hover{transform:translateY(-6px);border-color:#3a4252;box-shadow:0 20px 40px -20px #000}
+  .viz{height:170px;position:relative;overflow:hidden}
+  .viz svg{width:100%;height:100%;display:block}
+  .body{padding:16px 18px 18px}
+  .stage{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+  .card h3{font-size:19px;margin:4px 0 6px}
+  .card p{color:var(--muted);font-size:14px}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .tags span{font-size:12px;padding:3px 9px;border-radius:99px;background:#202633;color:#c5cbd8}
+  /* expanded */
+  .overlay{position:fixed;inset:0;background:#05070bcc;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .35s}
+  .overlay.on{opacity:1;pointer-events:auto}
+  .card.open{position:fixed;inset:5vh 50%;transform:translateX(-50%);width:min(760px,92vw);cursor:default;z-index:10;overflow:auto;opacity:1}
+  .card.open:hover{transform:translateX(-50%)}
+  .card.open .viz{height:260px}
+  .more{display:none}
+  .card.open .more{display:block;animation:fade .5s .15s both}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .more h4{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:22px 0 6px}
+  .more p,.more li{color:#cdd3df}
+  .more ul{padding-left:18px}
+  .close{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;border:0;background:#0009;color:#fff;font-size:18px;cursor:pointer;display:none}
+  .card.open .close{display:block}
+  /* viz animations */
+  .pulse{animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{50%{opacity:.25}}
+  .dash{stroke-dasharray:6 6;animation:dash 1.2s linear infinite}
+  @keyframes dash{to{stroke-dashoffset:-12}}
+  .rise{transform-origin:bottom;transform-box:fill-box;animation:rise 2.4s ease-in-out infinite alternate}
+  @keyframes rise{from{transform:scaleY(.4)}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.card{opacity:1;transform:none}}
+</style></head>
+<body><div class="wrap">
+<p class="note">Mockup · hover a card, click to expand, Esc or ✕ to close. Graphics are placeholders: each one animates something about the project itself.</p>
+<h1>Projects</h1>
+<p style="color:var(--muted);margin-bottom:28px">Selected work across ML, data and software engineering.</p>
+
+<div class="grid">
+
+<article class="card" data-i="0">
+  <button class="close" aria-label="Close">✕</button>
+  <div class="viz" style="background:linear-gradient(135deg,#1b2440,#0f1424)">
+    <svg viewBox="0 0 300 170"><!-- motion capture skeleton -->
+      <g stroke="#5eead4" stroke-width="2" fill="#5eead4">
+        <line x1="150" y1="40" x2="150" y2="95"/><line x1="150" y1="55" x2="118" y2="80"/><line x1="150" y1="55" x2="190" y2="62"/>
+        <line x1="190" y1="62" x2="230" y2="60" class="dash" stroke="#f472b6"/>
+        <line x1="150" y1="95" x2="132" y2="140"/><line x1="150" y1="95" x2="168" y2="140"/>
+        <circle cx="150" cy="30" r="9" fill="none"/>
+        <circle cx="150" cy="55" r="3" class="pulse"/><circle cx="118" cy="80" r="3" class="pulse"/><circle cx="190" cy="62" r="3" class="pulse"/>
+        <circle cx="150" cy="95" r="3" class="pulse"/><circle cx="132" cy="140" r="3" class="pulse"/><circle cx="168" cy="140" r="3" class="pulse"/>
+        <circle cx="250" cy="60" r="10" fill="none" stroke="#f472b6"/><circle cx="250" cy="60" r="3" fill="#f472b6"/>
+      </g></svg>
+  </div>
+  <div class="body">
+    <div class="stage">Jönköping · Master thesis · Saab</div>
+    <h3>Predicting shooting performance from motion</h3>
+    <p>Neural networks that predict marksmanship from full-body motion capture and simulator data.</p>
+    <div class="tags"><span>PyTorch</span><span>Motion capture</span><span>Ablation</span></div>
+    <div class="more">
+      <h4>The problem</h4><p>Placeholder: why it matters, what Saab wanted to learn.</p>
+      <h4>What I built</h4><ul><li>Placeholder: models and data pipeline</li><li>Placeholder: feature importance and ablation to find the minimum sensor setup</li></ul>
+      <h4>Result</h4><p>Placeholder: headline number or finding.</p>
+    </div>
+  </div>
+</article>
+
+<article class="card" data-i="1">
+  <button class="close" aria-label="Close">✕</button>
+  <div class="viz" style="background:#13261c">
+    <svg viewBox="0 0 300 170"><!-- segmentation grid -->
+      <defs><pattern id="g" width="15" height="15" patternUnits="userSpaceOnUse"><path d="M15 0H0V15" fill="none" stroke="#ffffff14"/></pattern></defs>
+      <rect width="300" height="170" fill="#2c4a2f"/><path d="M0 120 Q80 80 150 110 T300 90 V170 H0Z" fill="#3d6b3a"/>
+      <path d="M40 20 h90 v60 h-90z" fill="#c9a24a" opacity=".85" class="pulse"/><path d="M170 30 q50 -10 90 20 v40 q-40 10 -90 -10z" fill="#5eead4" opacity=".55" class="pulse" style="animation-delay:1.2s"/>
+      <rect width="300" height="170" fill="url(#g)"/></svg>
+  </div>
+  <div class="body">
+    <div class="stage">Jönköping · Jordbruksverket</div>
+    <h3>Land analysis with U-Net segmentation</h3>
+    <p>Computer-vision proof of concept on orthophotos and elevation data.</p>
+    <div class="tags"><span>U-Net</span><span>Computer vision</span><span>Lantmäteriet API</span></div>
+    <div class="more"><h4>The problem</h4><p>Placeholder.</p><h4>What I built</h4><p>Placeholder.</p><h4>Result</h4><p>Placeholder.</p></div>
+  </div>
+</article>
+
+<article class="card" data-i="2">
+  <button class="close" aria-label="Close">✕</button>
+  <div class="viz" style="background:#1d1730">
+    <svg viewBox="0 0 300 170"><!-- spending bars -->
+      <g fill="#a78bfa"><rect x="40" y="70" width="22" height="70" class="rise"/><rect x="80" y="50" width="22" height="90" class="rise" style="animation-delay:.3s"/>
+      <rect x="120" y="90" width="22" height="50" class="rise" style="animation-delay:.6s"/><rect x="160" y="40" width="22" height="100" class="rise" style="animation-delay:.9s"/>
+      <rect x="200" y="75" width="22" height="65" class="rise" style="animation-delay:1.2s"/><rect x="240" y="60" width="22" height="80" class="rise" style="animation-delay:1.5s"/></g>
+      <line x1="30" y1="140" x2="275" y2="140" stroke="#ffffff30"/></svg>
+  </div>
+  <div class="body">
+    <div class="stage">Stockholm · Personal project</div>
+    <h3>Financial Hub</h3>
+    <p>Multi-bank personal finance app with tenant isolation and LLM categorization as a last resort.</p>
+    <div class="tags"><span>Next.js</span><span>PostgreSQL RLS</span><span>Claude</span><span>~650 tests</span></div>
+    <div class="more"><h4>The problem</h4><p>Placeholder.</p><h4>Interesting decisions</h4><ul><li>Row-level security enforced three ways; refuses to boot if bypassed</li><li>Each merchant costs at most one LLM call, ever</li></ul><h4>Try it</h4><p>Placeholder: link to live demo.</p></div>
+  </div>
+</article>
+
+<article class="card" data-i="3">
+  <button class="close" aria-label="Close">✕</button>
+  <div class="viz" style="background:#2a1a12">
+    <svg viewBox="0 0 300 170"><!-- two systems syncing -->
+      <rect x="40" y="55" width="70" height="60" rx="10" fill="#ff7a59"/><text x="75" y="90" text-anchor="middle" fill="#fff" font-size="12" font-family="system-ui">HubSpot</text>
+      <rect x="190" y="55" width="70" height="60" rx="10" fill="#4a154b"/><text x="225" y="90" text-anchor="middle" fill="#fff" font-size="12" font-family="system-ui">Slack</text>
+      <path d="M110 75 H190" stroke="#fff" stroke-width="2" class="dash"/><path d="M190 95 H110" stroke="#fde68a" stroke-width="2" class="dash"/>
+      <circle cx="150" cy="40" r="12" fill="#5eead4" class="pulse"/><text x="150" y="44" text-anchor="middle" font-size="12" font-family="system-ui">AI</text></svg>
+  </div>
+  <div class="body">
+    <div class="stage">Stockholm · Effektify</div>
+    <h3>Deal reconciliation agents</h3>
+    <p>Scheduled AI agents keep Slack and HubSpot in sync. Used daily by the sales team.</p>
+    <div class="tags"><span>Python</span><span>AI agents</span><span>HubSpot API</span><span>Slack bot</span></div>
+    <div class="more"><h4>The problem</h4><p>Placeholder.</p><h4>What I built</h4><p>Placeholder.</p><h4>Impact</h4><p>Placeholder.</p></div>
+  </div>
+</article>
+
+</div></div>
+<div class="overlay"></div>
+
+<script>
+  const cards=[...document.querySelectorAll('.card')], ov=document.querySelector('.overlay');
+  // staggered entrance
+  cards.forEach((c,i)=>setTimeout(()=>c.classList.add('in'),120+i*110));
+  // shortcut: View Transitions morphs the card into the expanded panel; browsers without it just snap open
+  const swap=fn=>document.startViewTransition?document.startViewTransition(fn):fn();
+  // Only the clicked card morphs; it stays in the grid (hidden) so the other cards never reflow.
+  let src=null,panel=null;
+  const open=c=>{
+    if(panel)return;src=c;c.style.viewTransitionName='hero';
+    swap(()=>{
+      c.style.viewTransitionName='';c.style.visibility='hidden';
+      panel=c.cloneNode(true);panel.classList.add('open');panel.style.visibility='';panel.style.viewTransitionName='hero';
+      panel.querySelector('.close').onclick=close;
+      document.body.append(panel);ov.classList.add('on');
+    });
+  };
+  const close=()=>{
+    if(!panel)return;const p=panel,c=src;panel=null;
+    const t=swap(()=>{p.remove();c.style.visibility='';c.style.viewTransitionName='hero';ov.classList.remove('on')});
+    (t&&t.finished||Promise.resolve()).then(()=>c.style.viewTransitionName='');
+  };
+  cards.forEach(c=>c.addEventListener('click',()=>open(c)));
+  ov.addEventListener('click',close);
+  addEventListener('keydown',e=>e.key==='Escape'&&close());
+</script>
+</body></html>
