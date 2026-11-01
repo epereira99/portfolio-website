@@ -5,7 +5,7 @@ import { afterEach } from "vitest";
 afterEach(cleanup);
 
 // jsdom has no matchMedia; GSAP and reduced-motion checks need it.
-window.matchMedia ??= (query: string) =>
+if (typeof window !== "undefined") window.matchMedia ??= (query: string) =>
   ({
     matches: false,
     media: query,
