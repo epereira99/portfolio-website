@@ -43,9 +43,9 @@ export function Water() {
   );
   const onBeforeCompile = useMemo(() => patch(time), [time]);
 
-  // the shader uniform is mutated every frame by design (R3F pattern)
-  // eslint-disable-next-line react-hooks/immutability
   useFrame((_, dt) => {
+    // the shader uniform is mutated every frame by design (R3F pattern)
+    // eslint-disable-next-line react-hooks/immutability
     time.value = nextWaterTime(time.value, dt, reduced);
   });
 
