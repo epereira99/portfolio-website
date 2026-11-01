@@ -53,3 +53,60 @@ test("navigation is never lost, even at sea", async ({ page }) => {
   await expect(page.getByText("At sea · Porto → Jönköping")).toBeVisible();
   await expect(page.getByRole("button", { name: "Projects" })).toBeVisible();
 });
+
+const MAP = "Map: sailing from Porto to Jönköping";
+
+const settle = async (page: Page) => {
+  // wait until scrollY has been stable for 300ms (smooth scrolling done)
+  await page.waitForFunction(
+    () =>
+      new Promise<boolean>((resolve) => {
+        const y = window.scrollY;
+        setTimeout(() => resolve(window.scrollY === y), 300);
+      }),
+  );
+};
+
+test("mid-voyage the map shows and navigation stays", async ({ page }) => {
+  await page.goto("/");
+  await scrollToScreens(page, 4.3);
+  await expect(page.getByRole("img", { name: MAP })).toBeVisible();
+  await expect(page.getByText("At sea · Porto → Jönköping")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Projects" })).toBeVisible();
+});
+
+test("the map is gone once you land", async ({ page }) => {
+  await page.goto("/");
+  await scrollToScreens(page, 4.3);
+  await expect(page.getByRole("img", { name: MAP })).toBeVisible();
+  await scrollToScreens(page, 5.2);
+  await expect(page.getByRole("img", { name: MAP })).toHaveCount(0);
+});
+
+test("jumping to Jönköping from Porto leaves no map behind", async ({ page }) => {
+  await page.goto("/");
+  await scrollToScreens(page, 2);
+  const journey = page.getByRole("navigation", { name: "Journey" });
+  await journey.getByRole("button", { name: "Jönköping" }).click();
+  await expect(journey.getByRole("button", { name: "Jönköping" })).toHaveAttribute("aria-current", "step");
+  await settle(page);
+  const screens = await page.evaluate(() => window.scrollY / window.innerHeight);
+  expect(screens).toBeCloseTo(5, 1);
+  await expect(page.getByRole("img", { name: MAP })).toHaveCount(0);
+});
+
+test.describe("on a phone", () => {
+  test.use({ viewport: { width: 375, height: 812 } });
+
+  test("both ends of the voyage fit on screen", async ({ page }) => {
+    await page.goto("/");
+    await scrollToScreens(page, 4.3);
+    for (const name of ["Porto", "Jönköping"]) {
+      const box = (await page.getByRole("img", { name: MAP }).getByText(name, { exact: true }).boundingBox())!;
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.y).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(375);
+      expect(box.y + box.height).toBeLessThanOrEqual(812);
+    }
+  });
+});
