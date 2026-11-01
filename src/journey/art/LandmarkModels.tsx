@@ -32,7 +32,7 @@ function Model({ landmark }: { landmark: Landmark }) {
 }
 
 /** Landmarks of the current and next city; each loads (and may fail) on its own, and stays once loaded. */
-export function Landmarks() {
+export function LandmarkModels() {
   const s = useScreens();
   const [loaded, setLoaded] = useState<Set<LandmarkId>>(() => new Set(landmarksToLoad(s)));
 

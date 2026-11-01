@@ -74,17 +74,18 @@ export const CITY_STYLE: Record<SegmentId, CityStyle> = {
     waterColor: "#6f97b4",
   },
   stockholm: {
-    sky: "#2e3a63",
-    fog: [26, 95],
-    sun: { color: "#ff9a5c", intensity: 0.6, dir: [0.8, 0.2, -0.4] },
-    ambient: { sky: "#6d7bb0", ground: "#4a3a3a", intensity: 0.75 },
-    ground: "#8f8577",
-    walkway: "#b8ab98",
+    // Blue-hour evening: dusky but readable, with warm lights.
+    sky: "#5a6aa0",
+    fog: [30, 105],
+    sun: { color: "#ffb27a", intensity: 1.1, dir: [0.8, 0.3, -0.4] },
+    ambient: { sky: "#a9b6e0", ground: "#6a5550", intensity: 1.05 },
+    ground: "#a39684",
+    walkway: "#c9bba6",
     walls: ["#d9a441", "#b5562f", "#e7c27d", "#c97b4a"],
     roofs: ["#5b3a2e", "#6a4535"],
     trim: "#f1e3c8",
     water: 1,
-    waterColor: "#34507a",
+    waterColor: "#3f5f92",
   },
 };
 

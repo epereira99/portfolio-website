@@ -29,7 +29,7 @@ function frame(along: number) {
 
 function blocked(id: SegmentId, along: number, halfW: number, side: -1 | 1, lateral: number, halfD: number) {
   for (const l of LANDMARKS) {
-    if (Math.abs(along - l.along) < l.footprint.w / 2 + halfW + 1 && side === l.side && Math.abs(lateral - l.offset) < l.footprint.d / 2 + halfD + 1)
+    if (Math.abs(along - (l.along + (l.forward ?? 0))) < l.footprint.w / 2 + halfW + 1 && side === l.side && Math.abs(lateral - l.offset) < l.footprint.d / 2 + halfD + 1)
       return true;
   }
   return KEEP_CLEAR.some((k) => k.id === id && along + halfW > k.from && along - halfW < k.to && (k.side === 0 || k.side === side));

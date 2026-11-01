@@ -100,7 +100,8 @@ export function cameraPoseAt(s: number): CameraTarget {
     const [tx, , tz] = flatTangent(QUAY_END);
     const face: CameraTarget = {
       position: add(quay, [-tx * 3.2, 1.6, -tz * 3.2]),
-      target: add(quay, [0, 1.35, 0]),
+      // Aim a little to the walker's left so they sit on the right third, leaving room for the invitation text.
+      target: add(quay, [tz * 0.8, 1.35, -tx * 0.8]),
     };
     return blend(base, face, easeInOut(endingT(s)));
   }

@@ -1,4 +1,4 @@
-import { pathPoint, pathTangent, type Vec3 } from "../path";
+import { PATH_LENGTH, pathPointExtended, pathTangent, type Vec3 } from "../path";
 import type { SegmentId } from "../timeline";
 
 export type LandmarkId = "arcada" | "bom-jesus" | "uminho" | "dom-luis" | "clerigos" | "jonkoping-university" | "stadshuset";
@@ -12,9 +12,10 @@ export type Landmark = {
   offset: number;
   footprint: { w: number; d: number };
   url: string;
+  forward?: number; // stands this far further along the (extended) path than `along`, which still drives its fade
 };
 
-const at = (id: LandmarkId, segment: SegmentId, along: number, side: -1 | 1, offset: number, w: number, d: number): Landmark => ({
+const at = (id: LandmarkId, segment: SegmentId, along: number, side: -1 | 1, offset: number, w: number, d: number, forward?: number): Landmark => ({
   id,
   segment,
   along,
@@ -22,6 +23,7 @@ const at = (id: LandmarkId, segment: SegmentId, along: number, side: -1 | 1, off
   offset,
   footprint: { w, d },
   url: `/models/landmarks/${id}.glb`,
+  ...(forward ? { forward } : {}),
 });
 
 // In path order. Braga's and Jönköping's choices are Eduardo's (spec §6).
@@ -32,12 +34,13 @@ export const LANDMARKS: Landmark[] = [
   at("clerigos", "porto", 88, -1, 11, 6, 6),
   at("dom-luis", "porto", 118, 1, 23, 6, 34), // spans the Douro, away from the path
   at("jonkoping-university", "jonkoping", 250, 1, 12, 18, 10),
-  at("stadshuset", "stockholm", 320, 1, 26, 14, 12), // across the water from the quay
+  at("stadshuset", "stockholm", 340, 1, 8, 14, 8, 45), // on the horizon beyond the water: behind the walker in the final shot
 ];
 
 export function landmarkPosition(l: Landmark): { position: Vec3; heading: number } {
-  const [px, , pz] = pathPoint(l.along);
-  const [tx, , tz] = pathTangent(l.along);
+  const where = l.along + (l.forward ?? 0);
+  const [px, , pz] = pathPointExtended(where);
+  const [tx, , tz] = pathTangent(Math.min(where, PATH_LENGTH));
   const len = Math.hypot(tx, tz);
   const [nx, nz] = [-tz / len, tx / len]; // the walker's right
   const position: Vec3 = [px + l.side * nx * l.offset, 0, pz + l.side * nz * l.offset];

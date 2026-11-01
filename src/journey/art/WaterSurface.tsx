@@ -27,7 +27,7 @@ function patch(time: { value: number }) {
   };
 }
 
-export function Water() {
+export function WaterSurface() {
   const [time] = useState(() => ({ value: 0 }));
   const [reduced] = useState(() => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const meshes = useMemo(

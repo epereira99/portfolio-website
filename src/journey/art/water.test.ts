@@ -39,6 +39,12 @@ describe("waterShapes", () => {
     expect(waterShapes("porto").some((s) => inside([x, z], s))).toBe(true);
   });
 
+  test("City Hall on the horizon stands on dry ground beyond the water", async () => {
+    const { LANDMARKS, landmarkPosition } = await import("./landmarks");
+    const [x, , z] = landmarkPosition(LANDMARKS.find((l) => l.id === "stadshuset")!).position;
+    expect(wet([x, z])).toBe(false);
+  });
+
   test("the welcome banner and the quay stand on dry ground", () => {
     const [bx, , bz] = pathPoint(206);
     const [tx, , tz] = pathTangent(206);

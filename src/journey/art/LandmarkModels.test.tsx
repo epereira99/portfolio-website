@@ -1,7 +1,7 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { act, render } from "@testing-library/react";
 import { setScreens } from "../progress";
-import { Landmarks } from "./LandmarkModels";
+import { LandmarkModels as Landmarks } from "./LandmarkModels";
 
 vi.mock("@react-three/drei", () => ({
   useGLTF: Object.assign(

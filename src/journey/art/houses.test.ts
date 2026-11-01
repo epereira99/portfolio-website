@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { UNITS_PER_SCREEN, pathPoint } from "../path";
+import { UNITS_PER_SCREEN, pathPointExtended } from "../path";
 import { SEGMENTS, segmentStart, type SegmentId } from "../timeline";
 import { houseSpec, rng } from "./houses";
 import { LANDMARKS, landmarkPosition } from "./landmarks";
@@ -68,10 +68,20 @@ describe("LANDMARKS", () => {
     }
   });
 
+  test("Stockholm City Hall is the destination on the horizon, in view behind the walker at the ending", () => {
+    const hall = LANDMARKS.find((l) => l.id === "stadshuset")!;
+    expect(hall.along).toBe(340); // fades in with the quay
+    const [x, , z] = landmarkPosition(hall).position;
+    const [qx, , qz] = pathPointExtended(340);
+    const ahead = Math.hypot(x - qx, z - qz);
+    expect(ahead).toBeGreaterThan(30);
+    expect(Math.atan2(hall.offset, hall.forward!)).toBeLessThan((15 * Math.PI) / 180); // within the camera's view
+  });
+
   test("keep the walkway clear (footprint d is the depth away from the path)", () => {
     for (const l of LANDMARKS) {
       const { position } = landmarkPosition(l);
-      const [px, , pz] = pathPoint(l.along);
+      const [px, , pz] = pathPointExtended(l.along + (l.forward ?? 0));
       expect(Math.hypot(position[0] - px, position[2] - pz)).toBeCloseTo(l.offset, 5);
       expect(l.offset - l.footprint.d / 2, l.id).toBeGreaterThanOrEqual(3);
     }

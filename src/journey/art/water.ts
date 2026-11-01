@@ -23,7 +23,7 @@ const SHAPES: Partial<Record<SegmentId, WaterShape[]>> = {
   porto: [band(70, 150, 1, 6, 40)], // the Douro, meeting the open sea
   voyage: [band(146, 194, 1, -40, 40)], // open sea, short of both shores
   jonkoping: [band(200, 280, -1, 5, 60)], // Lake Vättern
-  stockholm: [band(280, 400, 1, 6, 20)], // water before the far shore where the City Hall stands
+  stockholm: [band(280, 370, 1, 6, 20)], // ends before the far shore where City Hall stands on the horizon
 };
 
 export function waterShapes(id: SegmentId): WaterShape[] {

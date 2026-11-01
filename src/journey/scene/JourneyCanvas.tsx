@@ -5,11 +5,14 @@ import { Quiet } from "./Quiet";
 import { Canvas } from "@react-three/fiber";
 import { Avatar } from "./Avatar";
 import { CameraRig } from "./CameraRig";
-import { StandInCities } from "./StandInCities";
 import { Nau } from "./Nau";
 import { WelcomeBanner } from "./WelcomeBanner";
 import { UnbuiltPath } from "./UnbuiltPath";
 import { CityLighting } from "../art/CityLighting";
+import { CityArt } from "../art/CityArt";
+import { Ground } from "../art/Ground";
+import { LandmarkModels } from "../art/LandmarkModels";
+import { WaterSurface } from "../art/WaterSurface";
 
 export function JourneyCanvas() {
   return (
@@ -17,7 +20,10 @@ export function JourneyCanvas() {
       <Quiet>
         <Canvas shadows dpr={[1, 2]} camera={{ fov: 50, position: [0, 3, 6] }}>
           <CityLighting />
-          <StandInCities />
+          <Ground />
+          <WaterSurface />
+          <CityArt />
+          <LandmarkModels />
           <WelcomeBanner />
           <UnbuiltPath />
           <Suspense fallback={null}>
