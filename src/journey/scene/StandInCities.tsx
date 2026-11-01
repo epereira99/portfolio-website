@@ -1,15 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { BufferGeometry, Color, Float32BufferAttribute, Fog } from "three";
-import { useFrame } from "@react-three/fiber";
+import { BufferGeometry, Float32BufferAttribute } from "three";
 import { RoundedBox } from "@react-three/drei";
-import { SEGMENTS, segmentAt } from "../timeline";
+import { SEGMENTS } from "../timeline";
 import { PATH_LENGTH, QUAY_END, pathPoint, pathTangent } from "../path";
-import { getScreens } from "../progress";
 import { standInBlocks } from "./standIn";
-
-const target = new Color();
 
 function Walkway() {
   const geometry = useMemo(() => {
@@ -39,12 +35,6 @@ function Walkway() {
 export function StandInCities() {
   const cities = useMemo(() => SEGMENTS.map((s) => ({ id: s.id, ...standInBlocks(s.id) })), []);
 
-  // Sky and fog drift toward the current city's mood.
-  useFrame(({ scene }) => {
-    target.set(cities.find((c) => c.id === segmentAt(getScreens()))!.sky);
-    if (scene.background instanceof Color) scene.background.lerp(target, 0.04);
-    if (scene.fog instanceof Fog) scene.fog.color.lerp(target, 0.04);
-  });
 
   return (
     <group>

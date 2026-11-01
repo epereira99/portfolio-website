@@ -8,6 +8,7 @@ import { StandInCities } from "./StandInCities";
 import { Nau } from "./Nau";
 import { WelcomeBanner } from "./WelcomeBanner";
 import { UnbuiltPath } from "./UnbuiltPath";
+import { CityLighting } from "../art/CityLighting";
 
 // No WebGL or a failed asset must never take the page down: the UI layers still work.
 class Quiet extends Component<{ children: ReactNode }, { failed: boolean }> {
@@ -25,10 +26,7 @@ export function JourneyCanvas() {
     <div aria-hidden style={{ position: "fixed", inset: 0, zIndex: 0 }}>
       <Quiet>
         <Canvas shadows dpr={[1, 2]} camera={{ fov: 50, position: [0, 3, 6] }}>
-          <color attach="background" args={["#f6d7a7"]} />
-          <fog attach="fog" args={["#f6d7a7", 25, 90]} />
-          <hemisphereLight args={["#fff8ee", "#b7a88a", 0.9]} />
-          <directionalLight position={[20, 30, 10]} intensity={1.6} castShadow shadow-mapSize={[2048, 2048]} />
+          <CityLighting />
           <StandInCities />
           <WelcomeBanner />
           <UnbuiltPath />
