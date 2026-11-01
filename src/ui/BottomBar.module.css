@@ -1,0 +1,110 @@
+.bar {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  gap: 14px;
+}
+
+.pill {
+  padding: 12px 22px;
+  border: 1px solid var(--glass-line);
+  border-radius: 999px;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  font: 600 15px/1 var(--font);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.pill:hover {
+  background: var(--glass-hover);
+  transform: translateY(-2px);
+}
+
+/* Fan origin sits between the two buttons */
+.fan {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+
+.card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 118px;
+  margin: -70px 0 0 -59px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--card-line);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 14px 30px -10px #000c;
+  transform: translate(var(--x), var(--y));
+  animation: out 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+  animation-delay: calc(var(--i) * 35ms);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: translate(var(--x), var(--y)) scale(1.1);
+  z-index: 2;
+  box-shadow: 0 20px 40px -10px #000;
+}
+
+.graphic {
+  display: block;
+  height: 84px;
+}
+
+.label {
+  display: block;
+  padding: 7px 9px 9px;
+  font: 600 11.5px/1.25 var(--font);
+}
+
+@keyframes out {
+  from {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.2);
+  }
+}
+
+/* Phones: a swipeable row instead of the arc */
+@media (max-width: 767px) {
+  .fan {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 90px;
+    width: auto;
+    height: auto;
+    display: flex;
+    gap: 10px;
+    padding: 0 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  .card,
+  .card:hover,
+  .card:focus-visible {
+    position: static;
+    flex: 0 0 118px;
+    margin: 0;
+    transform: none;
+    scroll-snap-align: center;
+  }
+}
