@@ -1,5 +1,5 @@
 import { CatmullRomCurve3, Vector3 } from "three";
-import { TOTAL_SCREENS } from "./timeline";
+import { ENDING_START, TOTAL_SCREENS } from "./timeline";
 
 export type Vec3 = [number, number, number];
 
@@ -26,6 +26,18 @@ export function pathPoint(d: number): Vec3 {
 export function pathTangent(d: number): Vec3 {
   const v = curve.getTangentAt(t(d));
   return [v.x, v.y, v.z];
+}
+
+/** Where the walk stops: the Stockholm quay, at the start of the ending. */
+export const QUAY_END = distanceAt(ENDING_START);
+
+/** Beyond the built path the way continues straight on (the unbuilt next chapter). */
+export function pathPointExtended(d: number): Vec3 {
+  if (d <= PATH_LENGTH) return pathPoint(d);
+  const [px, , pz] = pathPoint(PATH_LENGTH);
+  const [tx, , tz] = pathTangent(PATH_LENGTH);
+  const extra = d - PATH_LENGTH;
+  return [px + tx * extra, 0, pz + tz * extra];
 }
 
 export function cameraPose(d: number): { position: Vec3; target: Vec3 } {

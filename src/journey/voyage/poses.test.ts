@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { cameraPose, distanceAt, pathPoint, type Vec3 } from "../path";
-import { DECK_HEIGHT, GANGPLANK, HULL_HALF_WIDTH, MOOR_OFFSET, avatarPose, cameraPoseAt, nauPose } from "./poses";
+import { DECK_HEIGHT, GANGPLANK, HULL_HALF_WIDTH, MOOR_OFFSET, avatarPose, cameraPoseAt, headingAt, nauPose } from "./poses";
 
 const near = (a: Vec3, b: Vec3, digits = 4) => a.forEach((v, i) => expect(v).toBeCloseTo(b[i], digits));
 
@@ -60,5 +60,35 @@ describe("nauPose", () => {
     near(nauPose(3.0).position, nauPose(3.5).position);
     const [a, b] = [nauPose(3.5).position, nauPose(3.95).position];
     expect(Math.hypot(b[0] - a[0], b[2] - a[2])).toBeCloseTo(12, 1);
+  });
+});
+
+describe("the ending", () => {
+  test("stops on the quay and turns to face the viewer", () => {
+    near(avatarPose(8.5).position, pathPoint(340));
+    expect(avatarPose(8.5).heading).toBeCloseTo(headingAt(340));
+    expect(avatarPose(8.8).heading).toBeCloseTo(headingAt(340) + Math.PI);
+  });
+
+  test("never walks into the unbuilt path, however far you scroll", () => {
+    for (const s of [9, 99]) {
+      near(avatarPose(s).position, pathPoint(340));
+      expect(avatarPose(s).heading).toBeCloseTo(headingAt(340) + Math.PI);
+    }
+  });
+
+  test("scrolling back out of the ending walks forward again", () => {
+    near(avatarPose(8.4).position, pathPoint(336));
+    expect(avatarPose(8.4).heading).toBeCloseTo(headingAt(336));
+  });
+
+  test("the camera pulls back to frame the face", () => {
+    const quay = pathPoint(340);
+    const from = (s: number) => {
+      const p = cameraPoseAt(s).position;
+      return Math.hypot(p[0] - quay[0], p[1] - quay[1], p[2] - quay[2]);
+    };
+    expect(cameraPoseAt(9).target[1]).toBeCloseTo(1.5);
+    expect(from(9)).toBeGreaterThan(from(8.5));
   });
 });

@@ -37,3 +37,17 @@ describe("walkClipTime", () => {
     expect(walkClipTime(3.2, 1.6, 2)).toBeCloseTo(0);
   });
 });
+
+describe("past the end of the built path", () => {
+  test("the quay is where the walk stops, and the path extends straight on", async () => {
+    const { QUAY_END, pathPointExtended, pathTangent } = await import("./path");
+    expect(QUAY_END).toBe(340);
+    pathPointExtended(360).forEach((v, i) => expect(v).toBeCloseTo(pathPoint(360)[i], 3));
+    const [ex, ey, ez] = pathPointExtended(380);
+    const [px, , pz] = pathPoint(360);
+    const [tx, , tz] = pathTangent(360);
+    expect(ex).toBeCloseTo(px + tx * 20, 3);
+    expect(ez).toBeCloseTo(pz + tz * 20, 3);
+    expect(ey).toBe(0);
+  });
+});

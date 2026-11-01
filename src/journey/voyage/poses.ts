@@ -1,4 +1,5 @@
-import { cameraPose, distanceAt, pathPoint, pathTangent, type Vec3 } from "../path";
+import { QUAY_END, cameraPose, distanceAt, pathPoint, pathTangent, type Vec3 } from "../path";
+import { ENDING_SCREENS, ENDING_START } from "../timeline";
 import { voyageState } from "./phase";
 
 export const PORTO_END = 140;
@@ -58,7 +59,14 @@ const facing = (from: Vec3, to: Vec3) => Math.atan2(to[0] - from[0], to[2] - fro
 
 const walking = (d: number) => ({ position: pathPoint(d), heading: headingAt(d), walk: d });
 
+const endingT = (s: number) => Math.min((s - ENDING_START) / ENDING_SCREENS, 1);
+
 export function avatarPose(s: number): Pose & { walk: number } {
+  if (s >= ENDING_START) {
+    // Stop on the quay and turn around to face the viewer (done by 60% of the ending).
+    const turn = easeInOut(Math.min(endingT(s) / 0.6, 1));
+    return { position: pathPoint(QUAY_END), heading: headingAt(QUAY_END) + Math.PI * turn, walk: QUAY_END };
+  }
   const { phase, t } = voyageState(s);
   switch (phase) {
     case "board": {
@@ -85,6 +93,16 @@ const blend = (a: CameraTarget, b: CameraTarget, f: number): CameraTarget => ({
 });
 
 export function cameraPoseAt(s: number): CameraTarget {
+  if (s >= ENDING_START) {
+    // Pull back a little and drop to face height to frame the avatar as it turns.
+    const base = cameraPose(QUAY_END);
+    const [tx, , tz] = flatTangent(QUAY_END);
+    const face: CameraTarget = {
+      position: add(base.position, [-tx * 2, -0.6, -tz * 2]),
+      target: add(pathPoint(QUAY_END), [0, 1.5, 0]),
+    };
+    return blend(base, face, easeInOut(endingT(s)));
+  }
   const { phase, t } = voyageState(s);
   switch (phase) {
     case "board": {
