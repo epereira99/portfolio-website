@@ -36,13 +36,28 @@ export function segmentAt(s: number): SegmentId {
   return SEGMENTS[SEGMENTS.length - 1].id;
 }
 
-export type Overlay = { kind: "intro" } | { kind: "project"; slug: string } | { kind: "none" };
+export const CHAPTER_SCREENS = 0.33; // how long a stage's chapter title holds after entering it
+
+export function stageProgress(s: number): number {
+  const x = clamp(s);
+  const id = segmentAt(x);
+  const seg = SEGMENTS.find((g) => g.id === id)!;
+  return Math.min((x - segmentStart(id)) / seg.screens, 1);
+}
+
+export type Overlay =
+  | { kind: "intro" }
+  | { kind: "chapter"; stage: StageId; t: number }
+  | { kind: "project"; slug: string }
+  | { kind: "none" };
 
 export function overlayAt(s: number): Overlay {
   if (s < INTRO_END) return { kind: "intro" };
   const x = clamp(s);
   const id = segmentAt(x);
   if (id === "voyage") return { kind: "none" };
+  const chapterFrom = segmentStart(id) + (id === "braga" ? INTRO_END : 0);
+  if (x - chapterFrom < CHAPTER_SCREENS) return { kind: "chapter", stage: id, t: (x - chapterFrom) / CHAPTER_SCREENS };
   const projects = projectsForStage(id);
   if (projects.length === 0) return { kind: "none" };
   const seg = SEGMENTS.find((g) => g.id === id)!;

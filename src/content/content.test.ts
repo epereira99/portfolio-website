@@ -17,6 +17,23 @@ describe("stages", () => {
   });
 });
 
+describe("chapters", () => {
+  test("each stage leads with the institution or employer", () => {
+    expect(STAGES.map((s) => s.chapter.title)).toEqual([
+      "BSc Computer Science",
+      "Deloitte",
+      "MSc AI Engineering",
+      "Effektify",
+    ]);
+    expect(STAGES.map((s) => s.chapter.detail)).toEqual([
+      "Universidade do Minho · 2017–2022",
+      "Cloud & DevOps → Integration Software · 2022–2024",
+      "Jönköping University · 2024–2026",
+      "Growth & AI · personal projects · 2026–now",
+    ]);
+  });
+});
+
 describe("projects", () => {
   test("have unique slugs matching the initial dataset", () => {
     const slugs = PROJECTS.map((p) => p.slug);
