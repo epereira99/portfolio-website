@@ -1,0 +1,58 @@
+.nav {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: calc(100vw - 32px);
+  transition: opacity 0.4s;
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cities {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  backdrop-filter: blur(10px);
+}
+
+.city {
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 14px;
+  background: transparent;
+  color: var(--muted);
+  font: 600 13px/1 var(--font);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.city:hover {
+  color: var(--text);
+}
+
+.city[aria-current="step"] {
+  background: var(--accent);
+  color: #0d0f14;
+}
+
+.stage {
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--glass);
+  color: var(--text);
+  font: 500 12.5px/1.4 var(--font);
+  text-align: center;
+}
