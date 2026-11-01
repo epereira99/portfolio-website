@@ -9,7 +9,7 @@ export function getScreens(): number {
 }
 
 export function setScreens(s: number): void {
-  if (s === screens) return;
+  if (s === screens || !Number.isFinite(s)) return; // NaN would crash the path math every frame
   screens = s;
   listeners.forEach((fn) => fn());
 }
@@ -28,5 +28,5 @@ export function scrollToScreens(s: number, behavior: ScrollBehavior = "auto"): v
 }
 
 export function readScreensFromWindow(): number {
-  return window.scrollY / window.innerHeight;
+  return window.innerHeight > 0 ? window.scrollY / window.innerHeight : 0; // zero-height windows (hidden panes) exist
 }

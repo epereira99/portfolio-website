@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { render } from "@testing-library/react";
 import { createElement } from "react";
-import { getScreens, scrollToScreens, setScreens, subscribe } from "./progress";
+import { getScreens, readScreensFromWindow, scrollToScreens, setScreens, subscribe } from "./progress";
 import { ScrollDriver } from "./ScrollDriver";
 
 let scrollTo: ReturnType<typeof vi.spyOn>;
@@ -22,6 +22,18 @@ describe("progress store", () => {
     off();
     expect(getScreens()).toBe(2);
     expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  test("a zero-height window reads as the start, never NaN", () => {
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: 0 });
+    expect(readScreensFromWindow()).toBe(0);
+  });
+
+  test("ignores non-finite positions so the scene never receives NaN", () => {
+    setScreens(3);
+    setScreens(NaN);
+    setScreens(Infinity);
+    expect(getScreens()).toBe(3);
   });
 
   test("scrollToScreens converts screens to pixels", () => {
