@@ -7,7 +7,7 @@ vi.mock("@react-three/drei", () => ({
   useGLTF: Object.assign(
     (url: string) => {
       if (url.includes("clerigos")) throw new Error("failed to load");
-      return { scene: { clone: () => ({}) } };
+      return { scene: { clone: () => ({ traverse: () => {} }) } };
     },
     { preload: () => {} },
   ),

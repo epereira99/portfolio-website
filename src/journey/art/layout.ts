@@ -5,7 +5,7 @@ import { LANDMARKS } from "./landmarks";
 import { CITY_STYLE } from "./styles";
 
 export type TreeSpec = { along: number; x: number; z: number; kind: "round" | "pine"; size: number; snow: boolean };
-export type LampSpec = { x: number; z: number; glow: boolean };
+export type LampSpec = { along: number; x: number; z: number; glow: boolean };
 export type CityLayout = { houses: HouseSpec[]; trees: TreeSpec[]; lamps: LampSpec[] };
 
 const ROW_FRONT: [number, number][] = [
@@ -83,7 +83,7 @@ export function cityLayout(id: SegmentId): CityLayout {
       const side = sides[0];
       if (blocked(id, along, 0.3, side, 3.2, 0.3)) continue;
       const { px, pz, nx, nz } = frame(along);
-      lamps.push({ x: px + side * nx * 3.2, z: pz + side * nz * 3.2, glow: id === "stockholm" });
+      lamps.push({ along, x: px + side * nx * 3.2, z: pz + side * nz * 3.2, glow: id === "stockholm" });
     }
   }
 

@@ -31,13 +31,14 @@ const LAMP_POST = "#3e3a36";
 
 const color = new Color();
 
-/** Bakes a flat colour into a non-indexed copy of `g` and places it with `m`. */
-function piece(g: BufferGeometry, hex: string, m: Matrix4): BufferGeometry {
+/** Bakes a flat colour and the object's path distance (for the approach fade) into a non-indexed copy of `g`, placed with `m`. */
+function piece(g: BufferGeometry, hex: string, m: Matrix4, along: number): BufferGeometry {
   const out = g.index ? g.toNonIndexed() : g;
   out.deleteAttribute("uv");
   color.set(hex);
   const n = out.getAttribute("position").count;
   out.setAttribute("color", new Float32BufferAttribute(new Float32Array(n * 3).map((_, i) => [color.r, color.g, color.b][i % 3]), 3));
+  out.setAttribute("aAlong", new Float32BufferAttribute(new Float32Array(n).fill(along), 1));
   return out.applyMatrix4(m);
 }
 
@@ -70,10 +71,11 @@ function roof(h: HouseSpec, height: number): BufferGeometry[] {
 }
 
 function house(h: HouseSpec, id: SegmentId, rand: () => number): BufferGeometry[] {
+  const A = h.along;
   const height = h.floors * h.floorHeight;
   const m = place(h.x, 0, h.z, h.heading);
-  const parts = [piece(new RoundedBoxGeometry(h.w, height, h.d, 2, 0.18).translate(0, height / 2, 0), h.wall, m)];
-  for (const r of roof(h, height)) parts.push(piece(r, h.roofColor, m));
+  const parts = [piece(new RoundedBoxGeometry(h.w, height, h.d, 2, 0.18).translate(0, height / 2, 0), h.wall, m, A)];
+  for (const r of roof(h, height)) parts.push(piece(r, h.roofColor, m, A));
 
   const front = h.d / 2 + 0.02;
   if (h.azulejo) {
@@ -84,7 +86,7 @@ function house(h: HouseSpec, id: SegmentId, rand: () => number): BufferGeometry[
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         const x = (c - (cols - 1) / 2) * size;
-        parts.push(piece(new PlaneGeometry(size * 0.92, size * 0.92).translate(x, 0.15 + r * size + size / 2, front - 0.005), AZULEJO[(r + c) % 2], m));
+        parts.push(piece(new PlaneGeometry(size * 0.92, size * 0.92).translate(x, 0.15 + r * size + size / 2, front - 0.005), AZULEJO[(r + c) % 2], m, A));
       }
     }
   }
@@ -93,37 +95,39 @@ function house(h: HouseSpec, id: SegmentId, rand: () => number): BufferGeometry[
     const xs = f === 0 ? [-h.w / 3, h.w / 3] : [-h.w / 4, h.w / 4];
     for (const x of xs) {
       const lit = id === "stockholm" && rand() < 0.4;
-      parts.push(piece(new BoxGeometry(0.32, 0.42, 0.05).translate(x, y, front), lit ? GLOW : WINDOW, m));
+      parts.push(piece(new BoxGeometry(0.32, 0.42, 0.05).translate(x, y, front), lit ? GLOW : WINDOW, m, A));
     }
   }
-  parts.push(piece(new BoxGeometry(0.42, 0.75, 0.05).translate(0, 0.375, front), h.trim === "#f7f4ee" ? "#5a3a2a" : "#6b4a34", m));
+  parts.push(piece(new BoxGeometry(0.42, 0.75, 0.05).translate(0, 0.375, front), h.trim === "#f7f4ee" ? "#5a3a2a" : "#6b4a34", m, A));
   return parts;
 }
 
 function tree(t: TreeSpec, rand: () => number): BufferGeometry[] {
+  const A = t.along;
   const m = place(t.x, 0, t.z);
   if (t.kind === "round") {
     return [
-      piece(new CylinderGeometry(0.12, 0.16, 0.9, 6).translate(0, 0.45, 0), TRUNK, m),
-      piece(new SphereGeometry(t.size, 10, 8).translate(0, 0.9 + t.size * 0.85, 0), LEAVES[Math.floor(rand() * LEAVES.length)], m),
+      piece(new CylinderGeometry(0.12, 0.16, 0.9, 6).translate(0, 0.45, 0), TRUNK, m, A),
+      piece(new SphereGeometry(t.size, 10, 8).translate(0, 0.9 + t.size * 0.85, 0), LEAVES[Math.floor(rand() * LEAVES.length)], m, A),
     ];
   }
   const green = PINE[Math.floor(rand() * PINE.length)];
-  const parts = [piece(new CylinderGeometry(0.1, 0.13, 0.6, 6).translate(0, 0.3, 0), TRUNK, m)];
+  const parts = [piece(new CylinderGeometry(0.1, 0.13, 0.6, 6).translate(0, 0.3, 0), TRUNK, m, A)];
   [1, 0.75, 0.5].forEach((f, i) => {
     const r = t.size * f;
     const y = 0.6 + i * t.size * 0.7 + r * 0.7;
-    parts.push(piece(new ConeGeometry(r, r * 1.4, 8).translate(0, y, 0), green, m));
-    if (t.snow) parts.push(piece(new ConeGeometry(r * 0.45, r * 0.5, 8).translate(0, y + r * 0.47, 0), SNOW, m));
+    parts.push(piece(new ConeGeometry(r, r * 1.4, 8).translate(0, y, 0), green, m, A));
+    if (t.snow) parts.push(piece(new ConeGeometry(r * 0.45, r * 0.5, 8).translate(0, y + r * 0.47, 0), SNOW, m, A));
   });
   return parts;
 }
 
 function lamp(l: LampSpec): BufferGeometry[] {
+  const A = l.along;
   const m = place(l.x, 0, l.z);
   return [
-    piece(new CylinderGeometry(0.05, 0.06, 2.1, 6).translate(0, 1.05, 0), LAMP_POST, m),
-    piece(new SphereGeometry(0.16, 8, 6).translate(0, 2.2, 0), l.glow ? GLOW : "#e8e2d0", m),
+    piece(new CylinderGeometry(0.05, 0.06, 2.1, 6).translate(0, 1.05, 0), LAMP_POST, m, A),
+    piece(new SphereGeometry(0.16, 8, 6).translate(0, 2.2, 0), l.glow ? GLOW : "#e8e2d0", m, A),
   ];
 }
 
