@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 import type { Group } from "three";
 import { useFrame } from "@react-three/fiber";
 import { useAnimations, useGLTF } from "@react-three/drei";
-import { distanceAt, pathPoint, pathTangent, walkClipTime } from "../path";
+import { walkClipTime } from "../path";
+import { avatarPose } from "../voyage/poses";
 import { getScreens } from "../progress";
 
 const URL = "/models/avatar.glb";
@@ -29,16 +30,14 @@ export function Avatar() {
     const { walk, idle } = actions;
     const g = group.current;
     if (!g || !walk || !idle) return;
-    const d = distanceAt(getScreens());
-    const [x, , z] = pathPoint(d);
-    const [tx, , tz] = pathTangent(d);
-    g.position.set(x, 0, z);
-    g.rotation.y = Math.atan2(tx, tz); // model faces +Z; turn it along the path
+    const pose = avatarPose(getScreens()); // path walk, boarding, deck, or Jönköping
+    g.position.set(...pose.position);
+    g.rotation.y = pose.heading; // model faces +Z
 
     const now = clock.elapsedTime;
-    if (Math.abs(d - last.current.d) > 1e-4) last.current = { d, movedAt: now };
+    if (Math.abs(pose.walk - last.current.d) > 1e-4) last.current = { d: pose.walk, movedAt: now };
     // eslint-disable-next-line react-hooks/immutability
-    walk.time = walkClipTime(d, STRIDE, walk.getClip().duration);
+    walk.time = walkClipTime(pose.walk, STRIDE, walk.getClip().duration);
     const walking = now - last.current.movedAt < 0.3 ? 1 : 0;
     const w = walk.getEffectiveWeight() + (walking - walk.getEffectiveWeight()) * 0.2;
     walk.setEffectiveWeight(w);

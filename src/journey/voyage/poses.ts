@@ -50,6 +50,7 @@ const BOARD_A = pathPoint(PORTO_END);
 const BOARD_B = withY(add(BOARD_A, scale(rightNormal(PORTO_END), GANGPLANK)), DECK_HEIGHT);
 const BOARD_C = withY(MOORED, DECK_HEIGHT);
 const dist = (a: Vec3, b: Vec3) => Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+export const GANGPLANK_ENDS: [Vec3, Vec3] = [BOARD_A, BOARD_B];
 const AB = dist(BOARD_A, BOARD_B);
 const BOARD_LENGTH = AB + dist(BOARD_B, BOARD_C);
 const facing = (from: Vec3, to: Vec3) => Math.atan2(to[0] - from[0], to[2] - from[2]);
@@ -85,8 +86,12 @@ const blend = (a: CameraTarget, b: CameraTarget, f: number): CameraTarget => ({
 export function cameraPoseAt(s: number): CameraTarget {
   const { phase, t } = voyageState(s);
   switch (phase) {
-    case "board":
-      return cameraPose(PORTO_END);
+    case "board": {
+      // Stay put but turn to keep the avatar in frame as it climbs aboard.
+      const base = cameraPose(PORTO_END);
+      const [x, y, z] = avatarPose(s).position;
+      return { position: base.position, target: lerp(base.target, [x, y + 1.2, z], Math.min(t * 1.5, 1)) };
+    }
     case "liftOut":
       return blend(cameraPose(PORTO_END), high(withY(nauPose(s).position, DECK_HEIGHT)), easeInOut(t));
     case "sail":

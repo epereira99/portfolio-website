@@ -75,10 +75,11 @@ for name, (y, height, w, h) in MASTS.items():
     sail_z = DECK + height * 0.62
     # Square sail facing the bow (-Y), slightly in front of the mast.
     box(f"Sail_{name}", (w, 0.08, h), (0, y - 0.25, sail_z), "sail", 0.06)
-    # Red cross of the Order of Christ on the sail's front face.
+    # Red cross of the Order of Christ on both faces (the camera mostly sees the stern side).
     bar = min(w, h) * 0.16
-    box(f"Cross_{name}_V", (bar, 0.04, h * 0.72), (0, y - 0.32, sail_z), "cross", 0.02)
-    box(f"Cross_{name}_H", (w * 0.62, 0.04, bar), (0, y - 0.32, sail_z), "cross", 0.02)
+    for face, dy in (("Front", -0.32), ("Back", -0.18)):
+        box(f"Cross_{name}_{face}_V", (bar, 0.04, h * 0.72), (0, y + dy, sail_z), "cross", 0.02)
+        box(f"Cross_{name}_{face}_H", (w * 0.62, 0.04, bar), (0, y + dy, sail_z), "cross", 0.02)
 
 deck_spot = bpy.data.objects.new("DeckSpot", None)
 deck_spot.location = (0, 0, DECK)

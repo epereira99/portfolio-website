@@ -30,6 +30,14 @@ describe("standInBlocks", () => {
     }
   });
 
+  test("the open sea stops short of Porto's quay and Jönköping's shore", () => {
+    const sea = standInBlocks("voyage").water!;
+    const [, , portoZ] = pathPoint(segmentStart("voyage") * UNITS_PER_SCREEN);
+    const [, , jonkopingZ] = pathPoint(segmentStart("jonkoping") * UNITS_PER_SCREEN);
+    expect(sea.z + sea.d / 2).toBeLessThan(portoZ - 2);
+    expect(sea.z - sea.d / 2).toBeGreaterThan(jonkopingZ + 2);
+  });
+
   test("is deterministic", () => {
     expect(standInBlocks("porto")).toEqual(standInBlocks("porto"));
   });

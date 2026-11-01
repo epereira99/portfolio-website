@@ -5,6 +5,8 @@ import { Canvas } from "@react-three/fiber";
 import { Avatar } from "./Avatar";
 import { CameraRig } from "./CameraRig";
 import { StandInCities } from "./StandInCities";
+import { Nau } from "./Nau";
+import { WelcomeBanner } from "./WelcomeBanner";
 
 // No WebGL or a failed asset must never take the page down: the UI layers still work.
 class Quiet extends Component<{ children: ReactNode }, { failed: boolean }> {
@@ -27,8 +29,10 @@ export function JourneyCanvas() {
           <hemisphereLight args={["#fff8ee", "#b7a88a", 0.9]} />
           <directionalLight position={[20, 30, 10]} intensity={1.6} castShadow shadow-mapSize={[2048, 2048]} />
           <StandInCities />
+          <WelcomeBanner />
           <Suspense fallback={null}>
             <Avatar />
+            <Nau />
           </Suspense>
           <CameraRig />
         </Canvas>

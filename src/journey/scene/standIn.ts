@@ -62,7 +62,9 @@ export function standInBlocks(id: SegmentId): { blocks: Block[]; water: Water | 
   if (style.water !== null) {
     const [px, , pz] = pathPoint((from + to) / 2);
     const width = style.water === 0 ? 80 : 20;
-    water = { x: px + style.water * 16, z: pz, w: width, d: to - from + 20 };
+    // The open sea stops short of both shores so neither landing stands in water.
+    const depth = style.water === 0 ? to - from - 12 : to - from + 20;
+    water = { x: px + style.water * 16, z: pz, w: width, d: depth };
   }
 
   return { blocks, water, sky: style.sky };
