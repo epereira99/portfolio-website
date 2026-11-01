@@ -9,11 +9,13 @@ export const SEGMENTS: { id: SegmentId; screens: number }[] = [
   { id: "porto", screens: 2 },
   { id: "voyage", screens: 1.5 },
   { id: "jonkoping", screens: 2 },
-  { id: "stockholm", screens: 1.5 },
+  { id: "stockholm", screens: 2 }, // 1.5 + the ending (plan 3)
 ];
 
 export const TOTAL_SCREENS = SEGMENTS.reduce((sum, s) => sum + s.screens, 0);
 export const INTRO_END = 0.5;
+export const ENDING_SCREENS = 0.5;
+export const ENDING_START = TOTAL_SCREENS - ENDING_SCREENS;
 
 const clamp = (s: number) => Math.min(Math.max(s, 0), TOTAL_SCREENS);
 
@@ -54,10 +56,12 @@ export type Overlay =
   | { kind: "intro" }
   | { kind: "chapter"; stage: StageId; t: number }
   | { kind: "project"; slug: string }
+  | { kind: "ending"; t: number }
   | { kind: "none" };
 
 export function overlayAt(s: number): Overlay {
   if (s < INTRO_END) return { kind: "intro" };
+  if (s >= ENDING_START) return { kind: "ending", t: Math.min((s - ENDING_START) / ENDING_SCREENS, 1) };
   const x = clamp(s);
   const id = segmentAt(x);
   if (id === "voyage") return { kind: "none" };
@@ -68,7 +72,8 @@ export function overlayAt(s: number): Overlay {
   if (projects.length === 0) return { kind: "none" };
   const seg = SEGMENTS.find((g) => g.id === id)!;
   const from = chapterFrom + CHAPTER_SCREENS; // projects begin where the chapter title ends
-  const slot = (segmentStart(id) + seg.screens - from) / projects.length;
+  const until = Math.min(segmentStart(id) + seg.screens, ENDING_START); // Stockholm's projects end where the ending begins
+  const slot = (until - from) / projects.length;
   const k = Math.floor((x - from) / slot);
   if (k < 0 || k >= projects.length) return { kind: "none" };
   const local = x - from - k * slot;

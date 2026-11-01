@@ -3,6 +3,7 @@ import {
   CHAPTER_SCREENS,
   INTRO_END,
   chapterDelay,
+  ENDING_START,
   TOTAL_SCREENS,
   overlayAt,
   segmentAt,
@@ -12,7 +13,8 @@ import {
 
 describe("segments", () => {
   test("follow the spec's length budget", () => {
-    expect(TOTAL_SCREENS).toBe(8.5);
+    expect(TOTAL_SCREENS).toBe(9);
+    expect(ENDING_START).toBe(8.5);
     expect(INTRO_END).toBe(0.5);
     expect(segmentStart("porto")).toBe(1.5);
     expect(segmentStart("voyage")).toBe(3.5);
@@ -59,7 +61,7 @@ describe("overlayAt", () => {
   });
 
   test("chapter titles never overlap a project", () => {
-    for (let s = 0; s <= 8.5; s += 0.01) {
+    for (let s = 0; s <= 9; s += 0.01) {
       const o = overlayAt(s);
       if (o.kind !== "chapter") continue;
       expect(s - segmentStart(o.stage)).toBeLessThan(CHAPTER_SCREENS + chapterDelay(o.stage));
@@ -73,8 +75,28 @@ describe("overlayAt", () => {
     expect(overlayAt(3.0)).toEqual({ kind: "project", slug: "azure-ml-integrations" });
   });
 
-  test("shows nothing during the voyage or past the end", () => {
+  test("shows nothing during the voyage", () => {
     expect(overlayAt(4.0)).toEqual({ kind: "none" });
-    expect(overlayAt(50)).toEqual({ kind: "none" });
+  });
+});
+
+describe("ending", () => {
+  test("the last half screen is the ending, and stays the ending past the end", () => {
+    expect(overlayAt(8.5)).toEqual({ kind: "ending", t: 0 });
+    const mid = overlayAt(8.75);
+    expect(mid.kind === "ending" && mid.t).toBeCloseTo(0.5);
+    expect(overlayAt(50)).toEqual({ kind: "ending", t: 1 });
+  });
+
+  test("scrolling back out of the ending returns to Stockholm's projects", () => {
+    expect(overlayAt(8.3).kind).not.toBe("ending");
+    for (const slug of ["financial-hub", "effektify-reconciliation"]) {
+      let seen = false;
+      for (let s = 7.33; s < 8.5; s += 0.01) {
+        const o = overlayAt(s);
+        if (o.kind === "project" && o.slug === slug) seen = true;
+      }
+      expect(seen, slug).toBe(true);
+    }
   });
 });

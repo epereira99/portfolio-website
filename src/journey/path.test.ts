@@ -2,14 +2,14 @@ import { describe, expect, test } from "vitest";
 import { PATH_LENGTH, cameraPose, distanceAt, pathPoint, walkClipTime } from "./path";
 
 describe("path", () => {
-  test("starts at the origin and is 340 units long", () => {
-    expect(PATH_LENGTH).toBe(340);
+  test("starts at the origin and is 360 units long", () => {
+    expect(PATH_LENGTH).toBe(360);
     pathPoint(0).forEach((v) => expect(v).toBeCloseTo(0, 5));
   });
 
   test("stays flat, heads into the screen and keeps gentle bends", () => {
     let prevZ = Infinity;
-    for (let d = 0; d <= 340; d += 10) {
+    for (let d = 0; d <= 360; d += 10) {
       const [x, y, z] = pathPoint(d);
       expect(y).toBe(0);
       expect(z).toBeLessThanOrEqual(prevZ);
@@ -20,7 +20,7 @@ describe("path", () => {
 
   test("distanceAt clamps to the walk", () => {
     expect(distanceAt(-1)).toBe(0);
-    expect(distanceAt(100)).toBe(340);
+    expect(distanceAt(100)).toBe(360);
   });
 
   test("camera sits above and behind the walker", () => {
