@@ -128,3 +128,35 @@ test("entering Porto announces the Deloitte chapter, and the header keeps it in 
   await scrollToScreens(page, 2.2);
   await expect(page.getByRole("navigation", { name: "Journey" }).getByText("Deloitte", { exact: true })).toBeVisible();
 });
+
+test.describe("the ending", () => {
+  test("invites the visitor with ways to get in touch, navigation still there", async ({ page }) => {
+    await page.goto("/");
+    await scrollToScreens(page, 9);
+    await expect(page.getByRole("heading", { name: "The next chapter starts here." })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Email me" })).toHaveAttribute("href", "mailto:eduardoluisvp99@gmail.com");
+    await expect(page.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("target", "_blank");
+    await expect(page.getByRole("button", { name: "Projects" })).toBeVisible();
+  });
+
+  test("scrolling back out of the ending returns to Stockholm", async ({ page }) => {
+    await page.goto("/");
+    await scrollToScreens(page, 9);
+    await expect(page.getByRole("heading", { name: "The next chapter starts here." })).toBeVisible();
+    await scrollToScreens(page, 8.0);
+    await expect(page.getByRole("heading", { name: "The next chapter starts here." })).toHaveCount(0);
+    await expect(
+      page.getByRole("navigation", { name: "Journey" }).getByRole("button", { name: "Stockholm" }),
+    ).toHaveAttribute("aria-current", "step");
+  });
+
+  test("scrolling past the very bottom keeps the ending and throws nothing", async ({ page }) => {
+    const errors: Error[] = [];
+    page.on("pageerror", (e) => errors.push(e));
+    await page.goto("/");
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight + 1000));
+    await expect(page.getByRole("heading", { name: "The next chapter starts here." })).toBeVisible();
+    await page.waitForTimeout(1000);
+    expect(errors).toEqual([]);
+  });
+});
