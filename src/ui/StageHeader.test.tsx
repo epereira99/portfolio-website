@@ -58,3 +58,21 @@ test("stays out of the way during the home intro", () => {
   const { container } = at(0.2);
   expect(container.querySelector("nav")).toHaveAttribute("aria-hidden", "true");
 });
+
+test("cities behind you are marked done", () => {
+  at(2);
+  expect(screen.getByRole("button", { name: "Braga" })).toHaveAttribute("data-done", "true");
+  expect(screen.getByRole("button", { name: "Porto" })).not.toHaveAttribute("data-done");
+  expect(screen.getByRole("button", { name: "Jönköping" })).not.toHaveAttribute("data-done");
+  expect(screen.getByRole("button", { name: "Stockholm" })).not.toHaveAttribute("data-done");
+});
+
+test("at the ending every city is done and the header looks ahead", () => {
+  at(9);
+  for (const city of ["Braga", "Porto", "Jönköping", "Stockholm"]) {
+    const button = screen.getByRole("button", { name: city });
+    expect(button).toHaveAttribute("data-done", "true");
+    expect(button).not.toHaveAttribute("aria-current");
+  }
+  expect(screen.getByRole("navigation", { name: "Journey" })).toHaveTextContent("Today · Stockholm — the next chapter");
+});

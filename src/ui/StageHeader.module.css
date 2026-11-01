@@ -47,6 +47,15 @@
   color: #0d0f14;
 }
 
+.city[data-done="true"]:not([aria-current]) {
+  background: #5eead433;
+  color: var(--text);
+}
+
+.check {
+  color: var(--accent);
+}
+
 .stage {
   margin: 0;
   padding: 8px 18px;
