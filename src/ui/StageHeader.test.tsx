@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { setScreens } from "@/journey/progress";
 import { StageHeader } from "./StageHeader";
 
@@ -23,6 +23,14 @@ test("highlights the current city and shows its stage", () => {
   at(2);
   expect(screen.getByRole("button", { name: "Porto" })).toHaveAttribute("aria-current", "step");
   expect(screen.getByRole("navigation", { name: "Journey" })).toHaveTextContent("Deloitte · Cloud & DevOps");
+});
+
+test("leads with the stage title and shows progress through the stage", () => {
+  at(2);
+  const nav = screen.getByRole("navigation", { name: "Journey" });
+  const title = within(nav).getByText("Deloitte");
+  expect(title.tagName).toBe("STRONG");
+  expect(screen.getByRole("button", { name: "Porto" }).style.getPropertyValue("--progress")).toBe("0.25");
 });
 
 test("shows the voyage between Porto and Jönköping with no city current", () => {

@@ -30,10 +30,10 @@
 .city {
   border: 0;
   border-radius: 999px;
-  padding: 6px 14px;
+  padding: 5px 12px;
   background: transparent;
   color: var(--muted);
-  font: 600 13px/1 var(--font);
+  font: 600 12px/1 var(--font);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
@@ -43,16 +43,25 @@
 }
 
 .city[aria-current="step"] {
-  background: var(--accent);
+  background: linear-gradient(90deg, var(--accent) calc(var(--progress, 0) * 100%), #5eead466 0);
   color: #0d0f14;
 }
 
 .stage {
   margin: 0;
-  padding: 4px 12px;
+  padding: 8px 18px;
+  border: 1px solid var(--glass-line);
   border-radius: 999px;
   background: var(--glass);
-  color: var(--text);
-  font: 500 12.5px/1.4 var(--font);
+  backdrop-filter: blur(10px);
+  color: var(--muted);
+  font: 500 14px/1.4 var(--font);
   text-align: center;
+}
+
+.title {
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
