@@ -1,6 +1,7 @@
 "use client";
 
 import { projectBySlug } from "@/content/projects";
+import { STAGES } from "@/content/stages";
 import { useScreens } from "@/journey/progress";
 import { overlayAt } from "@/journey/timeline";
 import { useOpenProject } from "./useOpenProject";
@@ -20,6 +21,26 @@ export function JourneyOverlay() {
           MSc in AI Engineering. Based in Stockholm, open to new roles. Scroll to walk through my journey from Braga to
           Stockholm.
         </p>
+      </div>
+    );
+  }
+
+  if (overlay.kind === "chapter") {
+    const index = STAGES.findIndex((st) => st.id === overlay.stage);
+    const { city, chapter } = STAGES[index];
+    // Holds for the first half, then shrinks up toward the header; scroll-linked, so it reverses.
+    const k = Math.max(0, (overlay.t - 0.5) / 0.5);
+    return (
+      <div
+        className={`${styles.block} ${styles.chapter}`}
+        key={`chapter-${overlay.stage}`}
+        style={{ opacity: 1 - k, transform: `translateY(${(-14 * k).toFixed(2)}vh) scale(${(1 - 0.45 * k).toFixed(3)})` }}
+      >
+        <p className={styles.stage}>
+          Chapter {index + 1} · {city}
+        </p>
+        <h2 className={styles.chapterTitle}>{chapter.title}</h2>
+        <p className={styles.text}>{chapter.detail}</p>
       </div>
     );
   }
