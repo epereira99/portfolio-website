@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { cameraPose, distanceAt, pathPoint, type Vec3 } from "../path";
-import { DECK_HEIGHT, avatarPose, cameraPoseAt, nauPose } from "./poses";
+import { DECK_HEIGHT, GANGPLANK, HULL_HALF_WIDTH, MOOR_OFFSET, avatarPose, cameraPoseAt, nauPose } from "./poses";
 
 const near = (a: Vec3, b: Vec3, digits = 4) => a.forEach((v, i) => expect(v).toBeCloseTo(b[i], digits));
 
@@ -46,6 +46,12 @@ describe("cameraPoseAt", () => {
 
   test("lands behind the walker in Jönköping", () => {
     near(cameraPoseAt(5.0).position, cameraPose(200).position);
+  });
+});
+
+describe("boarding geometry", () => {
+  test("the gangplank reaches the hull, so the avatar never walks on air", () => {
+    expect(GANGPLANK).toBeGreaterThanOrEqual(MOOR_OFFSET - HULL_HALF_WIDTH);
   });
 });
 

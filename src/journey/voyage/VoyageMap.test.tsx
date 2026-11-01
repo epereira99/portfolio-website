@@ -2,7 +2,7 @@ import { afterEach, expect, test, vi } from "vitest";
 import { act, render, screen } from "@testing-library/react";
 import { setScreens } from "../progress";
 import { ROUTE } from "./europe";
-import { pointAlong } from "./route";
+import { pointAlong, shipTransform } from "./route";
 import { VoyageMap } from "./VoyageMap";
 
 const MAP = "Map: sailing from Porto to Jönköping";
@@ -29,9 +29,7 @@ test("mid-voyage the route is half drawn and the ship is halfway along it", () =
   expect((map.parentElement as HTMLElement).style.opacity).toBe("1");
   expect(Number(container.querySelector("mask path")!.getAttribute("stroke-dashoffset"))).toBeCloseTo(0.5);
   const { x, y, angle } = pointAlong(ROUTE, 0.5);
-  expect(container.querySelector('[data-part="ship"]')!.getAttribute("transform")).toBe(
-    `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${angle.toFixed(1)})`,
-  );
+  expect(container.querySelector('[data-part="ship"]')!.getAttribute("transform")).toBe(shipTransform(x, y, angle));
 });
 
 test("labels both ends of the voyage", () => {

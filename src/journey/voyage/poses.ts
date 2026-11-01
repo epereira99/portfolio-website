@@ -8,8 +8,9 @@ export const DECK_HEIGHT = 2.2; // matches the nau model's DeckSpot
 export type Pose = { position: Vec3; heading: number }; // heading = rotation.y; 0 faces +Z
 type CameraTarget = { position: Vec3; target: Vec3 };
 
-const MOOR_OFFSET = 7; // nau centre, to the walker's right (the Douro)
-const GANGPLANK = 4; // top of the gangplank, to the right
+export const MOOR_OFFSET = 7; // nau centre, to the walker's right (the Douro)
+export const HULL_HALF_WIDTH = 1.6; // nau.glb hull, from its centre line to its side
+export const GANGPLANK = MOOR_OFFSET - HULL_HALF_WIDTH + 0.2; // top of the gangplank rests on the hull's edge
 const SAIL_DISTANCE = 12;
 
 const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);

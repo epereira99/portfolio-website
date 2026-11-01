@@ -3,7 +3,7 @@
 import { useScreens } from "../progress";
 import { JONKOPING, LAND_PATH, PORTO, ROUTE, VIEWBOX } from "./europe";
 import { voyageState } from "./phase";
-import { ROUTE_D, pointAlong } from "./route";
+import { ROUTE_D, pointAlong, shipTransform } from "./route";
 import styles from "./VoyageMap.module.css";
 
 const INK = "#7a5a33";
@@ -89,7 +89,7 @@ export function VoyageMap() {
         />
         <City at={PORTO} name="Porto" dx={-20} dy={44} />
         <City at={JONKOPING} name="Jönköping" dx={-40} dy={-22} />
-        <g data-part="ship" transform={`translate(${ship.x.toFixed(1)} ${ship.y.toFixed(1)}) rotate(${ship.angle.toFixed(1)})`}>
+        <g data-part="ship" transform={shipTransform(ship.x, ship.y, ship.angle)}>
           <g className={styles.bob}>
             <path d="M-16 2 Q0 14 16 2 Z" fill="#6b4423" stroke="#3b2612" strokeWidth={1.5} />
             <rect x={-1} y={-22} width={2} height={24} fill="#3b2612" />

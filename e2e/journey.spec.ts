@@ -110,3 +110,12 @@ test.describe("on a phone", () => {
     }
   });
 });
+
+test("with reduced motion the map's ship holds still", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await scrollToScreens(page, 4.3);
+  const bob = page.locator('[data-part="ship"] > g');
+  await expect(bob).toHaveCount(1);
+  expect(await bob.evaluate((el) => getComputedStyle(el).animationIterationCount)).toBe("1");
+});

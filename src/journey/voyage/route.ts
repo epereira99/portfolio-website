@@ -24,4 +24,12 @@ export function pointAlong(pts: Pt[], t: number): { x: number; y: number; angle:
   return { x: pts[0][0], y: pts[0][1], angle: 0 };
 }
 
+/** The map's ship is drawn in profile: keep it upright, face it west when sailing west, tilt at most 15°. */
+export function shipTransform(x: number, y: number, angle: number): string {
+  const west = Math.cos((angle * Math.PI) / 180) < 0;
+  const relative = west ? ((((angle - 180) % 360) + 540) % 360) - 180 : angle;
+  const tilt = Math.min(Math.max(relative, -15), 15);
+  return `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${(tilt + 0).toFixed(1)})${west ? " scale(-1 1)" : ""}`;
+}
+
 export const ROUTE_D = ROUTE.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join(" ");

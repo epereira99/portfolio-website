@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
-import { DECK_HEIGHT } from "./journey/voyage/poses";
+import { DECK_HEIGHT, HULL_HALF_WIDTH } from "./journey/voyage/poses";
 
 type Gltf = {
   nodes: { name?: string; mesh?: number; translation?: number[] }[];
@@ -47,6 +47,12 @@ describe("nau.glb", () => {
     expect(length).toBeGreaterThanOrEqual(8);
     expect(length).toBeLessThanOrEqual(14);
     expect(pos.min![1]).toBeGreaterThanOrEqual(-1.5);
+  });
+
+  test("is as wide as the boarding geometry assumes", () => {
+    const hull = node("Hull")!;
+    const pos = gltf.accessors[gltf.meshes[hull.mesh!].primitives[0].attributes.POSITION];
+    expect(pos.max![0]).toBeCloseTo(HULL_HALF_WIDTH, 1);
   });
 
   test("carries the red cross of the Order of Christ", () => {
