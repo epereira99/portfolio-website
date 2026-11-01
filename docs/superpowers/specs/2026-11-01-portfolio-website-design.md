@@ -140,6 +140,8 @@ The whole walk is **about 60–90 seconds of normal scrolling, roughly 8–10 sc
 
 - **Townscaper-like** **[Eduardo]**: soft, rounded, toy-like low-poly shapes; chunky houses with slightly bulging walls; pastel palettes; soft light and gentle shadows; light distance haze. Cheerful, not childish. **[my call]** on the specifics.
 - Each city keeps its own palette and time of day inside that shared style (see §6).
+- **Buildings ahead fade in as you approach** them; they are not visible far ahead. Passed buildings stay. **[Eduardo]**
+- **Landmarks are modelled from photos of the real places** (stylized, no photo textures). **[Eduardo]**
 - **Water only where it is real**: the Douro (Porto), the sea (voyage map), Lake Vättern (Jönköping), the water around Gamla Stan (Stockholm). None in Braga. **[Eduardo]**
 - The parchment map is the only non-3D-world visual and should feel hand-drawn.
 - 2D UI (intro, header, buttons, cards) uses a dark, glassy, rounded look, as in the mockups. **[my call]** Typography and final palette are TBD.
