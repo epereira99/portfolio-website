@@ -82,13 +82,17 @@ describe("the ending", () => {
     expect(avatarPose(8.4).heading).toBeCloseTo(headingAt(336));
   });
 
-  test("the camera pulls back to frame the face", () => {
+  test("the camera comes in close at face height to meet the viewer", () => {
     const quay = pathPoint(340);
     const from = (s: number) => {
       const p = cameraPoseAt(s).position;
       return Math.hypot(p[0] - quay[0], p[1] - quay[1], p[2] - quay[2]);
     };
-    expect(cameraPoseAt(9).target[1]).toBeCloseTo(1.5);
-    expect(from(9)).toBeGreaterThan(from(8.5));
+    const end = cameraPoseAt(9);
+    expect(end.position[1]).toBeGreaterThan(1.4);
+    expect(end.position[1]).toBeLessThan(1.9);
+    expect(end.target[1]).toBeCloseTo(1.35);
+    expect(from(9)).toBeLessThan(4);
+    expect(from(9)).toBeLessThan(from(8.5));
   });
 });

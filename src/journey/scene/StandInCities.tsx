@@ -5,7 +5,7 @@ import { BufferGeometry, Color, Float32BufferAttribute, Fog } from "three";
 import { useFrame } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
 import { SEGMENTS, segmentAt } from "../timeline";
-import { PATH_LENGTH, pathPoint, pathTangent } from "../path";
+import { PATH_LENGTH, QUAY_END, pathPoint, pathTangent } from "../path";
 import { getScreens } from "../progress";
 import { standInBlocks } from "./standIn";
 
@@ -14,7 +14,7 @@ const target = new Color();
 function Walkway() {
   const geometry = useMemo(() => {
     const pos: number[] = [];
-    for (let d = 0; d < PATH_LENGTH; d += 1) {
+    for (let d = 0; d < QUAY_END + 1; d += 1) { // the built path ends at the quay
       for (const dd of [d, d + 1]) {
         const [px, , pz] = pathPoint(dd);
         const [tx, , tz] = pathTangent(dd);

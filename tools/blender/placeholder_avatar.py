@@ -59,8 +59,12 @@ PARTS = [
     ("LeftForeArm", (0.28, 0, 0.92), (0.05, 0.05, 0.16), 2),
     ("RightArm", (-0.26, 0, 1.21), (0.055, 0.055, 0.17), 0),
     ("RightForeArm", (-0.28, 0, 0.92), (0.05, 0.05, 0.16), 2),
+    # A simple face (front is Blender -Y) so the ending's turn toward the viewer reads.
+    ("Head", (0, -0.12, 1.6), (0.025, 0.03, 0.03), 2),
+    ("Head", (0.045, -0.105, 1.655), (0.018, 0.012, 0.018), 3),
+    ("Head", (-0.045, -0.105, 1.655), (0.018, 0.012, 0.018), 3),
 ]
-COLORS = [(0.93, 0.55, 0.45, 1), (0.25, 0.3, 0.5, 1), (0.96, 0.82, 0.68, 1)]  # shirt, trousers, skin
+COLORS = [(0.93, 0.55, 0.45, 1), (0.25, 0.3, 0.5, 1), (0.96, 0.82, 0.68, 1), (0.05, 0.05, 0.07, 1)]  # shirt, trousers, skin, eyes
 
 mesh = bpy.data.meshes.new("Body")
 body = bpy.data.objects.new("Body", mesh)

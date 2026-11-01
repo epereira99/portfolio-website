@@ -94,12 +94,13 @@ const blend = (a: CameraTarget, b: CameraTarget, f: number): CameraTarget => ({
 
 export function cameraPoseAt(s: number): CameraTarget {
   if (s >= ENDING_START) {
-    // Pull back a little and drop to face height to frame the avatar as it turns.
+    // Come in close at face height to meet the avatar as it turns toward the viewer.
     const base = cameraPose(QUAY_END);
+    const quay = pathPoint(QUAY_END);
     const [tx, , tz] = flatTangent(QUAY_END);
     const face: CameraTarget = {
-      position: add(base.position, [-tx * 2, -0.6, -tz * 2]),
-      target: add(pathPoint(QUAY_END), [0, 1.5, 0]),
+      position: add(quay, [-tx * 3.2, 1.6, -tz * 3.2]),
+      target: add(quay, [0, 1.35, 0]),
     };
     return blend(base, face, easeInOut(endingT(s)));
   }
