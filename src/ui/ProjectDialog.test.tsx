@@ -1,0 +1,61 @@
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import { act, fireEvent, render, renderHook, screen } from "@testing-library/react";
+import { ProjectDialog } from "./ProjectDialog";
+import { useOpenProject } from "./useOpenProject";
+
+const goTo = (url: string) => window.history.replaceState(null, "", url);
+
+beforeEach(() => goTo("/"));
+afterEach(() => {
+  const { result } = renderHook(() => useOpenProject());
+  act(() => result.current.close());
+  vi.restoreAllMocks();
+});
+
+test("a shared link opens that project's dialog", () => {
+  goTo("/?project=financial-hub");
+  render(<ProjectDialog />);
+  expect(screen.getByRole("dialog", { name: "Financial Hub" })).toBeInTheDocument();
+});
+
+test("an unknown or empty project link is ignored", () => {
+  goTo("/?project=does-not-exist");
+  const { unmount } = render(<ProjectDialog />);
+  expect(screen.queryByRole("dialog")).toBeNull();
+  unmount();
+  goTo("/?project=");
+  render(<ProjectDialog />);
+  expect(screen.queryByRole("dialog")).toBeNull();
+});
+
+test("open and close keep the URL in sync", () => {
+  const { result } = renderHook(() => useOpenProject());
+  act(() => result.current.open("saab-thesis"));
+  expect(window.location.search).toBe("?project=saab-thesis");
+  act(() => result.current.close());
+  expect(window.location.search).toBe("");
+});
+
+test("Escape and the close button both close it", () => {
+  goTo("/?project=financial-hub");
+  render(<ProjectDialog />);
+  fireEvent.keyDown(window, { key: "Escape" });
+  expect(screen.queryByRole("dialog")).toBeNull();
+
+  const { result } = renderHook(() => useOpenProject());
+  act(() => result.current.open("financial-hub"));
+  fireEvent.click(screen.getByRole("button", { name: "Close" }));
+  expect(screen.queryByRole("dialog")).toBeNull();
+});
+
+test("opening a project pauses the walk and closing resumes from the same spot", () => {
+  const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+  Object.defineProperty(window, "scrollY", { configurable: true, value: 1600 });
+  render(<ProjectDialog />);
+  const { result } = renderHook(() => useOpenProject());
+  act(() => result.current.open("mambu-migration"));
+  expect(document.documentElement.style.overflow).toBe("hidden");
+  act(() => result.current.close());
+  expect(document.documentElement.style.overflow).toBe("");
+  expect(scrollTo).not.toHaveBeenCalled();
+});
