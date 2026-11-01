@@ -34,5 +34,6 @@ export function ScrollDriver() {
     };
   }, []);
 
-  return <div ref={ref} aria-hidden style={{ height: `${(TOTAL_SCREENS + 1) * 100}svh` }} />;
+  // lvh, not svh: on phones innerHeight can exceed svh, and the ending must stay reachable
+  return <div ref={ref} aria-hidden style={{ height: `${(TOTAL_SCREENS + 1) * 100}lvh` }} />;
 }

@@ -3,6 +3,7 @@ import { render } from "@testing-library/react";
 import { createElement } from "react";
 import { getScreens, readScreensFromWindow, scrollToScreens, setScreens, subscribe } from "./progress";
 import { ScrollDriver } from "./ScrollDriver";
+import { TOTAL_SCREENS } from "./timeline";
 
 let scrollTo: ReturnType<typeof vi.spyOn>;
 beforeEach(() => {
@@ -43,6 +44,12 @@ describe("progress store", () => {
 });
 
 describe("ScrollDriver", () => {
+  test("the scroll area always reaches the ending, even with mobile toolbars collapsed", () => {
+    // innerHeight can exceed svh on phones; lvh is never smaller than innerHeight.
+    const { container } = render(createElement(ScrollDriver));
+    expect((container.firstChild as HTMLElement).style.height).toBe(`${(TOTAL_SCREENS + 1) * 100}lvh`);
+  });
+
   test("keeps the walker in place when the window is resized", () => {
     render(createElement(ScrollDriver));
     setScreens(5);
