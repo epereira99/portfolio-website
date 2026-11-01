@@ -1,6 +1,7 @@
 "use client";
 
-import { Component, Suspense, type ReactNode } from "react";
+import { Suspense } from "react";
+import { Quiet } from "./Quiet";
 import { Canvas } from "@react-three/fiber";
 import { Avatar } from "./Avatar";
 import { CameraRig } from "./CameraRig";
@@ -9,17 +10,6 @@ import { Nau } from "./Nau";
 import { WelcomeBanner } from "./WelcomeBanner";
 import { UnbuiltPath } from "./UnbuiltPath";
 import { CityLighting } from "../art/CityLighting";
-
-// No WebGL or a failed asset must never take the page down: the UI layers still work.
-class Quiet extends Component<{ children: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-  render() {
-    return this.state.failed ? null : this.props.children;
-  }
-}
 
 export function JourneyCanvas() {
   return (
