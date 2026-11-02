@@ -45,19 +45,6 @@
   mask-composite: intersect;
 }
 
-/* Until Eduardo's painting exists */
-.placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-image: radial-gradient(ellipse at 40% 35%, #4b5a9c 0%, #27306a 45%, #121a40 100%);
-  color: var(--muted-on-scene);
-  font-family: var(--font);
-  font-size: clamp(16px, 1.6vw, 22px);
-  letter-spacing: 0.04em;
-  text-align: center;
-}
-
 .walker {
   position: absolute;
   left: 50%;

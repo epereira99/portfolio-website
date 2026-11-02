@@ -26,17 +26,18 @@ const stubImages = (ok: boolean) =>
 
 const twoFrames = () => act(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
 
-test("renders the walker on the still frame, one node per memory, aria-hidden", () => {
+test("renders the walker on the still frame, one node per painted memory, aria-hidden", () => {
   const { container } = render(<MemoryWalk />);
   expect(container.firstElementChild!.getAttribute("aria-hidden")).toBe("true");
   expect(container.querySelector("img")!.getAttribute("src")).toBe("/walk/walk-000.webp");
-  expect(container.querySelectorAll("[data-memory]")).toHaveLength(MEMORIES.length);
+  expect(container.querySelectorAll("[data-memory]")).toHaveLength(MEMORIES.filter((m) => m.src).length);
 });
 
-test("a memory without an image shows its name as a placeholder", () => {
+test("memories without a painting yet aren't shown at all", () => {
   const pending = MEMORIES.find((m) => !m.src)!;
   const { container } = render(<MemoryWalk />);
-  expect(container.querySelector(`[data-memory="${pending.id}"]`)!.textContent).toContain(pending.label);
+  expect(container.querySelector(`[data-memory="${pending.id}"]`)).toBeNull();
+  expect(container.textContent).not.toContain(pending.label);
 });
 
 test("scrubs to the frame for the current position once every frame has loaded", async () => {
@@ -56,12 +57,12 @@ test("keeps the still frame when frames fail to load", async () => {
 });
 
 test("a memory alongside the walker is visible, one far ahead is not", async () => {
-  const bom = MEMORIES.find((m) => m.id === "bom-jesus")!;
-  act(() => setScreens(bom.at));
+  const arcada = MEMORIES.find((m) => m.id === "arcada")!;
+  act(() => setScreens(arcada.at));
   const { container } = render(<MemoryWalk />);
   await twoFrames();
-  expect((container.querySelector('[data-memory="bom-jesus"]') as HTMLElement).style.opacity).toBe("1");
-  expect((container.querySelector('[data-memory="stadshuset"]') as HTMLElement).style.opacity).toBe("0");
+  expect((container.querySelector('[data-memory="arcada"]') as HTMLElement).style.opacity).toBe("1");
+  expect((container.querySelector('[data-memory="nau"]') as HTMLElement).style.opacity).toBe("0");
 });
 
 test("does not pull in three.js", () => {

@@ -9,7 +9,9 @@ import { WALK_FRAMES, easeProgress, stepFrame, walkFrame, walkFrameUrl } from ".
 import styles from "./MemoryWalk.module.css";
 
 const STARS = 420;
-const NAU = MEMORIES.findIndex((m) => m.id === "nau");
+// Only memories with a painting are shown; the rest appear once their image lands (art/memory-prompts.md).
+const PAINTED = MEMORIES.filter((m) => m.src);
+const NAU = PAINTED.findIndex((m) => m.id === "nau");
 
 /** The Journey's world: a starry night, painted memories, and Eduardo walking, all driven by scroll (spec 2026-11-02). */
 export function MemoryWalk() {
@@ -67,7 +69,7 @@ export function MemoryWalk() {
         ctx.globalAlpha = 1;
       }
 
-      MEMORIES.forEach((m, i) => {
+      PAINTED.forEach((m, i) => {
         const el = memoryRefs.current[i];
         if (!el) return;
         const pose = memoryPose(m, p, reducedMotion);
@@ -116,18 +118,16 @@ export function MemoryWalk() {
   return (
     <div className={styles.scene} aria-hidden>
       <canvas ref={canvasRef} className={styles.stars} />
-      {MEMORIES.map((m, i) => (
+      {PAINTED.map((m, i) => (
         <div
           key={m.id}
           data-memory={m.id}
           ref={(el) => {
             memoryRefs.current[i] = el;
           }}
-          className={`${styles.memory} ${m.layout === "centre" ? styles.centre : styles.side} ${m.src ? "" : styles.placeholder}`}
-          style={m.src ? { backgroundImage: `url(${m.src})` } : undefined}
-        >
-          {!m.src && <span>{m.label}</span>}
-        </div>
+          className={`${styles.memory} ${m.layout === "centre" ? styles.centre : styles.side}`}
+          style={{ backgroundImage: `url(${m.src})` }}
+        />
       ))}
       {/* eslint-disable-next-line @next/next/no-img-element -- frames are swapped per animation frame; next/image would fight that */}
       <img ref={walkerRef} className={styles.walker} src={walkFrameUrl(0)} alt="" />
