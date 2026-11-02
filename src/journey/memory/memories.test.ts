@@ -7,10 +7,13 @@ test("the agreed set, in path order", () => {
     "arcada",
     "bom-jesus",
     "uminho",
-    "clerigos",
-    "dom-luis",
+    "porto-ribeira",
+    "porto-riverside",
+    "porto-douro",
     "nau",
     "jonkoping-university",
+    "jonkoping-stora-hotellet",
+    "stockholm-gamla-stan",
     "stadshuset",
   ]);
   const ats = MEMORIES.map((m) => m.at);
@@ -23,10 +26,13 @@ test("each memory sits in its stage, the nau at the end of Porto", () => {
     arcada: "braga",
     "bom-jesus": "braga",
     uminho: "braga",
-    clerigos: "porto",
-    "dom-luis": "porto",
+    "porto-ribeira": "porto",
+    "porto-riverside": "porto",
+    "porto-douro": "porto",
     nau: "porto",
     "jonkoping-university": "jonkoping",
+    "jonkoping-stora-hotellet": "jonkoping",
+    "stockholm-gamla-stan": "stockholm",
     stadshuset: "stockholm",
   });
   expect(MEMORIES.find((m) => m.id === "nau")!.layout).toBe("centre");
@@ -62,4 +68,9 @@ test("no NaN for out-of-range progress", () => {
       expect([p.opacity, p.x, p.scale].every(Number.isFinite)).toBe(true);
     }
   }
+});
+
+test("every memory with a painting points at its compressed image", () => {
+  for (const m of MEMORIES.filter((x) => x.src)) expect(m.src).toBe(`/memories/${m.id}.webp`);
+  expect(MEMORIES.filter((m) => m.src).map((m) => m.id)).toEqual(["arcada", "bom-jesus", "uminho", "porto-ribeira", "nau"]);
 });

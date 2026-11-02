@@ -2,26 +2,33 @@ export type MemoryId =
   | "arcada"
   | "bom-jesus"
   | "uminho"
-  | "clerigos"
-  | "dom-luis"
+  | "porto-ribeira"
+  | "porto-riverside"
+  | "porto-douro"
   | "nau"
   | "jonkoping-university"
+  | "jonkoping-stora-hotellet"
+  | "stockholm-gamla-stan"
   | "stadshuset";
 
 /** at: journey position in screens where the walker is alongside it. hold: screens it stays fully visible after that.
  * src: unset until Eduardo's painting exists. */
 export type Memory = { id: MemoryId; label: string; at: number; layout: "side" | "centre"; hold?: number; src?: string };
 
-// Positions follow the 3D landmarks' path distances ÷ 40. The nau closes Porto and holds while he boards it (boarding.ts);
-// Stadshuset stays behind the ending.
+// Eduardo's set (art/memory-prompts.md), spaced along each stage. The nau closes Porto and holds while he boards it
+// (boarding.ts); Stadshuset stays behind the ending. Memories without a src aren't shown yet.
+const img = (id: MemoryId) => `/memories/${id}.webp`;
 export const MEMORIES: Memory[] = [
-  { id: "arcada", label: "Arcada", at: 0.3, layout: "side", src: "/memories/arcada.webp" },
-  { id: "bom-jesus", label: "Bom Jesus do Monte", at: 0.8, layout: "side" },
-  { id: "uminho", label: "Universidade do Minho", at: 1.3, layout: "side" },
-  { id: "clerigos", label: "Clérigos", at: 2.0, layout: "side" },
-  { id: "dom-luis", label: "Ponte Dom Luís I", at: 2.5, layout: "side" },
-  { id: "nau", label: "A nau", at: 3.3, layout: "centre", hold: 0.55, src: "/memories/nau.webp" },
+  { id: "arcada", label: "Arcada", at: 0.3, layout: "side", src: img("arcada") },
+  { id: "bom-jesus", label: "Bom Jesus do Monte", at: 0.8, layout: "side", src: img("bom-jesus") },
+  { id: "uminho", label: "Universidade do Minho", at: 1.3, layout: "side", src: img("uminho") },
+  { id: "porto-ribeira", label: "Ribeira", at: 1.8, layout: "side", src: img("porto-ribeira") },
+  { id: "porto-riverside", label: "Ribeira riverside", at: 2.2, layout: "side" },
+  { id: "porto-douro", label: "The Douro", at: 2.6, layout: "side" },
+  { id: "nau", label: "A nau", at: 3.3, layout: "centre", hold: 0.55, src: img("nau") },
   { id: "jonkoping-university", label: "Jönköping University", at: 5.4, layout: "side" },
+  { id: "jonkoping-stora-hotellet", label: "Stora Hotellet", at: 6.2, layout: "side" },
+  { id: "stockholm-gamla-stan", label: "Gamla Stan", at: 7.6, layout: "side" },
   { id: "stadshuset", label: "Stadshuset", at: 8.9, layout: "side" },
 ];
 
