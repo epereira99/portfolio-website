@@ -15,7 +15,7 @@ export type Memory = { id: MemoryId; label: string; at: number; layout: "side" |
 // Positions follow the 3D landmarks' path distances ÷ 40. The nau closes Porto and holds while he boards it (boarding.ts);
 // Stadshuset stays behind the ending.
 export const MEMORIES: Memory[] = [
-  { id: "arcada", label: "Arcada", at: 0.3, layout: "side" },
+  { id: "arcada", label: "Arcada", at: 0.3, layout: "side", src: "/memories/arcada.webp" },
   { id: "bom-jesus", label: "Bom Jesus do Monte", at: 0.8, layout: "side" },
   { id: "uminho", label: "Universidade do Minho", at: 1.3, layout: "side" },
   { id: "clerigos", label: "Clérigos", at: 2.0, layout: "side" },

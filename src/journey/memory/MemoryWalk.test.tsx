@@ -34,8 +34,9 @@ test("renders the walker on the still frame, one node per memory, aria-hidden", 
 });
 
 test("a memory without an image shows its name as a placeholder", () => {
+  const pending = MEMORIES.find((m) => !m.src)!;
   const { container } = render(<MemoryWalk />);
-  expect(container.querySelector('[data-memory="arcada"]')!.textContent).toContain("Arcada");
+  expect(container.querySelector(`[data-memory="${pending.id}"]`)!.textContent).toContain(pending.label);
 });
 
 test("scrubs to the frame for the current position once every frame has loaded", async () => {
