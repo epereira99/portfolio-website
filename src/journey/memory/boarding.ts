@@ -4,6 +4,8 @@
 /** Journey positions (screens) where boarding starts and where he is halfway up, just as the map fades in. */
 export const BOARD_FROM = 3.1;
 export const BOARD_TO = 3.8;
+/** By here the map covers the whole screen, so he is quietly put back to full size for the walk out in Jönköping. */
+export const BOARDED = 3.96;
 
 // Measured on art/memories/nau.png (square): halfway up the gangplank, just past the quay edge, and a person's
 // height standing there (1.6× the gangplank's width at that point).
@@ -11,6 +13,7 @@ const PLANK = { x: 0.502, y: 0.62 };
 export const END_PERSON = 0.18;
 
 export function boardingProgress(s: number): number {
+  if (s >= BOARDED) return 0;
   return Math.min(Math.max((s - BOARD_FROM) / (BOARD_TO - BOARD_FROM), 0), 1);
 }
 

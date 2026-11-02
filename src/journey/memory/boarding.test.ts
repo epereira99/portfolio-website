@@ -1,6 +1,8 @@
 import { expect, test } from "vitest";
 import { MEMORIES, memoryPose } from "./memories";
-import { BOARD_FROM, BOARD_TO, boardingProgress, boardingTransform, plankPoint } from "./boarding";
+import { segmentStart } from "../timeline";
+import { voyageState } from "../voyage/phase";
+import { BOARD_FROM, BOARD_TO, BOARDED, boardingProgress, boardingTransform, plankPoint } from "./boarding";
 
 test("boarding runs from just before the ship to where the map takes over", () => {
   const nau = MEMORIES.find((m) => m.id === "nau")!;
@@ -62,4 +64,11 @@ test("his pace matches his steps: every bit of scroll takes him the same distanc
   const steps = [0.25, 0.5, 0.75, 1].map((t, i, all) => distance(t) - distance(i ? all[i - 1] : 0));
   for (const step of steps) expect(step).toBeCloseTo(steps[0]);
   expect(boardingProgress((BOARD_FROM + BOARD_TO) / 2)).toBeCloseTo(0.5);
+});
+
+test("he is back to full size after the voyage, reset while the map covers the screen", () => {
+  expect(voyageState(BOARDED).mapOpacity).toBe(1);
+  expect(boardingProgress(BOARDED)).toBe(0);
+  expect(boardingProgress(segmentStart("jonkoping"))).toBe(0);
+  expect(boardingProgress(BOARDED - 0.01)).toBe(1);
 });
