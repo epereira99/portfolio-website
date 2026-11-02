@@ -65,6 +65,18 @@ export function ProjectDialog() {
               <p className={styles.text}>{s.body}</p>
             </section>
           ))}
+          {project.lists?.map((l, i) => (
+            <section key={l.heading}>
+              <h3 id={`${titleId}-list-${i}`} className={styles.heading}>
+                {l.heading}
+              </h3>
+              <ul aria-labelledby={`${titleId}-list-${i}`} className={styles.list}>
+                {l.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </section>
+          ))}
         </div>
       </div>
     </dialog>

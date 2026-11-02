@@ -53,7 +53,7 @@ export function JourneyOverlay() {
   const stage = chapterAt(s);
   if (!stage) return null;
   const index = STAGES.findIndex((st) => st.id === stage);
-  const { city, chapter } = STAGES[index];
+  const { city, chapter, degree } = STAGES[index];
   const project = overlay.kind === "project" ? projectBySlug(overlay.slug) : undefined;
 
   // The chapter stays for the whole stage; its projects fade in under it one at a time (each keyed so it fades in).
@@ -71,6 +71,11 @@ export function JourneyOverlay() {
         )}
       </h2>
       <p className={styles.text}>{chapter.detail}</p>
+      {degree && (
+        <button type="button" className={styles.more} onClick={() => open(degree)}>
+          About the degree
+        </button>
+      )}
       {project && (
         <div className={styles.project} key={project.slug}>
           <p className={styles.stage}>{project.stageLabel}</p>

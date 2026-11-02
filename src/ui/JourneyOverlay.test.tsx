@@ -88,3 +88,14 @@ describe("the ending", () => {
     expect(block().style.opacity).toBe("1");
   });
 });
+
+test("the BSc chapter has a button that opens the degree like a project", () => {
+  at(0.6);
+  fireEvent.click(screen.getByRole("button", { name: "About the degree" }));
+  expect(window.location.search).toBe("?project=bsc-computer-science");
+});
+
+test("Deloitte's chapter has no degree button", () => {
+  at(1.6);
+  expect(screen.queryByRole("button", { name: "About the degree" })).toBeNull();
+});

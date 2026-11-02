@@ -59,3 +59,11 @@ test("opening a project pauses the walk and closing resumes from the same spot",
   expect(document.documentElement.style.overflow).toBe("");
   expect(scrollTo).not.toHaveBeenCalled();
 });
+
+test("a degree opens with its description and every subject", () => {
+  goTo("/?project=msc-ai-engineering");
+  render(<ProjectDialog />);
+  const dialog = screen.getByRole("dialog", { name: "MSc AI Engineering" });
+  expect(dialog).toHaveTextContent("AI Driven Sensor Optimization For Marksman Posture Analysis");
+  expect(screen.getByRole("list", { name: "Courses" }).querySelectorAll("li")).toHaveLength(12);
+});

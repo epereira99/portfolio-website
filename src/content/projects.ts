@@ -1,4 +1,5 @@
 import type { StageId } from "./stages";
+import { DEGREES } from "./degrees";
 
 export type Project = {
   slug: string;
@@ -10,6 +11,7 @@ export type Project = {
   tags: string[];
   color: string;
   sections: { heading: string; body: string }[];
+  lists?: { heading: string; items: string[] }[]; // e.g. a degree's subjects
 };
 
 // Write-ups are placeholders until the copy is written (spec §11).
@@ -88,6 +90,7 @@ export function projectsForStage(id: StageId): Project[] {
   return PROJECTS.filter((p) => p.stage === id).sort((a, b) => a.order - b.order);
 }
 
+/** Projects, plus the degrees that open the same way from their chapter. */
 export function projectBySlug(slug: string): Project | undefined {
-  return PROJECTS.find((p) => p.slug === slug);
+  return PROJECTS.find((p) => p.slug === slug) ?? DEGREES.find((d) => d.slug === slug);
 }

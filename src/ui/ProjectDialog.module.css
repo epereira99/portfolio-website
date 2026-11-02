@@ -109,3 +109,20 @@
     transform: scale(0.6);
   }
 }
+
+/* a degree's subjects: short items, so two columns where there is room */
+.list {
+  margin: 0;
+  padding-left: 1.1em;
+  columns: 2;
+  column-gap: 28px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+@media (max-width: 640px) {
+  .list {
+    columns: 1;
+  }
+}
