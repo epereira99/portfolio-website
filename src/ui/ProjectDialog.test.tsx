@@ -73,8 +73,8 @@ test("degree cards have no image on top; the BSc logo sits at the top right, bes
   render(<ProjectDialog />);
   const dialog = screen.getByRole("dialog", { name: "BSc Computer Science" });
   expect(dialog.querySelector("[data-graphic]")).toBeNull();
-  const logo = screen.getByRole("img", { name: "University of Minho, School of Sciences" });
-  expect(logo).toHaveAttribute("src", "/degrees/uminho-school-of-sciences.png");
+  const logo = screen.getByRole("img", { name: "University of Minho" });
+  expect(logo).toHaveAttribute("src", "/degrees/uminho-symbol.png");
   expect(logo.closest("header")).toContainElement(screen.getByRole("heading", { name: "BSc Computer Science" }));
 });
 

@@ -62,13 +62,11 @@
   padding-right: 48px;
 }
 
-/* the logo's own white backing, kept small and rounded beside the title */
+/* an institution's symbol beside the title */
 .logo {
   flex: none;
-  height: 64px;
-  padding: 6px;
-  border-radius: 8px;
-  background: #fff;
+  height: 72px;
+  margin-top: 4px;
 }
 
 .body {
