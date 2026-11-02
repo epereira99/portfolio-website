@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { getScreens } from "../progress";
 import { voyageState } from "../voyage/phase";
-import { BOARD_FROM, DECK_PERSON, boardingProgress, boardingTransform, plankPoint } from "./boarding";
+import { BOARD_FROM, END_PERSON, boardingProgress, boardingTransform, plankPoint } from "./boarding";
 import { MEMORIES, memoryPose } from "./memories";
 import { WALK_FRAMES, easeProgress, stepFrame, walkFrame, walkFrameUrl } from "./walk";
 import styles from "./MemoryWalk.module.css";
@@ -86,7 +86,7 @@ export function MemoryWalk() {
           feetY: walker.offsetTop + walker.offsetHeight,
           plankY: plankPoint(box).y,
           startHeight: walker.offsetHeight,
-          endHeight: DECK_PERSON * Math.max(box.width, box.height),
+          endHeight: END_PERSON * Math.max(box.width, box.height),
         });
         walker.style.transform = `translateX(-50%) translateY(${ty}px) scale(${scale})`;
       } else {
