@@ -1,7 +1,7 @@
 export type StageId = "braga" | "porto" | "jonkoping" | "stockholm";
 
-/** chapter: the title card shown on entering the stage, also the header's main line. */
-export type Stage = { id: StageId; city: string; header: string; chapter: { title: string; detail: string } };
+/** chapter: the title card shown through the stage, also the header's main line. dot: a coloured full stop after the title. */
+export type Stage = { id: StageId; city: string; header: string; chapter: { title: string; detail: string; dot?: string } };
 
 export const STAGES: Stage[] = [
   {
@@ -14,7 +14,7 @@ export const STAGES: Stage[] = [
     id: "porto",
     city: "Porto",
     header: "Deloitte · Cloud & DevOps → Integration Software · 2022–2024",
-    chapter: { title: "Deloitte", detail: "Cloud & DevOps → Integration Software · 2022–2024" },
+    chapter: { title: "Deloitte", detail: "Cloud & DevOps → Integration Software · 2022–2024", dot: "#86bc25" }, // Deloitte's green dot
   },
   {
     id: "jonkoping",

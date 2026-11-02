@@ -1,8 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { setScreens } from "@/journey/progress";
-import { segmentStart } from "@/journey/timeline";
-import { WELCOME_BANNER } from "@/content/voyage";
 import { JourneyOverlay } from "./JourneyOverlay";
 
 beforeEach(() => window.history.replaceState(null, "", "/"));
@@ -34,17 +32,27 @@ test("announces the stage with a chapter title as you enter Porto", () => {
   expect(screen.queryByRole("button", { name: /read more/i })).toBeNull();
 });
 
-test("the chapter title shrinks up and away as you walk on", () => {
-  at(1.5);
-  const start = screen.getByRole("heading", { name: "Deloitte" }).parentElement!.style;
-  expect(start.opacity).toBe("1");
-  act(() => setScreens(1.79));
-  const late = screen.getByRole("heading", { name: "Deloitte" }).parentElement!.style;
-  expect(Number(late.opacity)).toBeLessThan(0.6);
-  expect(late.transform).toMatch(/scale\(0\.[0-9]+\)/);
+test("the chapter stays while its projects appear and disappear under it", () => {
+  at(2.0);
+  expect(screen.getByRole("heading", { level: 2, name: "Deloitte" })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Mambu migration tool" })).toBeInTheDocument();
+  act(() => setScreens(2.6));
+  expect(screen.getByRole("heading", { level: 2, name: "Deloitte" })).toBeInTheDocument();
+  expect(screen.queryByRole("heading", { name: "Mambu migration tool" })).toBeNull();
+  expect(screen.queryByRole("button", { name: /read more/i })).toBeNull();
+  act(() => setScreens(3.0));
+  expect(screen.getByRole("heading", { level: 2, name: "Deloitte" })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Azure ML integrations" })).toBeInTheDocument();
 });
 
-test("shows nothing between projects", () => {
+test("Deloitte gets its green dot", () => {
+  at(1.6);
+  const dot = screen.getByRole("heading", { level: 2, name: "Deloitte" }).querySelector("[data-dot]");
+  expect(dot).toHaveTextContent(".");
+  expect(screen.queryByText("BSc Computer Science")).toBeNull();
+});
+
+test("shows nothing at sea", () => {
   at(4);
   expect(screen.queryByRole("heading")).toBeNull();
   expect(screen.queryByRole("button", { name: /read more/i })).toBeNull();
@@ -79,9 +87,4 @@ describe("the ending", () => {
     act(() => setScreens(8.75));
     expect(block().style.opacity).toBe("1");
   });
-});
-
-test("landing in Jönköping shows the welcome banner", () => {
-  at(segmentStart("jonkoping") + 0.15);
-  expect(screen.getByText(WELCOME_BANNER)).toBeInTheDocument();
 });

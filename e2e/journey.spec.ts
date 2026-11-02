@@ -1,5 +1,4 @@
 import { expect, test, type Page } from "@playwright/test";
-import { WELCOME_BANNER } from "../src/content/voyage";
 
 const scrollToScreens = (page: Page, s: number) => page.evaluate((s) => window.scrollTo(0, s * window.innerHeight), s);
 
@@ -162,10 +161,8 @@ test.describe("the ending", () => {
   });
 });
 
-test("Eduardo walks on the starry night, and Jönköping welcomes him", async ({ page }) => {
+test("Eduardo walks on the starry night, with no 3D on the page", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator('img[src^="/walk/"]')).toBeVisible();
   await expect(page.locator("canvas[data-engine]")).toHaveCount(0); // three.js tags every canvas it renders to
-  await scrollToScreens(page, 5.15);
-  await expect(page.getByText(WELCOME_BANNER)).toBeVisible();
 });

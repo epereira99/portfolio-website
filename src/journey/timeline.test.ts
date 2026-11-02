@@ -5,6 +5,7 @@ import {
   chapterDelay,
   ENDING_START,
   TOTAL_SCREENS,
+  chapterAt,
   overlayAt,
   segmentAt,
   segmentStart,
@@ -48,19 +49,16 @@ describe("overlayAt", () => {
   test("announces each stage with a chapter title as you enter it", () => {
     expect(overlayAt(0.5)).toEqual({ kind: "chapter", stage: "braga", t: 0 });
     expect(overlayAt(1.5)).toEqual({ kind: "chapter", stage: "porto", t: 0 });
-    expect(overlayAt(5.35)).toMatchObject({ kind: "chapter", stage: "jonkoping" });
+    expect(overlayAt(5.1)).toMatchObject({ kind: "chapter", stage: "jonkoping" });
     expect(overlayAt(7.0)).toMatchObject({ kind: "chapter", stage: "stockholm" });
     const mid = overlayAt(1.5 + CHAPTER_SCREENS / 2);
     expect(mid.kind === "chapter" && mid.t).toBeCloseTo(0.5);
     expect(overlayAt(1.5 + CHAPTER_SCREENS).kind).not.toBe("chapter");
   });
 
-  test("in Jönköping the welcome banner speaks first, then the chapter title", () => {
-    const banner = overlayAt(segmentStart("jonkoping") + 0.15);
-    expect(banner.kind).toBe("banner");
-    expect(banner.kind === "banner" && banner.t).toBeCloseTo(0.5);
-    expect(overlayAt(segmentStart("jonkoping") + chapterDelay("jonkoping"))).toMatchObject({ kind: "chapter", stage: "jonkoping" });
-    expect(overlayAt(5.35)).toMatchObject({ kind: "chapter", stage: "jonkoping" });
+  test("in Jönköping the chapter title appears as soon as you land", () => {
+    expect(chapterDelay("jonkoping")).toBe(0);
+    expect(overlayAt(segmentStart("jonkoping"))).toMatchObject({ kind: "chapter", stage: "jonkoping" });
   });
 
   test("chapter titles never overlap a project", () => {
@@ -101,5 +99,21 @@ describe("ending", () => {
       }
       expect(seen, slug).toBe(true);
     }
+  });
+});
+
+describe("chapterAt", () => {
+  test("the stage's chapter stays for the whole stage, through and between its projects", () => {
+    expect(chapterAt(0.6)).toBe("braga");
+    expect(chapterAt(2.0)).toBe("porto");
+    expect(chapterAt(2.6)).toBe("porto");
+    expect(chapterAt(3.0)).toBe("porto");
+    expect(chapterAt(5.0)).toBe("jonkoping");
+  });
+
+  test("no chapter during the intro, at sea or at the ending", () => {
+    expect(chapterAt(0.2)).toBeNull();
+    expect(chapterAt(4.0)).toBeNull();
+    expect(chapterAt(ENDING_START)).toBeNull();
   });
 });

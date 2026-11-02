@@ -3,14 +3,14 @@
 import { projectBySlug } from "@/content/projects";
 import { STAGES } from "@/content/stages";
 import { CV_URL, EMAIL, ENDING, LINKEDIN } from "@/content/contact";
-import { WELCOME_BANNER } from "@/content/voyage";
 import { useScreens } from "@/journey/progress";
-import { overlayAt } from "@/journey/timeline";
+import { chapterAt, overlayAt } from "@/journey/timeline";
 import { useOpenProject } from "./useOpenProject";
 import styles from "./JourneyOverlay.module.css";
 
 export function JourneyOverlay() {
-  const overlay = overlayAt(useScreens());
+  const s = useScreens();
+  const overlay = overlayAt(s);
   const { open } = useOpenProject();
 
   if (overlay.kind === "intro") {
@@ -50,46 +50,37 @@ export function JourneyOverlay() {
     );
   }
 
-  if (overlay.kind === "banner") {
-    return (
-      <div className={styles.block} key="banner" style={{ opacity: Math.min(overlay.t / 0.3, 1) }}>
-        <h2 className={styles.chapterTitle}>{WELCOME_BANNER}</h2>
-      </div>
-    );
-  }
-
-  if (overlay.kind === "chapter") {
-    const index = STAGES.findIndex((st) => st.id === overlay.stage);
-    const { city, chapter } = STAGES[index];
-    // Holds for the first half, then shrinks up toward the header; scroll-linked, so it reverses.
-    const k = Math.max(0, (overlay.t - 0.5) / 0.5);
-    return (
-      <div
-        className={`${styles.block} ${styles.chapter}`}
-        key={`chapter-${overlay.stage}`}
-        style={{ opacity: 1 - k, transform: `translateY(${(-14 * k).toFixed(2)}vh) scale(${(1 - 0.45 * k).toFixed(3)})` }}
-      >
-        <p className={styles.stage}>
-          Chapter {index + 1} · {city}
-        </p>
-        <h2 className={styles.chapterTitle}>{chapter.title}</h2>
-        <p className={styles.text}>{chapter.detail}</p>
-      </div>
-    );
-  }
-
+  const stage = chapterAt(s);
+  if (!stage) return null;
+  const index = STAGES.findIndex((st) => st.id === stage);
+  const { city, chapter } = STAGES[index];
   const project = overlay.kind === "project" ? projectBySlug(overlay.slug) : undefined;
-  if (!project) return null;
 
-  // keyed so each new project fades in
+  // The chapter stays for the whole stage; its projects fade in under it one at a time (each keyed so it fades in).
   return (
-    <div className={styles.block} key={project.slug}>
-      <p className={styles.stage}>{project.stageLabel}</p>
-      <h2 className={styles.title}>{project.title}</h2>
-      <p className={styles.text}>{project.subtitle}</p>
-      <button type="button" className={styles.more} onClick={() => open(project.slug)}>
-        Read more
-      </button>
+    <div className={styles.block} key={`chapter-${stage}`}>
+      <p className={styles.stage}>
+        Chapter {index + 1} · {city}
+      </p>
+      <h2 className={styles.chapterTitle}>
+        {chapter.title}
+        {chapter.dot && (
+          <span data-dot aria-hidden style={{ color: chapter.dot }}>
+            .
+          </span>
+        )}
+      </h2>
+      <p className={styles.text}>{chapter.detail}</p>
+      {project && (
+        <div className={styles.project} key={project.slug}>
+          <p className={styles.stage}>{project.stageLabel}</p>
+          <h3 className={styles.title}>{project.title}</h3>
+          <p className={styles.text}>{project.subtitle}</p>
+          <button type="button" className={styles.more} onClick={() => open(project.slug)}>
+            Read more
+          </button>
+        </div>
+      )}
     </div>
   );
 }

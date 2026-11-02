@@ -56,8 +56,9 @@
   line-height: 1.1;
 }
 
-.chapter {
-  transform-origin: top left;
+.project {
+  margin-top: 28px;
+  animation: in 0.3s ease-out both;
 }
 
 .chapterTitle {

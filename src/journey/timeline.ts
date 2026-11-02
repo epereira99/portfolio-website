@@ -40,9 +40,17 @@ export function segmentAt(s: number): SegmentId {
 
 export const CHAPTER_SCREENS = 0.33; // how long a stage's chapter title holds after entering it
 
-/** Screens into a stage before its chapter title: Braga waits for the home intro, Jönköping for the welcome banner. */
+/** Screens into a stage before its chapter title: Braga waits for the home intro. */
 export function chapterDelay(id: StageId): number {
-  return id === "braga" ? INTRO_END : id === "jonkoping" ? 0.3 : 0;
+  return id === "braga" ? INTRO_END : 0;
+}
+
+/** The stage whose chapter is on screen: it stays for the whole stage, with its projects coming and going under it. */
+export function chapterAt(s: number): StageId | null {
+  if (s < INTRO_END || s >= ENDING_START) return null;
+  const x = clamp(s);
+  const id = segmentAt(x);
+  return id === "voyage" || x < segmentStart(id) + chapterDelay(id) ? null : id;
 }
 
 export function stageProgress(s: number): number {
@@ -54,7 +62,6 @@ export function stageProgress(s: number): number {
 
 export type Overlay =
   | { kind: "intro" }
-  | { kind: "banner"; t: number }
   | { kind: "chapter"; stage: StageId; t: number }
   | { kind: "project"; slug: string }
   | { kind: "ending"; t: number }
@@ -67,7 +74,7 @@ export function overlayAt(s: number): Overlay {
   const id = segmentAt(x);
   if (id === "voyage") return { kind: "none" };
   const chapterFrom = segmentStart(id) + chapterDelay(id);
-  if (x < chapterFrom) return id === "jonkoping" ? { kind: "banner", t: (x - segmentStart(id)) / chapterDelay(id) } : { kind: "none" };
+  if (x < chapterFrom) return { kind: "none" };
   if (x - chapterFrom < CHAPTER_SCREENS) return { kind: "chapter", stage: id, t: (x - chapterFrom) / CHAPTER_SCREENS };
   const projects = projectsForStage(id);
   if (projects.length === 0) return { kind: "none" };
