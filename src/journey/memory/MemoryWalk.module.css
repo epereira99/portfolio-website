@@ -13,36 +13,38 @@
   height: 100%;
 }
 
-/* No frame: the edges dissolve into the night like a memory surfacing (spec §6). */
+/* No frame: only the outer edges dissolve into the night, so the painting itself stays whole (spec §6). */
 .memory {
   position: absolute;
   opacity: 0;
   background: center / cover no-repeat;
   will-change: opacity, transform;
-  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 40%, transparent 100%);
-  mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 40%, transparent 100%);
+  --fade-y: linear-gradient(to bottom, transparent 0, #000 10%, #000 88%, transparent 100%);
+  --fade-x: linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%);
+  -webkit-mask-image: var(--fade-y), var(--fade-x);
+  -webkit-mask-composite: source-in;
+  mask-image: var(--fade-y), var(--fade-x);
+  mask-composite: intersect;
 }
 
-/* Starts centred on the path ahead; memoryPose slides it out to the right as he reaches it. */
+/* Starts centred on the path ahead; memoryPose slides it out to the right as he reaches it.
+   Shaped like the paintings (4:5) so none of it is cropped. */
 .side {
-  left: 36vw;
+  left: calc(50% - 24.8vh);
   top: 9vh;
-  width: 28vw;
   height: 62vh;
+  aspect-ratio: 4 / 5;
 }
 
-/* Square, below the header, faded only toward its sides and bottom so the ship's masts and flag stay visible. */
+/* Square, below the header. */
 .centre {
   left: calc(50% - 40vh);
   top: 12vh;
   width: 80vh;
   height: 80vh;
+  /* the ship's flag sits near the top, and the gangplank runs out of the bottom */
   --fade-y: linear-gradient(to bottom, transparent 0, #000 4%, #000 62%, transparent 100%);
   --fade-x: linear-gradient(to right, transparent 0, #000 22%, #000 78%, transparent 100%);
-  -webkit-mask-image: var(--fade-y), var(--fade-x);
-  -webkit-mask-composite: source-in;
-  mask-image: var(--fade-y), var(--fade-x);
-  mask-composite: intersect;
 }
 
 .walker {
@@ -64,9 +66,8 @@
 
   /* Between the text (top) and his shoulders; the walker is drawn in front of it. */
   .side {
-    left: 15vw;
+    left: calc(50% - 10.4vh);
     top: 34vh;
-    width: 70vw;
     height: 26vh;
   }
 
