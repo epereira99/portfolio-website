@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { describe, expect, test } from "vitest";
 
 type Gltf = {
@@ -40,5 +40,26 @@ describe("avatar.glb follows the avatar contract", () => {
     expect(top).toBeGreaterThan(1.6);
     expect(top).toBeLessThanOrEqual(2.0);
     expect(bottom).toBeGreaterThanOrEqual(-0.01);
+  });
+});
+
+describe("memory walk assets stay within budget", () => {
+  const walk = existsSync("public/walk") ? readdirSync("public/walk").filter((f) => f.endsWith(".webp")).sort() : [];
+
+  test("139 walk frames named walk-000..walk-138", () => {
+    expect(walk).toHaveLength(139);
+    expect(walk[0]).toBe("walk-000.webp");
+    expect(walk[138]).toBe("walk-138.webp");
+  });
+
+  test("walk frames total ≤ 4 MB", () => {
+    const total = walk.reduce((sum, f) => sum + statSync(`public/walk/${f}`).size, 0);
+    expect(total).toBeLessThanOrEqual(4 * 1024 * 1024);
+  });
+
+  test("each memory image ≤ 300 KB", () => {
+    const dir = "public/memories";
+    const files = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith(".webp")) : [];
+    for (const f of files) expect(statSync(`${dir}/${f}`).size, f).toBeLessThanOrEqual(300 * 1024);
   });
 });
