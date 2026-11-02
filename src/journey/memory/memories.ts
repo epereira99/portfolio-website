@@ -18,7 +18,7 @@ export const MEMORIES: Memory[] = [
   { id: "uminho", label: "Universidade do Minho", at: 1.3, layout: "side" },
   { id: "clerigos", label: "Clérigos", at: 2.2, layout: "side" },
   { id: "dom-luis", label: "Ponte Dom Luís I", at: 2.95, layout: "side" },
-  { id: "nau", label: "A nau", at: 3.7, layout: "centre" },
+  { id: "nau", label: "A nau", at: 3.7, layout: "centre", src: "/memories/nau.webp" },
   { id: "jonkoping-university", label: "Jönköping University", at: 5.4, layout: "side" },
   { id: "stadshuset", label: "Stadshuset", at: 8.9, layout: "side" },
 ];

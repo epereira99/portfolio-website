@@ -3,11 +3,13 @@
 import { useEffect, useRef } from "react";
 import { getScreens } from "../progress";
 import { voyageState } from "../voyage/phase";
+import { BOARD_FROM, DECK_PERSON, boardingProgress, boardingTransform, plankPoint } from "./boarding";
 import { MEMORIES, memoryPose } from "./memories";
 import { WALK_FRAMES, easeProgress, stepFrame, walkFrame, walkFrameUrl } from "./walk";
 import styles from "./MemoryWalk.module.css";
 
 const STARS = 420;
+const NAU = MEMORIES.findIndex((m) => m.id === "nau");
 
 /** The Journey's world: a starry night, painted memories, and Eduardo walking, all driven by scroll (spec 2026-11-02). */
 export function MemoryWalk() {
@@ -75,6 +77,21 @@ export function MemoryWalk() {
 
       const walker = walkerRef.current!;
       walker.style.opacity = String(1 - voyageState(p).mapOpacity);
+      // At the ship he walks up its gangplank into the painting (art/memories/nau.png).
+      const t = reducedMotion || p < BOARD_FROM ? 0 : boardingProgress(p);
+      const nau = memoryRefs.current[NAU];
+      if (t > 0 && nau && walker.offsetHeight > 0) {
+        const box = nau.getBoundingClientRect();
+        const { ty, scale } = boardingTransform(t, {
+          feetY: walker.offsetTop + walker.offsetHeight,
+          plankY: plankPoint(box).y,
+          startHeight: walker.offsetHeight,
+          endHeight: DECK_PERSON * Math.max(box.width, box.height),
+        });
+        walker.style.transform = `translateX(-50%) translateY(${ty}px) scale(${scale})`;
+      } else {
+        walker.style.transform = "";
+      }
       if (ready && !reducedMotion) {
         // Step a few frames at a time while scrubbing; land directly on the first frame shown and after a snap.
         const f = scrubbing && Math.abs(p - last) <= 1 ? stepFrame(shown, walkFrame(p)) : walkFrame(p);

@@ -57,6 +57,7 @@
   bottom: -3vh;
   height: 97vh;
   transform: translateX(-50%);
+  transform-origin: 50% 100%; /* boarding shrinks him toward his feet */
   filter: drop-shadow(0 0 18px rgba(120, 150, 255, 0.25));
   user-select: none;
 }
