@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { getScreens } from "../progress";
 import { voyageState } from "../voyage/phase";
 import { BOARD_FROM, END_PERSON, boardingProgress, boardingTransform, plankPoint } from "./boarding";
-import { MEMORIES, memoryPose } from "./memories";
+import { MEMORIES, focusBlur, memoryPose } from "./memories";
 import { WALK_FRAMES, easeProgress, stepFrame, walkFrame, walkFrameUrl } from "./walk";
 import styles from "./MemoryWalk.module.css";
 
@@ -22,6 +22,8 @@ export function MemoryWalk() {
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const phone = window.matchMedia("(max-width: 640px)");
+    // How side memories arrive: from the path ahead (default), ?reveal=surface or ?reveal=pass. Eduardo is comparing them.
+    const reveal = new URLSearchParams(location.search).get("reveal");
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d");
     const stars = Array.from({ length: STARS }, () => ({ x: Math.random() * 2 - 1, y: Math.random() * 2 - 1, z: Math.random() }));
@@ -76,6 +78,17 @@ export function MemoryWalk() {
         el.style.opacity = String(pose.opacity);
         // Side memories rest on the right; until he reaches them they hang over the path ahead (the screen's centre).
         const fromCentre = innerWidth / 2 - (el.offsetLeft + el.offsetWidth / 2);
+        if (m.layout === "side" && !phone.matches && reveal === "surface") {
+          // appears in place, coming into focus with a slow zoom
+          el.style.transform = `scale(${0.96 + 0.04 * pose.x})`;
+          el.style.filter = `blur(${focusBlur(pose)}px)`;
+          return;
+        }
+        if (m.layout === "side" && !phone.matches && reveal === "pass") {
+          // slides in from the right edge and keeps drifting left, like scenery passing
+          el.style.transform = `translateX(${(1 - pose.x) * 0.45 * innerWidth}px)`;
+          return;
+        }
         const dx = phone.matches || m.layout === "centre" ? 0 : (1 - pose.x) * fromCentre;
         el.style.transform = `translateX(${dx}px) scale(${pose.scale})`;
       });

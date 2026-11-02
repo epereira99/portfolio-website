@@ -55,3 +55,8 @@ export function memoryPose(m: Memory, s: number, reducedMotion: boolean): Memory
   const k = reducedMotion ? 1 : clamp(1 - d / 0.3, 0, 1.3); // 0 far ahead → 1 alongside
   return m.layout === "side" ? { opacity, x: k, scale: 0.35 + k * 0.65 } : { opacity, x: 0, scale: 0.6 + k * 0.36 };
 }
+
+/** Blur (px) for the "surface" reveal: it comes into focus while fading in, and is sharp once fully visible. */
+export function focusBlur(pose: MemoryPose): number {
+  return Math.round(Math.max(0, 1 - pose.x / 0.5) * 120) / 10;
+}

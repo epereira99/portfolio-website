@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { TOTAL_SCREENS, segmentAt } from "../timeline";
-import { MEMORIES, memoryPose } from "./memories";
+import { MEMORIES, focusBlur, memoryPose } from "./memories";
 
 test("the agreed set, in path order", () => {
   expect(MEMORIES.map((m) => m.id)).toEqual([
@@ -85,4 +85,12 @@ test("never two memories on screen at once: each one is gone before the next app
 test("alongside him a side memory is fully in its place on the right, at full size", () => {
   const m = MEMORIES.find((x) => x.layout === "side")!;
   expect(memoryPose(m, m.at, false)).toMatchObject({ opacity: 1, x: 1, scale: 1 });
+});
+
+test("the surface reveal is sharp by the time the memory is fully visible, blurred only while it fades in", () => {
+  const m = MEMORIES.find((x) => x.layout === "side")!;
+  let s = m.at - 0.3;
+  while (memoryPose(m, s, false).opacity < 1) s += 0.005;
+  expect(focusBlur(memoryPose(m, s, false))).toBe(0);
+  expect(focusBlur(memoryPose(m, m.at - 0.28, false))).toBeGreaterThan(0);
 });
