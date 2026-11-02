@@ -1,8 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
+import { WELCOME_BANNER } from "../src/content/voyage";
 
 const scrollToScreens = (page: Page, s: number) => page.evaluate((s) => window.scrollTo(0, s * window.innerHeight), s);
 
-test("the intro and navigation show before the 3D is ready", async ({ page }) => {
+test("the intro and navigation show before the walk frames load", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Eduardo Pereira" })).toBeVisible({ timeout: 2000 });
   await expect(page.getByRole("button", { name: "Projects" })).toBeVisible();
@@ -161,16 +162,10 @@ test.describe("the ending", () => {
   });
 });
 
-test("every city stays within the laptop budget (draw calls and triangles)", async ({ page }) => {
+test("Eduardo walks on the starry night, and Jönköping welcomes him", async ({ page }) => {
   await page.goto("/");
-  for (const s of [0.2, 2.6, 3.6, 5.6, 7.6, 9]) {
-    await scrollToScreens(page, s);
-    // wait for two fresh frames of stats after the scroll
-    const first = await page.waitForFunction(() => (window as unknown as { __journeyStats?: { frame: number } }).__journeyStats?.frame, null, { timeout: 15000 });
-    const start = (await first.jsonValue()) as number;
-    await page.waitForFunction((f) => ((window as unknown as { __journeyStats: { frame: number } }).__journeyStats.frame ?? 0) > f + 2, start);
-    const stats = await page.evaluate(() => (window as unknown as { __journeyStats: { calls: number; triangles: number } }).__journeyStats);
-    expect(stats.calls, `draw calls at s=${s}`).toBeLessThanOrEqual(120);
-    expect(stats.triangles, `triangles at s=${s}`).toBeLessThanOrEqual(600_000);
-  }
+  await expect(page.locator('img[src^="/walk/"]')).toBeVisible();
+  await expect(page.locator("canvas[data-engine]")).toHaveCount(0); // three.js tags every canvas it renders to
+  await scrollToScreens(page, 5.15);
+  await expect(page.getByText(WELCOME_BANNER)).toBeVisible();
 });

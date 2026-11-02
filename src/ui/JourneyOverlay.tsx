@@ -3,6 +3,7 @@
 import { projectBySlug } from "@/content/projects";
 import { STAGES } from "@/content/stages";
 import { CV_URL, EMAIL, ENDING, LINKEDIN } from "@/content/contact";
+import { WELCOME_BANNER } from "@/content/voyage";
 import { useScreens } from "@/journey/progress";
 import { overlayAt } from "@/journey/timeline";
 import { useOpenProject } from "./useOpenProject";
@@ -45,6 +46,14 @@ export function JourneyOverlay() {
             </a>
           )}
         </div>
+      </div>
+    );
+  }
+
+  if (overlay.kind === "banner") {
+    return (
+      <div className={styles.block} key="banner" style={{ opacity: Math.min(overlay.t / 0.3, 1) }}>
+        <h2 className={styles.chapterTitle}>{WELCOME_BANNER}</h2>
       </div>
     );
   }

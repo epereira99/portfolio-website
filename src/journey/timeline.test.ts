@@ -56,7 +56,10 @@ describe("overlayAt", () => {
   });
 
   test("in Jönköping the welcome banner speaks first, then the chapter title", () => {
-    expect(overlayAt(5.1)).toEqual({ kind: "none" });
+    const banner = overlayAt(segmentStart("jonkoping") + 0.15);
+    expect(banner.kind).toBe("banner");
+    expect(banner.kind === "banner" && banner.t).toBeCloseTo(0.5);
+    expect(overlayAt(segmentStart("jonkoping") + chapterDelay("jonkoping"))).toMatchObject({ kind: "chapter", stage: "jonkoping" });
     expect(overlayAt(5.35)).toMatchObject({ kind: "chapter", stage: "jonkoping" });
   });
 

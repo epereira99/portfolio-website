@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { setScreens } from "@/journey/progress";
+import { segmentStart } from "@/journey/timeline";
+import { WELCOME_BANNER } from "@/content/voyage";
 import { JourneyOverlay } from "./JourneyOverlay";
 
 beforeEach(() => window.history.replaceState(null, "", "/"));
@@ -77,4 +79,9 @@ describe("the ending", () => {
     act(() => setScreens(8.75));
     expect(block().style.opacity).toBe("1");
   });
+});
+
+test("landing in Jönköping shows the welcome banner", () => {
+  at(segmentStart("jonkoping") + 0.15);
+  expect(screen.getByText(WELCOME_BANNER)).toBeInTheDocument();
 });

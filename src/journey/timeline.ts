@@ -54,6 +54,7 @@ export function stageProgress(s: number): number {
 
 export type Overlay =
   | { kind: "intro" }
+  | { kind: "banner"; t: number }
   | { kind: "chapter"; stage: StageId; t: number }
   | { kind: "project"; slug: string }
   | { kind: "ending"; t: number }
@@ -66,7 +67,7 @@ export function overlayAt(s: number): Overlay {
   const id = segmentAt(x);
   if (id === "voyage") return { kind: "none" };
   const chapterFrom = segmentStart(id) + chapterDelay(id);
-  if (x < chapterFrom) return { kind: "none" };
+  if (x < chapterFrom) return id === "jonkoping" ? { kind: "banner", t: (x - segmentStart(id)) / chapterDelay(id) } : { kind: "none" };
   if (x - chapterFrom < CHAPTER_SCREENS) return { kind: "chapter", stage: id, t: (x - chapterFrom) / CHAPTER_SCREENS };
   const projects = projectsForStage(id);
   if (projects.length === 0) return { kind: "none" };
