@@ -10,7 +10,8 @@ export const DEGREES: Project[] = [
     stageLabel: "Braga · Universidade do Minho",
     subtitle: "Licenciatura in Computer Science at Universidade do Minho, 2017–2022.",
     tags: ["Universidade do Minho", "Bachelor's degree", "2017–2022"],
-    color: "#7a1f2b",
+    color: "#ffffff", // the logo sits on white
+    image: { src: "/degrees/uminho-school-of-sciences.png", alt: "University of Minho, School of Sciences" },
     sections: [
       {
         heading: "The degree",

@@ -48,6 +48,14 @@
 
 .graphic {
   height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  max-height: 160px;
+  max-width: 80%;
 }
 
 .body {

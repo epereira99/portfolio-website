@@ -67,3 +67,10 @@ test("a degree opens with its description and every subject", () => {
   expect(dialog).toHaveTextContent("AI Driven Sensor Optimization For Marksman Posture Analysis");
   expect(screen.getByRole("list", { name: "Courses" }).querySelectorAll("li")).toHaveLength(12);
 });
+
+test("the BSc opens with the University of Minho School of Sciences logo", () => {
+  goTo("/?project=bsc-computer-science");
+  render(<ProjectDialog />);
+  const logo = screen.getByRole("img", { name: "University of Minho, School of Sciences" });
+  expect(logo).toHaveAttribute("src", "/degrees/uminho-school-of-sciences.png");
+});

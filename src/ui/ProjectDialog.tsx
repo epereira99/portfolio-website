@@ -48,7 +48,10 @@ export function ProjectDialog() {
         <button ref={closeButton} type="button" className={styles.close} aria-label="Close" onClick={closeProject}>
           ✕
         </button>
-        <div className={styles.graphic} style={{ background: project.color }} />
+        <div className={styles.graphic} style={{ background: project.color }}>
+          {/* eslint-disable-next-line @next/next/no-img-element -- a small static logo, shown at its own size */}
+          {project.image && <img className={styles.logo} src={project.image.src} alt={project.image.alt} />}
+        </div>
         <div className={styles.body}>
           <p className={styles.stage}>{project.stageLabel}</p>
           <h2 id={titleId} className={styles.title}>

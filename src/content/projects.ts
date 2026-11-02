@@ -12,6 +12,7 @@ export type Project = {
   color: string;
   sections: { heading: string; body: string }[];
   lists?: { heading: string; items: string[] }[]; // e.g. a degree's subjects
+  image?: { src: string; alt: string }; // shown in the card's header, on `color`
 };
 
 // Write-ups are placeholders until the copy is written (spec §11).
