@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Memory walk</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#050a1c;font-family:Georgia,serif;color:#e8ecff}
+  .sky{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 110%,#1d2c5e 0%,#0b1433 50%,#050a1c 100%)}
+  canvas{position:fixed;inset:0}
+  .text{position:fixed;left:6vw;top:28vh;width:28vw;opacity:0;will-change:opacity,transform}
+  .text .k{font-size:12px;letter-spacing:.2em;text-transform:uppercase;opacity:.6}
+  .text .t{font-size:clamp(24px,3vw,42px);margin:10px 0}
+  .text .d{font-size:16px;opacity:.75;line-height:1.5}
+  .memory{position:fixed;left:50%;top:40%;width:28vw;height:62vh;margin:-31vh 0 0 -14vw;opacity:0;
+    background:url(/files/memory-standin.png) center/cover;filter:saturate(.8);will-change:opacity,transform;
+    -webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 40%,transparent 100%);
+            mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 40%,transparent 100%)}
+  .me{position:fixed;left:50%;bottom:-3vh;height:97vh;transform:translateX(-50%);filter:drop-shadow(0 0 18px rgba(120,150,255,.25))}
+  .me img{height:100%;display:block}
+  .hud{position:fixed;left:12px;bottom:10px;font:13px system-ui;opacity:.5}
+</style></head>
+<body>
+  <div class="sky"></div><canvas id="c"></canvas>
+  <div id="stages"></div>
+  <div class="me"><img id="me" src="/files/walk-000.png" alt=""></div>
+  <div class="hud" id="hud">Scroll down to walk forward, up to walk back. Same stand-in memory for every stage.</div>
+<script>
+const STAGES=[
+  ["Braga · 2017–2022","BSc Computer Science","Universidade do Minho"],
+  ["Porto · 2022–2024","Deloitte","Cloud & DevOps → Integration Software"],
+  ["Jönköping · 2024–2026","MSc AI Engineering","Jönköping University"],
+  ["Stockholm · 2026–now","Effektify","Growth & AI · personal projects"]];
+const GAP=1, END=STAGES.length;     // progress units: one stage per unit
+const host=document.getElementById('stages');
+const els=STAGES.map(([k,t,d])=>{
+  const tx=document.createElement('div');tx.className='text';tx.innerHTML=`<div class="k">${k}</div><div class="t">${t}</div><div class="d">${d}</div>`;
+  const m=document.createElement('div');m.className='memory';host.append(m,tx);return{tx,m}});
+
+let target=0.15, p=target;
+addEventListener('wheel',e=>{target=Math.min(END,Math.max(0,target+e.deltaY/1800))},{passive:true});
+let ty=null;
+addEventListener('touchstart',e=>ty=e.touches[0].clientY,{passive:true});
+addEventListener('touchmove',e=>{const y=e.touches[0].clientY;target=Math.min(END,Math.max(0,target+(ty-y)/900));ty=y},{passive:true});
+
+// starfield flying toward the viewer; z is tied to progress so it reverses on scroll up
+const c=document.getElementById('c'),g=c.getContext('2d');let W,H;
+const resize=()=>{W=c.width=innerWidth*devicePixelRatio;H=c.height=innerHeight*devicePixelRatio};resize();addEventListener('resize',resize);
+const stars=Array.from({length:420},()=>({x:Math.random()*2-1,y:Math.random()*2-1,z:Math.random()}));
+const me=document.getElementById('me');
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)), smooth=(a,b,v)=>{v=clamp((v-a)/(b-a),0,1);return v*v*(3-2*v)};
+// walk loop frames, preloaded so scrubbing never waits on the network
+const FRAMES=139, FRAMES_PER_UNIT=150;
+const walk=Array.from({length:FRAMES},(_,i)=>{const im=new Image();im.src=`/files/walk-${String(i).padStart(3,"0")}.png`;return im});
+let shown=-1;
+
+function frame(){
+  p+=(target-p)*0.08;
+  g.clearRect(0,0,W,H);
+  for(const s of stars){
+    const z=((s.z-p*0.6)%1+1)%1+0.02, sx=W/2+s.x/z*W*0.25, sy=H*0.42+s.y/z*H*0.25;
+    const a=clamp((1-z)*1.4,0,1), r=Math.max(.5,(1-z)*2.2)*devicePixelRatio;
+    g.globalAlpha=a;g.fillStyle='#dfe6ff';g.beginPath();g.arc(sx,sy,r,0,7);g.fill();
+  }
+  g.globalAlpha=1;
+  els.forEach(({tx,m},i)=>{
+    const d=(i+0.6)*GAP-p;                      // distance to this memory; <0 = walked past it
+    const vis=smooth(1.1,0.55,d)*(1-smooth(0.05,-0.35,d));
+    const near=clamp(1-d/1.1,-0.5,1.3);         // 0 far away → 1 alongside
+    m.style.opacity=vis;
+    m.style.transform=`translateX(${near*30}vw) scale(${0.35+near*0.75})`;
+    tx.style.opacity=vis;
+    tx.style.transform=`translateY(${(1-near)*20}px)`;
+  });
+  // frame picked by distance walked, so scrolling back plays the walk in reverse
+  const f=((Math.floor(p*FRAMES_PER_UNIT)%FRAMES)+FRAMES)%FRAMES;
+  if(f!==shown&&walk[f].complete){me.src=walk[f].src;shown=f}
+  requestAnimationFrame(frame);
+}
+frame();
+</script>
+</body></html>
