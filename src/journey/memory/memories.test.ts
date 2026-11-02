@@ -17,7 +17,7 @@ test("the agreed set, in path order", () => {
   expect([...ats].sort((a, b) => a - b)).toEqual(ats);
 });
 
-test("each memory sits in its stage, the nau at the start of the voyage", () => {
+test("each memory sits in its stage, the nau at the end of Porto", () => {
   const where = Object.fromEntries(MEMORIES.map((m) => [m.id, segmentAt(m.at)]));
   expect(where).toEqual({
     arcada: "braga",
@@ -25,7 +25,7 @@ test("each memory sits in its stage, the nau at the start of the voyage", () => 
     uminho: "braga",
     clerigos: "porto",
     "dom-luis": "porto",
-    nau: "voyage",
+    nau: "porto",
     "jonkoping-university": "jonkoping",
     stadshuset: "stockholm",
   });

@@ -31,11 +31,18 @@
   height: 62vh;
 }
 
+/* Square, below the header, faded only toward its sides and bottom so the ship's masts and flag stay visible. */
 .centre {
-  left: 30vw;
-  top: 10vh;
-  width: 40vw;
-  height: 70vh;
+  left: calc(50% - 40vh);
+  top: 12vh;
+  width: 80vh;
+  height: 80vh;
+  --fade-y: linear-gradient(to bottom, transparent 0, #000 4%, #000 62%, transparent 100%);
+  --fade-x: linear-gradient(to right, transparent 0, #000 22%, #000 78%, transparent 100%);
+  -webkit-mask-image: var(--fade-y), var(--fade-x);
+  -webkit-mask-composite: source-in;
+  mask-image: var(--fade-y), var(--fade-x);
+  mask-composite: intersect;
 }
 
 /* Until Eduardo's painting exists */
@@ -77,9 +84,9 @@
   }
 
   .centre {
-    left: 10vw;
-    top: 26vh;
-    width: 80vw;
-    height: 40vh;
+    left: 5vw;
+    top: 24vh;
+    width: 90vw;
+    height: 90vw;
   }
 }

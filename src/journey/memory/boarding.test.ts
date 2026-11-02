@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { MEMORIES } from "./memories";
+import { MEMORIES, memoryPose } from "./memories";
 import { BOARD_FROM, BOARD_TO, boardingProgress, boardingTransform, plankPoint } from "./boarding";
 
 test("boarding runs from just before the ship to where the map takes over", () => {
@@ -40,4 +40,22 @@ test("the top of the gangplank sits where the painting puts it, scaled with the 
   const tall = plankPoint({ left: 0, top: 0, width: 400, height: 600 });
   expect(tall.y).toBeCloseTo(0.466 * 600);
   expect(tall.x).toBeCloseTo(200 + (0.502 - 0.5) * 600);
+});
+
+test("he walks up the gangplank for at least two thirds of a screen of scrolling", () => {
+  expect(BOARD_TO - BOARD_FROM).toBeGreaterThanOrEqual(0.65);
+});
+
+test("the ship stays fully visible all the way up the gangplank", () => {
+  const nau = MEMORIES.find((m) => m.id === "nau")!;
+  for (let s = BOARD_FROM; s <= BOARD_TO; s += 0.05) expect(memoryPose(nau, s, false).opacity, `s=${s}`).toBe(1);
+});
+
+test("the ship never grows past the screen, so its masts and flag stay in view", () => {
+  const nau = MEMORIES.find((m) => m.id === "nau")!;
+  for (let s = 2; s <= 5; s += 0.05) expect(memoryPose(nau, s, false).scale).toBeLessThanOrEqual(1.1);
+});
+
+test("a quarter of the way up he is still more than half his size", () => {
+  expect(boardingTransform(0.25, { feetY: 900, plankY: 400, startHeight: 870, endHeight: 70 }).scale).toBeGreaterThan(0.5);
 });

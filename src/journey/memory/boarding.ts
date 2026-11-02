@@ -1,7 +1,7 @@
 // Boarding the nau: as he reaches the ship he walks up its gangplank into the painting, then the map takes over.
 
 /** Journey positions (screens) where boarding starts and where his feet reach the deck, just as the map fades in. */
-export const BOARD_FROM = 3.45;
+export const BOARD_FROM = 3.1;
 export const BOARD_TO = 3.8;
 
 // Measured on art/memories/nau.png (square): where the gangplank meets the deck, and a person's height on that deck.
@@ -29,6 +29,6 @@ export function boardingTransform(
 ): { ty: number; scale: number } {
   if (t <= 0) return { ty: 0, scale: 1 };
   const end = endHeight / startHeight;
-  const scale = 1 / (1 + t * (1 / end - 1));
+  const scale = 1 / (1 + t ** 3 * (1 / end - 1)); // t³ spreads the shrinking along the whole gangplank
   return { ty: (plankY - feetY) * ((1 - scale) / (1 - end)), scale };
 }
