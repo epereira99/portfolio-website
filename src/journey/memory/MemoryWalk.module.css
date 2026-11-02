@@ -23,9 +23,10 @@
   mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 40%, transparent 100%);
 }
 
+/* Starts centred on the path ahead; memoryPose slides it out to the right as he reaches it. */
 .side {
-  right: 5vw;
-  top: 12vh;
+  left: 36vw;
+  top: 9vh;
   width: 28vw;
   height: 62vh;
 }
@@ -66,16 +67,17 @@
     bottom: 0;
   }
 
+  /* Between the text (top) and his shoulders; the walker is drawn in front of it. */
   .side {
     left: 15vw;
-    right: auto;
-    top: 10vh;
+    top: 34vh;
     width: 70vw;
-    height: 30vh;
+    height: 26vh;
   }
 
   .centre {
     left: 10vw;
+    top: 26vh;
     width: 80vw;
     height: 40vh;
   }
