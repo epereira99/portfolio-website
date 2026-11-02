@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { getScreens } from "../progress";
 import { voyageState } from "../voyage/phase";
 import { MEMORIES, memoryPose } from "./memories";
-import { WALK_FRAMES, easeProgress, walkFrame, walkFrameUrl } from "./walk";
+import { WALK_FRAMES, easeProgress, stepFrame, walkFrame, walkFrameUrl } from "./walk";
 import styles from "./MemoryWalk.module.css";
 
 const STARS = 420;
@@ -30,9 +30,10 @@ export function MemoryWalk() {
     window.addEventListener("resize", resize);
 
     // Scrubbing starts only once every frame is in memory; until then (or if any fails) he stays on the still frame.
+    // Reduced motion never scrubs, so it never downloads them.
     let ready = false;
     let loaded = 0;
-    for (let i = 0; i < WALK_FRAMES; i++) {
+    for (let i = 0; i < (reducedMotion ? 0 : WALK_FRAMES); i++) {
       const im = new Image();
       im.onload = () => {
         loaded += 1;
@@ -43,6 +44,8 @@ export function MemoryWalk() {
 
     let p = getScreens();
     let shown = 0;
+    let last = p;
+    let scrubbing = false;
     let raf = 0;
     const tick = () => {
       p = easeProgress(p, getScreens());
@@ -72,11 +75,16 @@ export function MemoryWalk() {
 
       const walker = walkerRef.current!;
       walker.style.opacity = String(1 - voyageState(p).mapOpacity);
-      const f = walkFrame(p);
-      if (ready && !reducedMotion && f !== shown) {
-        walker.src = walkFrameUrl(f); // already in the browser cache from the preload
-        shown = f;
+      if (ready && !reducedMotion) {
+        // Step a few frames at a time while scrubbing; land directly on the first frame shown and after a snap.
+        const f = scrubbing && Math.abs(p - last) <= 1 ? stepFrame(shown, walkFrame(p)) : walkFrame(p);
+        scrubbing = true;
+        if (f !== shown) {
+          walker.src = walkFrameUrl(f); // already in the browser cache from the preload
+          shown = f;
+        }
       }
+      last = p;
 
       raf = requestAnimationFrame(tick);
     };

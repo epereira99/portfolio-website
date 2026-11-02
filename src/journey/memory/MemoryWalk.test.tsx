@@ -67,3 +67,13 @@ test("does not pull in three.js", () => {
   const src = readFileSync("src/journey/memory/MemoryWalk.tsx", "utf8");
   expect(src).not.toMatch(/three|@react-three|\/scene\/|\/art\/|\.\.\/path/);
 });
+
+test("with reduced motion the walk frames are never downloaded", async () => {
+  const made: string[] = [];
+  vi.stubGlobal("Image", class { set src(v: string) { made.push(v); } });
+  const realMatchMedia = window.matchMedia;
+  vi.stubGlobal("matchMedia", (q: string) => ({ ...realMatchMedia(q), matches: q.includes("reduce") }));
+  render(<MemoryWalk />);
+  await twoFrames();
+  expect(made).toEqual([]);
+});

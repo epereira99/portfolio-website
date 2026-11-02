@@ -19,3 +19,13 @@ export function easeProgress(current: number, target: number): number {
   const gap = Math.abs(target - current);
   return gap > 1 || gap < 0.0005 ? target : current + (target - current) * 0.12;
 }
+
+/** Moves the shown frame at most `max` frames toward the target, the short way round the loop. A smooth-scrolled
+ * jump arrives as many small steps that never trip easeProgress's snap, so this keeps the walk from strobing. */
+export function stepFrame(shown: number, target: number, max = 3): number {
+  let delta = (target - shown) % WALK_FRAMES;
+  if (delta > WALK_FRAMES / 2) delta -= WALK_FRAMES;
+  if (delta < -WALK_FRAMES / 2) delta += WALK_FRAMES;
+  const step = Math.max(-max, Math.min(max, delta));
+  return (shown + step + WALK_FRAMES) % WALK_FRAMES;
+}
