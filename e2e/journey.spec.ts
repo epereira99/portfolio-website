@@ -1,6 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const scrollToScreens = (page: Page, s: number) => page.evaluate((s) => window.scrollTo(0, s * window.innerHeight), s);
+const SCROLL_PER_SCREEN = 1.5; // mirrors src/journey/progress.ts
+
+const scrollToScreens = (page: Page, s: number) =>
+  page.evaluate(([s, k]) => window.scrollTo(0, s * window.innerHeight * k), [s, SCROLL_PER_SCREEN]);
 
 test("the intro and navigation show before the walk frames load", async ({ page }) => {
   await page.goto("/");
@@ -21,7 +24,7 @@ test("walking into Porto shows its stage and first project, and a project opens 
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toBeHidden();
   const [y, vh] = await page.evaluate(() => [window.scrollY, window.innerHeight]);
-  expect(y).toBe(2 * vh);
+  expect(y).toBe(2 * vh * SCROLL_PER_SCREEN);
 });
 
 test("keyboard focus stays inside an open project and the walk stays put", async ({ page }) => {
@@ -32,7 +35,7 @@ test("keyboard focus stays inside an open project and the walk stays put", async
   expect(await page.evaluate(() => !!document.activeElement?.closest("dialog"))).toBe(true);
   await page.keyboard.press("Enter");
   const [y, vh] = await page.evaluate(() => [window.scrollY, window.innerHeight]);
-  expect(y).toBe(2 * vh);
+  expect(y).toBe(2 * vh * SCROLL_PER_SCREEN);
 });
 
 test("a shared project link opens its dialog", async ({ page }) => {
@@ -90,7 +93,7 @@ test("jumping to Jönköping from Porto leaves no map behind", async ({ page }) 
   await journey.getByRole("button", { name: "Jönköping" }).click();
   await expect(journey.getByRole("button", { name: "Jönköping" })).toHaveAttribute("aria-current", "step");
   await settle(page);
-  const screens = await page.evaluate(() => window.scrollY / window.innerHeight);
+  const screens = await page.evaluate((k) => window.scrollY / (window.innerHeight * k), SCROLL_PER_SCREEN);
   expect(screens).toBeCloseTo(5, 1);
   await expect(page.getByRole("img", { name: MAP })).toHaveCount(0);
 });

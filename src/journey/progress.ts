@@ -1,6 +1,9 @@
 import { useSyncExternalStore } from "react";
 
-// Journey position in screens (scrollY / innerHeight): the single input for scene and UI.
+// Journey position in screens: the single input for scene and UI. One screen of the journey takes SCROLL_PER_SCREEN
+// viewport heights of scrolling, so the walk feels unhurried (Eduardo, 2026-11-02).
+export const SCROLL_PER_SCREEN = 1.5;
+
 let screens = 0;
 const listeners = new Set<() => void>();
 
@@ -24,9 +27,9 @@ export function useScreens(): number {
 }
 
 export function scrollToScreens(s: number, behavior: ScrollBehavior = "auto"): void {
-  window.scrollTo({ top: s * window.innerHeight, behavior });
+  window.scrollTo({ top: s * window.innerHeight * SCROLL_PER_SCREEN, behavior });
 }
 
 export function readScreensFromWindow(): number {
-  return window.innerHeight > 0 ? window.scrollY / window.innerHeight : 0; // zero-height windows (hidden panes) exist
+  return window.innerHeight > 0 ? window.scrollY / (window.innerHeight * SCROLL_PER_SCREEN) : 0; // zero-height windows (hidden panes) exist
 }

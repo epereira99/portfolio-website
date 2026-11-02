@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { segmentAt } from "../timeline";
+import { TOTAL_SCREENS, segmentAt } from "../timeline";
 import { MEMORIES, memoryPose } from "./memories";
 
 test("the agreed set, in path order", () => {
@@ -73,4 +73,11 @@ test("no NaN for out-of-range progress", () => {
 test("every memory with a painting points at its compressed image", () => {
   for (const m of MEMORIES.filter((x) => x.src)) expect(m.src).toBe(`/memories/${m.id}.webp`);
   expect(MEMORIES.filter((m) => m.src).map((m) => m.id)).toEqual(["arcada", "bom-jesus", "uminho", "porto-ribeira", "nau"]);
+});
+
+test("never two memories on screen at once: each one is gone before the next appears", () => {
+  for (let s = 0; s <= TOTAL_SCREENS; s += 0.01) {
+    const visible = MEMORIES.filter((m) => memoryPose(m, s, false).opacity > 0.01).map((m) => m.id);
+    expect(visible.length, `at ${s.toFixed(2)}: ${visible.join(", ")}`).toBeLessThanOrEqual(1);
+  }
 });

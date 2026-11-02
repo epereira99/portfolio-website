@@ -1,11 +1,13 @@
+import { segmentStart } from "../timeline";
+
 // Boarding the nau: as he reaches the ship he walks up its gangplank into the painting, then the map takes over.
 // He walks at a steady pace (his distance grows linearly with scroll) so his steps match the ground he covers.
 
 /** Journey positions (screens) where boarding starts and where he is halfway up, just as the map fades in. */
-export const BOARD_FROM = 3.1;
-export const BOARD_TO = 3.8;
+export const BOARD_FROM = segmentStart("voyage") - 0.35; // the ship is fully in view by here
+export const BOARD_TO = segmentStart("voyage") + 0.3;
 /** By here the map covers the whole screen, so he is quietly put back to full size for the walk out in Jönköping. */
-export const BOARDED = 3.96;
+export const BOARDED = segmentStart("voyage") + 0.46;
 
 // Measured on art/memories/nau.png (square): halfway up the gangplank, just past the quay edge, and a person's
 // height standing there (1.6× the gangplank's width at that point).

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
-import { setScreens } from "@/journey/progress";
+import { SCROLL_PER_SCREEN, setScreens } from "@/journey/progress";
 import { StageHeader } from "./StageHeader";
 
 let scrollTo: ReturnType<typeof vi.spyOn>;
@@ -42,7 +42,7 @@ test("shows the voyage between Porto and Jönköping with no city current", () =
 test("clicking a city jumps to the start of its stage", () => {
   at(2);
   fireEvent.click(screen.getByRole("button", { name: "Stockholm" }));
-  expect(scrollTo).toHaveBeenLastCalledWith({ top: 7 * 800, behavior: "smooth" });
+  expect(scrollTo).toHaveBeenLastCalledWith({ top: 7 * 800 * SCROLL_PER_SCREEN, behavior: "smooth" });
 });
 
 test("chapter jumps don't animate when the visitor prefers reduced motion", () => {
@@ -51,7 +51,7 @@ test("chapter jumps don't animate when the visitor prefers reduced motion", () =
   );
   at(2);
   fireEvent.click(screen.getByRole("button", { name: "Stockholm" }));
-  expect(scrollTo).toHaveBeenLastCalledWith({ top: 7 * 800, behavior: "auto" });
+  expect(scrollTo).toHaveBeenLastCalledWith({ top: 7 * 800 * SCROLL_PER_SCREEN, behavior: "auto" });
 });
 
 test("stays out of the way during the home intro", () => {

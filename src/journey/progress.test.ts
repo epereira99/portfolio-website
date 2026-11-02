@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { render } from "@testing-library/react";
 import { createElement } from "react";
-import { getScreens, readScreensFromWindow, scrollToScreens, setScreens, subscribe } from "./progress";
+import { SCROLL_PER_SCREEN, getScreens, readScreensFromWindow, scrollToScreens, setScreens, subscribe } from "./progress";
 import { ScrollDriver } from "./ScrollDriver";
 import { TOTAL_SCREENS } from "./timeline";
 
@@ -37,9 +37,12 @@ describe("progress store", () => {
     expect(getScreens()).toBe(3);
   });
 
-  test("scrollToScreens converts screens to pixels", () => {
+  test("each journey screen takes one and a half viewports of scrolling", () => {
+    expect(SCROLL_PER_SCREEN).toBe(1.5);
     scrollToScreens(3);
-    expect(scrollTo).toHaveBeenCalledWith(expect.objectContaining({ top: 2400 }));
+    expect(scrollTo).toHaveBeenCalledWith(expect.objectContaining({ top: 3600 }));
+    Object.defineProperty(window, "scrollY", { configurable: true, value: 1200 });
+    expect(readScreensFromWindow()).toBe(1);
   });
 });
 
@@ -47,7 +50,7 @@ describe("ScrollDriver", () => {
   test("the scroll area always reaches the ending, even with mobile toolbars collapsed", () => {
     // innerHeight can exceed svh on phones; lvh is never smaller than innerHeight.
     const { container } = render(createElement(ScrollDriver));
-    expect((container.firstChild as HTMLElement).style.height).toBe(`${(TOTAL_SCREENS + 1) * 100}lvh`);
+    expect((container.firstChild as HTMLElement).style.height).toBe(`${(TOTAL_SCREENS * SCROLL_PER_SCREEN + 1) * 100}lvh`);
   });
 
   test("keeps the walker in place when the window is resized", () => {
@@ -55,6 +58,6 @@ describe("ScrollDriver", () => {
     setScreens(5);
     Object.defineProperty(window, "innerHeight", { configurable: true, value: 400 });
     window.dispatchEvent(new Event("resize"));
-    expect(scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 2000 }));
+    expect(scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 3000 }));
   });
 });

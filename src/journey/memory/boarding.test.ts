@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { MEMORIES, memoryPose } from "./memories";
+import { SCROLL_PER_SCREEN } from "../progress";
 import { segmentStart } from "../timeline";
 import { voyageState } from "../voyage/phase";
 import { BOARD_FROM, BOARD_TO, BOARDED, boardingProgress, boardingTransform, plankPoint } from "./boarding";
@@ -44,8 +45,8 @@ test("halfway up the gangplank sits where the painting puts it, scaled with the 
   expect(tall.x).toBeCloseTo(200 + (0.502 - 0.5) * 600);
 });
 
-test("he walks up the gangplank for at least two thirds of a screen of scrolling", () => {
-  expect(BOARD_TO - BOARD_FROM).toBeGreaterThanOrEqual(0.65);
+test("he walks up the gangplank for at least a viewport of real scrolling", () => {
+  expect((BOARD_TO - BOARD_FROM) * SCROLL_PER_SCREEN).toBeGreaterThanOrEqual(0.95);
 });
 
 test("the ship stays fully visible all the way up the gangplank", () => {
