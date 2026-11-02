@@ -81,3 +81,8 @@ test("never two memories on screen at once: each one is gone before the next app
     expect(visible.length, `at ${s.toFixed(2)}: ${visible.join(", ")}`).toBeLessThanOrEqual(1);
   }
 });
+
+test("alongside him a side memory is fully in its place on the right, at full size", () => {
+  const m = MEMORIES.find((x) => x.layout === "side")!;
+  expect(memoryPose(m, m.at, false)).toMatchObject({ opacity: 1, x: 1, scale: 1 });
+});

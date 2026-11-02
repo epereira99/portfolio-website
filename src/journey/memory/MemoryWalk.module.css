@@ -27,12 +27,12 @@
   mask-composite: intersect;
 }
 
-/* Starts centred on the path ahead; memoryPose slides it out to the right as he reaches it.
-   Shaped like the paintings (4:5) so none of it is cropped. */
+/* Its place beside him: most of the right side, shaped like the paintings (4:5) so none of it is cropped.
+   Until he reaches it, it hangs small over the path ahead (MemoryWalk slides it in). */
 .side {
-  left: calc(50% - 24.8vh);
-  top: 9vh;
-  height: 62vh;
+  right: 2vw;
+  top: calc(50% - min(44vh, 31vw));
+  height: min(88vh, 62vw);
   aspect-ratio: 4 / 5;
 }
 
@@ -67,6 +67,7 @@
   /* Between the text (top) and his shoulders; the walker is drawn in front of it. */
   .side {
     left: calc(50% - 10.4vh);
+    right: auto;
     top: 34vh;
     height: 26vh;
   }

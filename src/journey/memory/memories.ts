@@ -39,7 +39,7 @@ export const MEMORIES: Memory[] = [
   { id: "stadshuset", label: "Stadshuset", at: stockholm + 1.9, layout: "side" },
 ];
 
-/** x in vw, relative to the memory's base box. */
+/** x: how far a side memory has slid from the path ahead to its place on the right (0 → 1); centre memories stay 0. */
 export type MemoryPose = { opacity: number; x: number; scale: number };
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
@@ -53,5 +53,5 @@ export function memoryPose(m: Memory, s: number, reducedMotion: boolean): Memory
   const out = Math.min(0, d + (m.hold ?? 0)); // the fade-out starts once the hold is over
   const opacity = clamp(smooth(0.3, 0.15, d) * (1 - smooth(0, -0.12, out)), 0, 1); // visible ≈ at − 0.3 … at + 0.12
   const k = reducedMotion ? 1 : clamp(1 - d / 0.3, 0, 1.3); // 0 far ahead → 1 alongside
-  return m.layout === "side" ? { opacity, x: k * 30, scale: 0.35 + k * 0.75 } : { opacity, x: 0, scale: 0.6 + k * 0.36 };
+  return m.layout === "side" ? { opacity, x: k, scale: 0.35 + k * 0.65 } : { opacity, x: 0, scale: 0.6 + k * 0.36 };
 }

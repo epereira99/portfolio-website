@@ -74,7 +74,10 @@ export function MemoryWalk() {
         if (!el) return;
         const pose = memoryPose(m, p, reducedMotion);
         el.style.opacity = String(pose.opacity);
-        el.style.transform = `translateX(${phone.matches ? 0 : pose.x}vw) scale(${pose.scale})`;
+        // Side memories rest on the right; until he reaches them they hang over the path ahead (the screen's centre).
+        const fromCentre = innerWidth / 2 - (el.offsetLeft + el.offsetWidth / 2);
+        const dx = phone.matches || m.layout === "centre" ? 0 : (1 - pose.x) * fromCentre;
+        el.style.transform = `translateX(${dx}px) scale(${pose.scale})`;
       });
 
       const walker = walkerRef.current!;
