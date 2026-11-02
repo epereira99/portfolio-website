@@ -9,10 +9,10 @@ export type Project = {
   stageLabel: string;
   subtitle: string;
   tags: string[];
-  color: string;
+  color?: string; // the card's top graphic; without one (degrees) the card has none
   sections: { heading: string; body: string }[];
   lists?: { heading: string; items: string[] }[]; // e.g. a degree's subjects
-  image?: { src: string; alt: string }; // shown in the card's header, on `color`
+  logo?: { src: string; alt: string }; // shown at the card's top right, beside the title
 };
 
 // Write-ups are placeholders until the copy is written (spec §11).

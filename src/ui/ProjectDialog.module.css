@@ -48,14 +48,27 @@
 
 .graphic {
   height: 220px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* No graphic on top: leave room for the close button in the corner */
+.bare .header {
+  padding-right: 48px;
+}
+
+/* the logo's own white backing, kept small and rounded beside the title */
 .logo {
-  max-height: 160px;
-  max-width: 80%;
+  flex: none;
+  height: 64px;
+  padding: 6px;
+  border-radius: 8px;
+  background: #fff;
 }
 
 .body {

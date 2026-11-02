@@ -68,9 +68,18 @@ test("a degree opens with its description and every subject", () => {
   expect(screen.getByRole("list", { name: "Courses" }).querySelectorAll("li")).toHaveLength(12);
 });
 
-test("the BSc opens with the University of Minho School of Sciences logo", () => {
+test("degree cards have no image on top; the BSc logo sits at the top right, beside the title", () => {
   goTo("/?project=bsc-computer-science");
   render(<ProjectDialog />);
+  const dialog = screen.getByRole("dialog", { name: "BSc Computer Science" });
+  expect(dialog.querySelector("[data-graphic]")).toBeNull();
   const logo = screen.getByRole("img", { name: "University of Minho, School of Sciences" });
   expect(logo).toHaveAttribute("src", "/degrees/uminho-school-of-sciences.png");
+  expect(logo.closest("header")).toContainElement(screen.getByRole("heading", { name: "BSc Computer Science" }));
+});
+
+test("project cards keep their graphic on top", () => {
+  goTo("/?project=financial-hub");
+  render(<ProjectDialog />);
+  expect(screen.getByRole("dialog", { name: "Financial Hub" }).querySelector("[data-graphic]")).not.toBeNull();
 });
