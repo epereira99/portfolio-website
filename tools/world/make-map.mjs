@@ -15,8 +15,8 @@ const obj = (type, x, y, props = {}) =>
   });
 
 // A ring of trees keeps the hunter inside the map.
-for (let x = 0; x < W; x++) set(x, 0, TREE), set(x, H - 1, TREE);
-for (let y = 0; y < H; y++) set(0, y, TREE), set(W - 1, y, TREE);
+for (let x = 0; x < W; x++) [0, H - 1].forEach((y) => set(x, y, TREE));
+for (let y = 0; y < H; y++) [0, W - 1].forEach((x) => set(x, y, TREE));
 
 // The river (Portugal west, Sweden east), the bridge, and the road across it.
 const ROAD = 21;
@@ -27,7 +27,7 @@ const places = [];
 /** A place: n houses (3 wide: two roof rows over a wall row) with a door, a travel tile and, if it has work, a board. */
 function place(id, cx, cy, n, { board = true, academy = false } = {}) {
   for (let i = 0; i < n; i++) {
-    for (let x = cx + i * 4; x < cx + i * 4 + 3; x++) set(x, cy, ROOF), set(x, cy + 1, ROOF), set(x, cy + 2, WALL);
+    for (let x = cx + i * 4; x < cx + i * 4 + 3; x++) [ROOF, ROOF, WALL].forEach((id, dy) => set(x, cy + dy, id));
   }
   const door = cx + Math.floor(n / 2) * 4 + 1;
   if (academy) obj("academy", door, cy + 3, { place: id });
