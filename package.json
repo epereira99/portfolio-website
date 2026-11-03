@@ -13,7 +13,8 @@
     "gen:landmarks": "for id in arcada bom_jesus uminho dom_luis clerigos jonkoping_university stadshuset; do /Applications/Blender.app/Contents/MacOS/Blender -b -P tools/blender/landmarks/$id.py -- public/models/landmarks/$(echo $id | tr _ -).glb | grep -E 'wrote|Error' || exit 1; done",
     "gen:walk": "sh tools/walk/make-walk.sh",
     "gen:memories": "sh tools/walk/make-memories.sh",
-    "gen:world": "node tools/world/make-map.mjs"
+    "gen:world": "node tools/world/make-map.mjs",
+    "art:normalize": "node tools/art/normalize.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -41,6 +42,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
     "jsdom": "^30.1.3",
+    "sharp": "^0.35.5",
     "topojson-client": "^3.1.0",
     "typescript": "^5",
     "vitest": "^5.0.5",
