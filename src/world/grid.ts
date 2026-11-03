@@ -15,7 +15,7 @@ export function step(t: Tile, d: Dir, blocked: (t: Tile) => boolean): Tile {
   return blocked(next) ? t : next;
 }
 
-/** The largest scale at which the GBA screen fits with a whole number of device pixels per game pixel,
+/** The largest scale at which the view fits with a whole number of device pixels per game pixel,
  * so pixels stay square and sharp. dpr: window.devicePixelRatio. Never below one CSS pixel per game pixel. */
 export function integerZoom(w: number, h: number, dpr = 1): number {
   return Math.max(1, Math.floor(Math.min((w * dpr) / SCREEN_W, (h * dpr) / SCREEN_H)) / dpr);
