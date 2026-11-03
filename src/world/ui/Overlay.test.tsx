@@ -1,6 +1,7 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
 import { press } from "../buttons";
+import { getView, startStore } from "../store";
 import { Overlay } from "./Overlay";
 import type { View } from "../view";
 
@@ -47,6 +48,14 @@ test("Up and Down scroll a long degree for keyboard players", () => {
 test("an open scroll sits over its board, which is inert", () => {
   const { container } = show({ kind: "scroll", place: "ju", slug: "saab-thesis" });
   expect(container.querySelector("[inert] [aria-current]")).toHaveAttribute("aria-label", "Saab · Jönköping · Predicting shooting performance from motion");
+});
+
+test("Start-menu items can be clicked or tapped", () => {
+  const stop = startStore({ kind: "menu", index: 0 });
+  show({ kind: "menu", index: 0 });
+  fireEvent.click(screen.getByRole("button", { name: "Map" }));
+  expect(getView()).toEqual({ kind: "map", index: 0 });
+  stop();
 });
 
 test("the raven panel links to email and LinkedIn", () => {

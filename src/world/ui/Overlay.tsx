@@ -55,9 +55,15 @@ export function Overlay({ initial }: { initial: View }) {
             <Close view={view} />
             <ul>
               {MENU_ITEMS.map((item, i) => (
-                <li key={item} aria-current={i === view.index || undefined}>
-                  {i === view.index && <span aria-hidden>▶ </span>}
-                  {item}
+                <li key={item}>
+                  <button
+                    type="button"
+                    aria-current={i === view.index || undefined}
+                    onClick={() => setView(reduce({ kind: "menu", index: i }, "a"))}
+                  >
+                    {i === view.index && <span aria-hidden>▶ </span>}
+                    {item}
+                  </button>
                 </li>
               ))}
             </ul>

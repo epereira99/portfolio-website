@@ -35,14 +35,21 @@ export function onPress(fn: (b: Button) => void): () => void {
 }
 
 export function bindKeyboard(target: Window): () => void {
+  let shiftAlone = false; // Shift is Start only when tapped on its own, so Shift+Tab stays the browser's
   const down = (e: KeyboardEvent) => {
-    const b = KEYS[e.key.toLowerCase()];
-    if (!b) return;
+    const key = e.key.toLowerCase();
+    shiftAlone = key === "shift";
+    if (e.metaKey || e.ctrlKey || e.altKey) return; // browser shortcuts (Cmd+D, Ctrl+A…)
+    if ((key === "enter" || key === " ") && e.target instanceof HTMLAnchorElement) return; // let a focused link open
+    const b = KEYS[key];
+    if (!b || key === "shift") return;
     e.preventDefault(); // arrows and space would scroll the page
     if (!e.repeat) press(b);
   };
   const up = (e: KeyboardEvent) => {
-    const b = KEYS[e.key.toLowerCase()];
+    const key = e.key.toLowerCase();
+    if (key === "shift" && shiftAlone) press("start");
+    const b = KEYS[key];
     if (b) release(b);
   };
   const blur = () => (held = []);

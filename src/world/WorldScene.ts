@@ -1,8 +1,8 @@
 import * as Phaser from "phaser";
-import { heldDir, onPress, type Dir } from "./buttons";
+import { heldDir, type Dir } from "./buttons";
 import { STEP_MS, TILE } from "./config";
 import { ahead, step, type Tile } from "./grid";
-import { getView, setView } from "./store";
+import { getView, onWorldA, setView } from "./store";
 import { WORLD } from "./view";
 import { NPCS, visibleNpcs } from "@/content/npcs";
 import { placeById, type PlaceId } from "@/content/places";
@@ -65,9 +65,10 @@ export class WorldScene extends Phaser.Scene {
     cam.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
     cam.startFollow(this.hunter, true);
 
-    // Handled in update, after the store has seen the same press, so one A never both opens and advances a dialogue.
-    const offPress = onPress((b) => b === "a" && getView().kind === "world" && (this.pressedA = true));
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, offPress);
+    // The store decides which A presses belong to the world; acting in update keeps one press from also advancing the dialogue it opens.
+    const offA = onWorldA(() => (this.pressedA = true));
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, offA);
+    this.events.once(Phaser.Scenes.Events.DESTROY, offA);
   }
 
   update() {

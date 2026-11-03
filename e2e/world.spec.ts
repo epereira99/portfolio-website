@@ -18,6 +18,25 @@ test("from spawn, A reads the main board and a contract opens at its own URL", a
   await expect(page).toHaveURL(/\/world$/);
 });
 
+test("A reads a sign and the next A puts it away for good", async ({ page }) => {
+  await page.goto("/world");
+  await page.locator("canvas").waitFor();
+  await page.waitForTimeout(300);
+  await page.keyboard.down("ArrowLeft");
+  await page.waitForTimeout(160 * 2 - 40); // two steps, from spawn to below the sign
+  await page.keyboard.up("ArrowLeft");
+  await page.waitForTimeout(200);
+  await page.keyboard.down("ArrowUp"); // the sign blocks, so the hunter only turns to face it
+  await page.waitForTimeout(60);
+  await page.keyboard.up("ArrowUp");
+  await page.keyboard.press("z");
+  const sign = page.getByText("← Portugal · UMinho · Deloitte · Childhood house");
+  await expect(sign).toBeVisible();
+  await page.keyboard.press("z");
+  await page.waitForTimeout(300);
+  await expect(sign).toBeHidden();
+});
+
 test("the Start menu opens the raven from anywhere", async ({ page }) => {
   await page.goto("/world");
   await page.locator("canvas").waitFor();

@@ -43,11 +43,23 @@ function onPopState() {
   else if (view.kind === "scroll") apply(reduce(view, "b"), true);
 }
 
+const worldA = new Set<() => void>();
+
+/** A pressed while the world was already on screen (not the A that just closed a dialogue). For the scene. */
+export function onWorldA(fn: () => void): () => void {
+  worldA.add(fn);
+  return () => worldA.delete(fn);
+}
+
 export function startStore(initial: View): () => void {
   view = initial;
   started = true;
   listeners.forEach((fn) => fn());
-  const off = onPress((b) => setView(reduce(view, b)));
+  const off = onPress((b) => {
+    const before = view;
+    setView(reduce(before, b));
+    if (b === "a" && before.kind === "world") worldA.forEach((fn) => fn());
+  });
   window.addEventListener("popstate", onPopState);
   return () => {
     off();

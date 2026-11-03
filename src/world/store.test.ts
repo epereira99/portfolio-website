@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test } from "vitest";
 import { press, resetButtons } from "./buttons";
-import { getView, initialViewFor, setView, startStore } from "./store";
+import { getView, initialViewFor, onWorldA, setView, startStore } from "./store";
 import { WORLD } from "./view";
 
 let stop: () => void;
@@ -40,6 +40,18 @@ test("closing a deep-linked scroll replaces the URL instead of leaving the site"
   press("b");
   expect(window.location.pathname).toBe("/world");
   expect(getView()).toMatchObject({ kind: "board", place: "all", index: 3 });
+});
+
+test("A in the world reaches the scene, but the A that closes a dialogue does not reopen it", () => {
+  let interactions = 0;
+  const off = onWorldA(() => interactions++);
+  press("a");
+  expect(interactions).toBe(1);
+  setView({ kind: "dialogue", lines: ["← Portugal"], page: 0 });
+  press("a");
+  expect(getView()).toEqual(WORLD);
+  expect(interactions).toBe(1);
+  off();
 });
 
 test("a deep link opens straight on its scroll; an unknown slug opens the world", () => {
