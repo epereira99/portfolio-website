@@ -46,6 +46,14 @@
   line-height: 1.4;
 }
 
+/* A sign reading itself while the hunter walks past: on top, but never in the way of input. */
+.passive {
+  z-index: 10;
+  pointer-events: none;
+  font-family: var(--font-pixel), monospace;
+  color: #303848;
+}
+
 .cursor { position: absolute; right: 14px; bottom: 6px; color: #d84830; }
 
 .menu { position: absolute; top: 16px; right: 16px; min-width: 200px; font-size: 20px; padding-top: 40px; }

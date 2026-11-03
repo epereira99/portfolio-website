@@ -5,7 +5,7 @@ import { expect, test } from "vitest";
 import { normalize, readPalette } from "./normalize.mjs";
 
 type RGB = [number, number, number];
-const palette: RGB[] = readPalette();
+const palette = readPalette() as RGB[];
 
 /** A PNG from rows of [r,g,b,a] pixels. */
 const png = (px: number[][][]) =>

@@ -5,7 +5,7 @@ import { BoardView } from "./BoardView";
 import { onPress } from "../buttons";
 import { Close } from "./Close";
 import { Scroll } from "./Scroll";
-import { setView, useView } from "../store";
+import { setView, useNearbySign, useView } from "../store";
 import { MENU_ITEMS, reduce, type View } from "../view";
 import { CV_URL, EMAIL, LINKEDIN } from "@/content/contact";
 import { DEGREES } from "@/content/degrees";
@@ -15,6 +15,7 @@ import styles from "./ui.module.css";
 /** Every screen with text, over the world. initial: the view the page was rendered with. */
 export function Overlay({ initial }: { initial: View }) {
   const view = useView(initial);
+  const sign = useNearbySign();
 
   // The arrows are game buttons, so Up/Down scroll long text (degrees, contracts) for keyboard players.
   useEffect(
@@ -27,7 +28,8 @@ export function Overlay({ initial }: { initial: View }) {
 
   switch (view.kind) {
     case "world":
-      return null;
+      // Not a layer: the hunter keeps walking and taps reach the controls underneath.
+      return sign && <p className={`${styles.box} ${styles.dialogue} ${styles.passive}`} role="status">{sign}</p>;
     case "board":
       return <BoardView view={view} />;
     case "scroll": {

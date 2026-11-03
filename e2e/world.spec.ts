@@ -18,23 +18,35 @@ test("from spawn, A reads the main board and a contract opens at its own URL", a
   await expect(page).toHaveURL(/\/world$/);
 });
 
-test("A reads a sign and the next A puts it away for good", async ({ page }) => {
+test("a sign reads itself as the hunter walks up, without pressing A", async ({ page }) => {
+  await page.goto("/world");
+  await page.locator("canvas").waitFor();
+  await page.waitForTimeout(300);
+  const sign = page.getByRole("status").filter({ hasText: "Sweden" });
+  await expect(sign).toBeVisible(); // spawn is two steps from the "Sweden" sign
+  await page.keyboard.down("ArrowRight");
+  await page.waitForTimeout(160 * 3 - 40); // three steps east, out of its range
+  await page.keyboard.up("ArrowRight");
+  await expect(sign).toBeHidden();
+});
+
+test("A reads a sign and the next A puts the dialogue away for good", async ({ page }) => {
   await page.goto("/world");
   await page.locator("canvas").waitFor();
   await page.waitForTimeout(300);
   await page.keyboard.down("ArrowLeft");
-  await page.waitForTimeout(160 * 2 - 40); // two steps, from spawn to below the sign
+  await page.waitForTimeout(160 - 40); // one step, from spawn to below the "Sweden" sign
   await page.keyboard.up("ArrowLeft");
   await page.waitForTimeout(200);
   await page.keyboard.down("ArrowUp"); // the sign blocks, so the hunter only turns to face it
   await page.waitForTimeout(60);
   await page.keyboard.up("ArrowUp");
   await page.keyboard.press("z");
-  const sign = page.getByText("← Portugal · UMinho · Deloitte · Childhood house");
-  await expect(sign).toBeVisible();
+  const dialogue = page.getByRole("status").filter({ hasText: "▼" }); // only the A dialogue has the cursor
+  await expect(dialogue).toContainText("Sweden");
   await page.keyboard.press("z");
   await page.waitForTimeout(300);
-  await expect(sign).toBeHidden();
+  await expect(dialogue).toBeHidden();
 });
 
 test("the Start menu opens the raven from anywhere", async ({ page }) => {

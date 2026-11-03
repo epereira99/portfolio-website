@@ -73,6 +73,19 @@ const subscribe = (fn: () => void) => {
   return () => listeners.delete(fn);
 };
 
+// The sign the hunter stands near, read out without an A press. Set by the scene.
+let nearbySign: string | null = null;
+
+export function setNearbySign(text: string | null): void {
+  if (text === nearbySign) return;
+  nearbySign = text;
+  listeners.forEach((fn) => fn());
+}
+
+export function useNearbySign(): string | null {
+  return useSyncExternalStore(subscribe, () => nearbySign, () => null);
+}
+
 /** initial: the view the page was rendered with, used on the server and until the store starts. */
 export function useView(initial: View): View {
   return useSyncExternalStore(subscribe, () => (started ? view : initial), () => initial);

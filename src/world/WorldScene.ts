@@ -1,23 +1,33 @@
 import * as Phaser from "phaser";
 import { heldDir, type Dir } from "./buttons";
-import { STEP_MS, TILE } from "./config";
+import { ART_DIR, HUNTER_FRAME, HUNTER_ROWS, STEP_MS, TILE, WALK_FRAMES } from "./config";
+import { depthOf } from "./depth";
 import { ahead, step, type Tile } from "./grid";
-import { getView, onWorldA, setView } from "./store";
+import { signNear } from "./signs";
+import { getView, onWorldA, setNearbySign, setView } from "./store";
 import { WORLD } from "./view";
 import { NPCS, visibleNpcs } from "@/content/npcs";
 import { placeById, type PlaceId } from "@/content/places";
 
-// Greybox colours per Tiled tile id (1 grass … 7 roof); the art pack replaces this texture later.
-const TILE_COLOURS = ["#6aa84f", "#d9b878", "#3b6fb6", "#8a5d34", "#2f6b2a", "#8f6a45", "#9c3a2a"];
-const BLOCKING_TILES = [3, 5, 6, 7];
-const OBJECT_COLOURS: Record<string, number> = { board: 0x6b4423, sign: 0xe6d29c, npc: 0x4f7fd0, academy: 0x7a4fa0 };
+// Stand-ins for art the pack doesn't have yet, by object type.
+const GREYBOX: Record<string, number> = { board: 0x6b4423, sign: 0xe6d29c, npc: 0x4f7fd0, art: 0x55504a };
 
+type TmjObject = { type: string; x: number; y: number; width: number; height: number; properties?: { name: string; value: string }[] };
+type Tmj = { width: number; layers: { name: string; data?: number[]; objects?: TmjObject[] }[] };
 type Thing = { type: string; tile: Tile; props: Record<string, string> };
 
+const propsOf = (o: TmjObject) => Object.fromEntries((o.properties ?? []).map((p) => [p.name, p.value]));
+const artKey = (name: string) => `art:${name}`;
+const COLUMNS = WALK_FRAMES + 1; // hunter.png: a standing frame, then the walk
+const standFrame = (d: Dir) => HUNTER_ROWS.indexOf(d) * COLUMNS;
+
 export class WorldScene extends Phaser.Scene {
-  private ground!: Phaser.Tilemaps.TilemapLayer;
+  private solid: number[] = [];
+  private mapWidth = 0;
+  private mapHeight = 0;
   private things: Thing[] = [];
-  private hunter!: Phaser.GameObjects.Graphics;
+  private signs: { tile: Tile; text: string }[] = [];
+  private hunter!: Phaser.GameObjects.Sprite;
   private tile: Tile = { x: 0, y: 0 };
   private facing: Dir = "up";
   private moving = false;
@@ -29,36 +39,55 @@ export class WorldScene extends Phaser.Scene {
 
   preload() {
     this.load.tilemapTiledJSON("world", "/world/world.tmj");
+    this.load.image("terrain", `${ART_DIR}/terrain.png`);
+    this.load.spritesheet("hunter", `${ART_DIR}/hunter.png`, { frameWidth: HUNTER_FRAME.w, frameHeight: HUNTER_FRAME.h });
+    // Object art is named in the map, so queue it once the map has loaded; a missing file falls back to a greybox.
+    this.load.once("filecomplete-tilemapJSON-world", () => {
+      const names = new Set(this.objectsOf(this.tmj()).map((o) => propsOf(o).art).filter(Boolean));
+      for (const name of names) this.load.image(artKey(name), `${ART_DIR}/objects/${name}.png`);
+    });
   }
 
-  create() {
-    const canvas = document.createElement("canvas");
-    canvas.width = TILE * TILE_COLOURS.length;
-    canvas.height = TILE;
-    const ctx = canvas.getContext("2d")!;
-    TILE_COLOURS.forEach((c, i) => ((ctx.fillStyle = c), ctx.fillRect(i * TILE, 0, TILE, TILE)));
-    this.textures.addCanvas("greybox", canvas);
+  private tmj = () => this.cache.tilemap.get("world").data as Tmj;
+  private objectsOf = (tmj: Tmj) => tmj.layers.find((l) => l.name === "objects")!.objects!;
 
+  create() {
     const map = this.make.tilemap({ key: "world" });
-    this.ground = map.createLayer("ground", map.addTilesetImage("greybox", "greybox")!, 0, 0) as Phaser.Tilemaps.TilemapLayer;
+    map.createLayer("ground", map.addTilesetImage("terrain", "terrain")!, 0, 0);
+    const tmj = this.tmj();
+    this.solid = tmj.layers.find((l) => l.name === "solid")!.data!;
+    this.mapWidth = map.width;
+    this.mapHeight = map.height;
 
     const shown = new Set(visibleNpcs(NPCS).map((n) => n.id));
-    this.things = map
-      .getObjectLayer("objects")!
-      .objects.map((o) => ({
-        type: o.type,
-        tile: { x: Math.round(o.x! / TILE), y: Math.round(o.y! / TILE) },
-        props: Object.fromEntries(((o.properties ?? []) as { name: string; value: string }[]).map((p) => [p.name, p.value])),
-      }))
-      .filter((t) => t.type !== "npc" || shown.has(t.props.npc));
+    const objects = this.objectsOf(tmj).filter((o) => o.type !== "npc" || shown.has(propsOf(o).npc));
+    this.things = objects
+      .filter((o) => o.type !== "art")
+      .map((o) => ({ type: o.type, tile: { x: Math.round(o.x / TILE), y: Math.round(o.y / TILE) }, props: propsOf(o) }));
+    this.signs = this.things.filter((t) => t.type === "sign").map((t) => ({ tile: t.tile, text: t.props.text }));
 
-    for (const t of this.things) {
-      const colour = OBJECT_COLOURS[t.type];
-      if (colour !== undefined) this.add.rectangle(t.tile.x * TILE + 1, t.tile.y * TILE + 1, TILE - 2, TILE - 2, colour).setOrigin(0);
+    for (const o of objects) {
+      const name = propsOf(o).art;
+      const bottom = o.y + o.height;
+      if (name && this.textures.exists(artKey(name))) {
+        this.add.image(o.x + o.width / 2, bottom, artKey(name)).setOrigin(0.5, 1).setDepth(depthOf(bottom));
+      } else if (GREYBOX[o.type] !== undefined) {
+        this.add.rectangle(o.x + 1, o.y + 1, o.width - 2, o.height - 2, GREYBOX[o.type]).setOrigin(0).setDepth(depthOf(bottom));
+      }
+    }
+
+    for (const [row, dir] of HUNTER_ROWS.entries()) {
+      const start = row * COLUMNS + 1;
+      this.anims.create({
+        key: `walk-${dir}`,
+        frames: this.anims.generateFrameNumbers("hunter", { start, end: start + WALK_FRAMES - 1 }),
+        frameRate: (WALK_FRAMES * 1000) / (2 * STEP_MS), // one full stride every two steps
+        repeat: -1,
+      });
     }
 
     this.tile = this.things.find((t) => t.type === "spawn")!.tile;
-    this.hunter = this.add.graphics();
+    this.hunter = this.add.sprite(0, 0, "hunter", standFrame(this.facing)).setOrigin(0.5, 1);
     this.placeHunter();
 
     const cam = this.cameras.main;
@@ -67,11 +96,14 @@ export class WorldScene extends Phaser.Scene {
 
     // The store decides which A presses belong to the world; acting in update keeps one press from also advancing the dialogue it opens.
     const offA = onWorldA(() => (this.pressedA = true));
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, offA);
-    this.events.once(Phaser.Scenes.Events.DESTROY, offA);
+    const off = () => (offA(), setNearbySign(null));
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, off);
+    this.events.once(Phaser.Scenes.Events.DESTROY, off);
   }
 
   update() {
+    this.hunter.setDepth(depthOf(this.hunter.y));
+    setNearbySign(signNear(this.tile, this.signs));
     const view = getView();
     const a = this.pressedA;
     this.pressedA = false;
@@ -82,25 +114,21 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private blocked = (t: Tile) =>
-    t.x < 0 || t.y < 0 || t.x >= this.ground.layer.width || t.y >= this.ground.layer.height ||
-    BLOCKING_TILES.includes(this.ground.getTileAt(t.x, t.y)?.index ?? 0) ||
-    this.things.some((o) => o.type !== "spawn" && o.type !== "travel" && o.tile.x === t.x && o.tile.y === t.y);
+    t.x < 0 || t.y < 0 || t.x >= this.mapWidth || t.y >= this.mapHeight || this.solid[t.y * this.mapWidth + t.x] === 1;
 
   private tryStep() {
     const d = heldDir();
-    if (!d || getView().kind !== "world") return;
-    if (d !== this.facing) {
-      this.facing = d;
-      this.drawHunter();
-    }
+    if (!d || getView().kind !== "world") return this.stand();
+    this.facing = d;
     const next = step(this.tile, d, this.blocked);
-    if (next === this.tile) return;
+    if (next === this.tile) return this.stand();
     this.tile = next;
     this.moving = true;
+    this.hunter.play(`walk-${d}`, true);
     this.tweens.add({
       targets: this.hunter,
-      x: next.x * TILE,
-      y: next.y * TILE,
+      x: this.footX(next),
+      y: this.footY(next),
       duration: STEP_MS,
       ease: "Linear",
       onComplete: () => {
@@ -144,17 +172,18 @@ export class WorldScene extends Phaser.Scene {
     setView(WORLD);
   }
 
+  // The hunter's feet sit on the bottom-centre of his tile; his sprite rises a tile above it.
+  private footX = (t: Tile) => t.x * TILE + TILE / 2;
+  private footY = (t: Tile) => (t.y + 1) * TILE;
+
   private placeHunter() {
-    this.hunter.setPosition(this.tile.x * TILE, this.tile.y * TILE);
-    this.drawHunter();
+    this.hunter.setPosition(this.footX(this.tile), this.footY(this.tile));
+    this.stand();
   }
 
-  /** Greybox hunter: dark coat, white hair, a yellow notch on the side he faces. */
-  private drawHunter() {
-    const g = this.hunter.clear();
-    g.fillStyle(0x2f3440).fillRect(2, 2, 12, 13);
-    g.fillStyle(0xe8e8e8).fillRect(4, 1, 8, 5);
-    const notch: Record<Dir, [number, number]> = { up: [6, 0], down: [6, 12], left: [0, 6], right: [12, 6] };
-    g.fillStyle(0xf8e060).fillRect(...notch[this.facing], 4, 4);
+  /** Stops the walk and shows the standing frame for the way he faces. */
+  private stand() {
+    this.hunter.stop();
+    this.hunter.setFrame(standFrame(this.facing));
   }
 }

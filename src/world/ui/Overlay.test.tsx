@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
 import { press } from "../buttons";
-import { getView, startStore } from "../store";
+import { getView, setNearbySign, startStore } from "../store";
 import { Overlay } from "./Overlay";
 import type { View } from "../view";
 
@@ -9,6 +9,13 @@ const show = (v: View) => render(<Overlay initial={v} />);
 
 test("the world shows no overlay", () => {
   expect(show({ kind: "world" }).container).toBeEmptyDOMElement();
+});
+
+test("a nearby sign reads itself in the world, without pressing A", () => {
+  setNearbySign("Sweden");
+  show({ kind: "world" });
+  expect(screen.getByRole("status")).toHaveTextContent("Sweden");
+  setNearbySign(null);
 });
 
 test("the main board pins all six contracts with the selected one marked", () => {
