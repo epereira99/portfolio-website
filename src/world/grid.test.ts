@@ -14,3 +14,9 @@ test("zoom is the largest whole number that fits, never below 1", () => {
   expect(integerZoom(390, 520)).toBe(1); // portrait phone: the area above the controls
   expect(integerZoom(100, 80)).toBe(1);
 });
+
+test("on high-density screens zoom is whole in device pixels, so a phone gets a bigger screen that stays crisp", () => {
+  expect(integerZoom(390, 644, 3)).toBe(4 / 3); // 1170 device px wide → 4 device px per game pixel
+  expect(integerZoom(1440, 900, 2)).toBe(5.5);
+  expect(integerZoom(100, 80, 2)).toBe(1); // never below one CSS pixel per game pixel
+});

@@ -6,6 +6,7 @@ import { startStore } from "./store";
 import type { View } from "./view";
 import { WorldCanvas } from "./WorldCanvas";
 import { Overlay } from "./ui/Overlay";
+import { TouchControls } from "./ui/TouchControls";
 import styles from "./World.module.css";
 
 /** The whole game: the tile world with every overlay on top. initial: what the page opens on. */
@@ -22,6 +23,7 @@ export function World({ initial }: { initial: View }) {
         <WorldCanvas />
         <Overlay initial={initial} />
       </div>
+      <TouchControls />
     </div>
   );
 }

@@ -23,10 +23,10 @@ export function WorldCanvas() {
         pixelArt: true,
         roundPixels: true,
         backgroundColor: "#1b1b1b",
-        scale: { mode: Phaser.Scale.NONE, zoom: integerZoom(el.clientWidth, el.clientHeight) },
+        scale: { mode: Phaser.Scale.NONE, zoom: integerZoom(el.clientWidth, el.clientHeight, window.devicePixelRatio) },
         scene: [WorldScene],
       });
-      const fit = new ResizeObserver(() => game.scale.setZoom(integerZoom(el.clientWidth, el.clientHeight)));
+      const fit = new ResizeObserver(() => game.scale.setZoom(integerZoom(el.clientWidth, el.clientHeight, window.devicePixelRatio)));
       fit.observe(el);
       destroy = () => (fit.disconnect(), game.destroy(true));
     });

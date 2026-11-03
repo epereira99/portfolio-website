@@ -13,3 +13,11 @@
   image-rendering: pixelated;
   display: block;
 }
+
+/* Portrait phones: the screen sits at the top, like a Game Boy, with the controls below. */
+@media (orientation: portrait) and (pointer: coarse) {
+  .host {
+    align-items: flex-start;
+    padding-top: 12px;
+  }
+}
