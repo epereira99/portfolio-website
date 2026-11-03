@@ -1,0 +1,764 @@
+{
+ "sets": [
+  {
+   "name": "water-grass",
+   "lower": "water",
+   "upper": "grass",
+   "row": 0,
+   "tiles": [
+    {
+     "index": 0,
+     "corners": [
+      "upper",
+      "upper",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 1,
+     "corners": [
+      "upper",
+      "lower",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 2,
+     "corners": [
+      "lower",
+      "upper",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 3,
+     "corners": [
+      "upper",
+      "upper",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 4,
+     "corners": [
+      "lower",
+      "upper",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 5,
+     "corners": [
+      "upper",
+      "lower",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 6,
+     "corners": [
+      "lower",
+      "lower",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 7,
+     "corners": [
+      "lower",
+      "lower",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 8,
+     "corners": [
+      "upper",
+      "lower",
+      "upper",
+      "upper"
+     ]
+    },
+    {
+     "index": 9,
+     "corners": [
+      "lower",
+      "lower",
+      "upper",
+      "upper"
+     ]
+    },
+    {
+     "index": 10,
+     "corners": [
+      "lower",
+      "lower",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 11,
+     "corners": [
+      "lower",
+      "upper",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 12,
+     "corners": [
+      "upper",
+      "upper",
+      "upper",
+      "upper"
+     ]
+    },
+    {
+     "index": 13,
+     "corners": [
+      "upper",
+      "upper",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 14,
+     "corners": [
+      "upper",
+      "lower",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 15,
+     "corners": [
+      "lower",
+      "upper",
+      "upper",
+      "upper"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "grass-path",
+   "lower": "grass",
+   "upper": "path",
+   "row": 1,
+   "tiles": [
+    {
+     "index": 0,
+     "corners": [
+      "upper",
+      "upper",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 1,
+     "corners": [
+      "upper",
+      "lower",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 2,
+     "corners": [
+      "lower",
+      "upper",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 3,
+     "corners": [
+      "upper",
+      "upper",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 4,
+     "corners": [
+      "lower",
+      "upper",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 5,
+     "corners": [
+      "upper",
+      "lower",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 6,
+     "corners": [
+      "lower",
+      "lower",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 7,
+     "corners": [
+      "lower",
+      "lower",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 8,
+     "corners": [
+      "upper",
+      "lower",
+      "upper",
+      "upper"
+     ]
+    },
+    {
+     "index": 9,
+     "corners": [
+      "lower",
+      "lower",
+      "upper",
+      "upper"
+     ]
+    },
+    {
+     "index": 10,
+     "corners": [
+      "lower",
+      "lower",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 11,
+     "corners": [
+      "lower",
+      "upper",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 12,
+     "corners": [
+      "upper",
+      "upper",
+      "upper",
+      "upper"
+     ]
+    },
+    {
+     "index": 13,
+     "corners": [
+      "upper",
+      "upper",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 14,
+     "corners": [
+      "upper",
+      "lower",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 15,
+     "corners": [
+      "lower",
+      "upper",
+      "upper",
+      "upper"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "grass-dry",
+   "lower": "grass",
+   "upper": "dry",
+   "row": 2,
+   "tiles": [
+    {
+     "index": 0,
+     "corners": [
+      "upper",
+      "upper",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 1,
+     "corners": [
+      "upper",
+      "lower",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 2,
+     "corners": [
+      "lower",
+      "upper",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 3,
+     "corners": [
+      "upper",
+      "upper",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 4,
+     "corners": [
+      "lower",
+      "upper",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 5,
+     "corners": [
+      "upper",
+      "lower",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 6,
+     "corners": [
+      "lower",
+      "lower",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 7,
+     "corners": [
+      "lower",
+      "lower",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 8,
+     "corners": [
+      "upper",
+      "lower",
+      "upper",
+      "upper"
+     ]
+    },
+    {
+     "index": 9,
+     "corners": [
+      "lower",
+      "lower",
+      "upper",
+      "upper"
+     ]
+    },
+    {
+     "index": 10,
+     "corners": [
+      "lower",
+      "lower",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 11,
+     "corners": [
+      "lower",
+      "upper",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 12,
+     "corners": [
+      "upper",
+      "upper",
+      "upper",
+      "upper"
+     ]
+    },
+    {
+     "index": 13,
+     "corners": [
+      "upper",
+      "upper",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 14,
+     "corners": [
+      "upper",
+      "lower",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 15,
+     "corners": [
+      "lower",
+      "upper",
+      "upper",
+      "upper"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "dry-path",
+   "lower": "dry",
+   "upper": "path",
+   "row": 3,
+   "tiles": [
+    {
+     "index": 0,
+     "corners": [
+      "upper",
+      "upper",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 1,
+     "corners": [
+      "upper",
+      "lower",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 2,
+     "corners": [
+      "lower",
+      "upper",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 3,
+     "corners": [
+      "upper",
+      "upper",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 4,
+     "corners": [
+      "lower",
+      "upper",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 5,
+     "corners": [
+      "upper",
+      "lower",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 6,
+     "corners": [
+      "lower",
+      "lower",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 7,
+     "corners": [
+      "lower",
+      "lower",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 8,
+     "corners": [
+      "upper",
+      "lower",
+      "upper",
+      "upper"
+     ]
+    },
+    {
+     "index": 9,
+     "corners": [
+      "lower",
+      "lower",
+      "upper",
+      "upper"
+     ]
+    },
+    {
+     "index": 10,
+     "corners": [
+      "lower",
+      "lower",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 11,
+     "corners": [
+      "lower",
+      "upper",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 12,
+     "corners": [
+      "upper",
+      "upper",
+      "upper",
+      "upper"
+     ]
+    },
+    {
+     "index": 13,
+     "corners": [
+      "upper",
+      "upper",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 14,
+     "corners": [
+      "upper",
+      "lower",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 15,
+     "corners": [
+      "lower",
+      "upper",
+      "upper",
+      "upper"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "grass-crops",
+   "lower": "grass",
+   "upper": "crops",
+   "row": 4,
+   "tiles": [
+    {
+     "index": 0,
+     "corners": [
+      "upper",
+      "upper",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 1,
+     "corners": [
+      "upper",
+      "lower",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 2,
+     "corners": [
+      "lower",
+      "upper",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 3,
+     "corners": [
+      "upper",
+      "upper",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 4,
+     "corners": [
+      "lower",
+      "upper",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 5,
+     "corners": [
+      "upper",
+      "lower",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 6,
+     "corners": [
+      "lower",
+      "lower",
+      "lower",
+      "lower"
+     ]
+    },
+    {
+     "index": 7,
+     "corners": [
+      "lower",
+      "lower",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 8,
+     "corners": [
+      "upper",
+      "lower",
+      "upper",
+      "upper"
+     ]
+    },
+    {
+     "index": 9,
+     "corners": [
+      "lower",
+      "lower",
+      "upper",
+      "upper"
+     ]
+    },
+    {
+     "index": 10,
+     "corners": [
+      "lower",
+      "lower",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 11,
+     "corners": [
+      "lower",
+      "upper",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 12,
+     "corners": [
+      "upper",
+      "upper",
+      "upper",
+      "upper"
+     ]
+    },
+    {
+     "index": 13,
+     "corners": [
+      "upper",
+      "upper",
+      "upper",
+      "lower"
+     ]
+    },
+    {
+     "index": 14,
+     "corners": [
+      "upper",
+      "lower",
+      "lower",
+      "upper"
+     ]
+    },
+    {
+     "index": 15,
+     "corners": [
+      "lower",
+      "upper",
+      "upper",
+      "upper"
+     ]
+    }
+   ]
+  }
+ ]
+}
