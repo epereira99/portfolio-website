@@ -47,6 +47,7 @@ export function contractsFor(place: PlaceId | "all"): Contract[] {
 }
 
 export function villageLabel(c: Contract): string {
+  if (c.places[0] === "current-house") return "Home"; // personal projects (spec §3)
   const p = placeById(c.places[0]);
   return p.city ? `${p.name} · ${p.city}` : p.name;
 }

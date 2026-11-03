@@ -1,0 +1,177 @@
+/* Game UI over the world: square corners, 4px frames, hard shadows, one pixel font. Greybox until the art pack. */
+.layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  font-family: var(--font-pixel), monospace;
+  color: #303848;
+  z-index: 10;
+}
+
+.dim { background: #140c06a0; }
+.dusk { background: linear-gradient(#2b2a52 0%, #4a3b6b 45%, #8a5a6a 62%, #3a3a2a 62%); }
+
+.box {
+  background: #f8f8f0;
+  border: 4px solid #303848;
+  box-shadow: inset 0 0 0 3px #a8c0d8;
+  padding: 12px 16px;
+  margin: 0;
+}
+
+.close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border: 3px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.dialogue {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.cursor { position: absolute; right: 14px; bottom: 6px; color: #d84830; }
+
+.menu { position: absolute; top: 16px; right: 16px; min-width: 200px; font-size: 20px; padding-top: 40px; }
+.menu ul, .panel ul { list-style: none; margin: 0; padding: 0; }
+.menu li { padding: 4px 0; }
+
+.panel { position: relative; width: min(560px, 100%); max-height: 100%; overflow: auto; font-size: 17px; line-height: 1.4; }
+.panel h2 { margin: 0 40px 8px 0; font-size: 22px; }
+.panel h3 { margin: 12px 0 4px; font-size: 17px; }
+.panel a { color: #2a4a8a; }
+.panel button { border: 0; background: none; font: inherit; color: inherit; padding: 3px 0; cursor: pointer; }
+.long { width: min(720px, 100%); }
+
+/* The board close-up */
+.board {
+  position: relative;
+  width: min(640px, 100%);
+  background: #6b4423;
+  border: 8px solid #3a2410;
+  box-shadow: 0 10px 0 #2a1808;
+  padding: 12px;
+  color: #3a2614;
+}
+.boardTitle {
+  margin: 0 0 10px;
+  padding: 4px;
+  background: #4a2e17;
+  color: #f0d9a0;
+  text-align: center;
+  font-size: 22px;
+  letter-spacing: 0.08em;
+}
+.cork {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  background: repeating-linear-gradient(90deg, #8a5d34 0 26px, #7d5430 26px 28px);
+}
+.paper {
+  position: relative;
+  min-height: 96px;
+  padding: 10px 8px 34px;
+  border: 0;
+  background: #ecd9a6;
+  box-shadow: 4px 4px 0 #0005;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  cursor: pointer;
+}
+.paper::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: calc(50% - 6px);
+  width: 12px;
+  height: 12px;
+  background: #a3241a;
+}
+.paper b { font-size: 15px; }
+.paper[aria-current] { outline: 4px solid #f8e060; transform: translateY(-6px); box-shadow: 4px 10px 0 #0005; }
+.paper:focus-visible { outline: 4px solid #f8e060; }
+.paper .logoSlot { position: absolute; right: 6px; bottom: 6px; width: 24px; height: 24px; }
+.paper .seal { position: absolute; left: 6px; bottom: 6px; width: 22px; height: 22px; font-size: 13px; }
+
+.chalk {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  margin: 0;
+  padding: 8px 12px;
+  background: #24302a;
+  border: 6px solid #4a2e17;
+  color: #e8efe8;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.info { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); font-size: 15px; white-space: nowrap; }
+
+/* The contract scroll */
+.scroll {
+  position: relative;
+  width: min(620px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 28px 32px 36px;
+  background: #e3c48f;
+  border: 5px solid #5a3418;
+  border-top-width: 14px;
+  border-bottom-width: 18px;
+  box-shadow: 0 0 0 4px #d6ac70;
+  color: #3a2614;
+  font-size: 16px;
+  line-height: 1.35;
+}
+.scrollHead { display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; padding-right: 32px; }
+.scrollHead h2 { margin: 0 0 8px; font-size: 24px; line-height: 1.1; }
+.fields { display: grid; grid-template-columns: 96px 1fr; gap: 2px 10px; margin: 0; }
+.fields dt { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #7a1f14; padding-top: 2px; }
+.fields dd { margin: 0; }
+.body { margin-top: 14px; padding-top: 12px; border-top: 3px dashed #7a5530; row-gap: 8px; }
+.logo { width: 64px; height: 64px; object-fit: contain; image-rendering: pixelated; flex-shrink: 0; }
+.logoSlot { display: inline-block; width: 64px; height: 64px; border: 2px dashed #8a6a40; flex-shrink: 0; }
+.seal {
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #a3241a;
+  box-shadow: 0 0 0 3px #7a1810;
+  color: #f0c9a0;
+  font-size: 20px;
+}
+
+@media (max-width: 560px) {
+  .cork { gap: 10px; padding: 10px; }
+  .paper { font-size: 12px; min-height: 84px; }
+  .chalk { display: none; }
+  .scroll { padding: 20px 18px 28px; font-size: 15px; }
+  .fields { grid-template-columns: 78px 1fr; }
+}
