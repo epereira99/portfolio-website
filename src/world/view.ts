@@ -1,5 +1,5 @@
 import type { Button } from "./buttons";
-import { contractsFor } from "@/content/contracts";
+import { contractBySlug, contractsFor } from "@/content/contracts";
 import { PLACES, type PlaceId } from "@/content/places";
 
 export type Board = PlaceId | "all";
@@ -19,6 +19,11 @@ export type View =
 export const WORLD: View = { kind: "world" };
 export const MENU_ITEMS = ["Contracts", "Map", "Hunter", "Send a raven"] as const;
 export const BOARD_COLUMNS = 3;
+
+/** What a page opens on: a contract's scroll for /contracts/<slug>, otherwise the world. Safe on the server. */
+export function initialViewFor(slug?: string): View {
+  return slug && contractBySlug(slug) ? { kind: "scroll", place: "all", slug } : WORLD;
+}
 
 const wrap = (i: number, n: number) => (i + n) % n;
 

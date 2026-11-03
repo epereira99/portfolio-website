@@ -35,9 +35,7 @@ export function setView(next: View): void {
   apply(next, false);
 }
 
-export function initialViewFor(slug?: string): View {
-  return slug && contractBySlug(slug) ? { kind: "scroll", place: "all", slug } : WORLD;
-}
+export { initialViewFor } from "./view";
 
 function onPopState() {
   const slug = window.location.pathname.match(/^\/contracts\/([^/]+)$/)?.[1];

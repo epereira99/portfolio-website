@@ -8,7 +8,7 @@ export function Scroll({ view }: { view: Extract<View, { kind: "scroll" }> }) {
   const c = contractBySlug(view.slug)!;
   return (
     <div className={`${styles.layer} ${styles.dim}`}>
-      <article className={styles.scroll} aria-labelledby={`contract-${c.slug}`}>
+      <article className={styles.scroll} aria-labelledby={`contract-${c.slug}`} data-scrolls>
         <Close view={view} />
         <header className={styles.scrollHead}>
           <div>

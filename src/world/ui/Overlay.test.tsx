@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
+import { press } from "../buttons";
 import { Overlay } from "./Overlay";
 import type { View } from "../view";
 
@@ -33,6 +34,19 @@ test("the Start menu lists its four items in order", () => {
     "Hunter",
     "Send a raven",
   ]);
+});
+
+test("Up and Down scroll a long degree for keyboard players", () => {
+  const scrollBy = vi.fn();
+  HTMLElement.prototype.scrollBy = scrollBy;
+  show({ kind: "degree", slug: "bsc-computer-science" });
+  press("down");
+  expect(scrollBy).toHaveBeenCalledWith({ top: 64 });
+});
+
+test("an open scroll sits over its board, which is inert", () => {
+  const { container } = show({ kind: "scroll", place: "ju", slug: "saab-thesis" });
+  expect(container.querySelector("[inert] [aria-current]")).toHaveAttribute("aria-label", "Saab · Jönköping · Predicting shooting performance from motion");
 });
 
 test("the raven panel links to email and LinkedIn", () => {

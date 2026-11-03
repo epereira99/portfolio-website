@@ -8,15 +8,18 @@ import { contractsFor, villageLabel } from "@/content/contracts";
 import styles from "./ui.module.css";
 
 /** The board seen through the hunter's eyes: papers pinned on cork, the town at dusk behind it. */
-export function BoardView({ view }: { view: Extract<View, { kind: "board" }> }) {
+/** behind: drawn under an open scroll, so it is inert and hidden from assistive tech. */
+export function BoardView({ view, behind = false }: { view: Extract<View, { kind: "board" }>; behind?: boolean }) {
   const papers = contractsFor(view.place);
   const selected = useRef<HTMLButtonElement>(null);
   const current = papers[view.index];
 
-  useEffect(() => selected.current?.focus(), [view.index]);
+  useEffect(() => {
+    if (!behind) selected.current?.focus();
+  }, [view.index, behind]);
 
   return (
-    <div className={`${styles.layer} ${styles.dusk}`}>
+    <div className={`${styles.layer} ${styles.dusk}`} inert={behind} aria-hidden={behind || undefined}>
       <section className={styles.board} aria-label="Contracts board">
         <Close view={view} />
         <h2 className={styles.boardTitle}>CONTRACTS</h2>

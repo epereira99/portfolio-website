@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
 import { BoardView } from "./BoardView";
+import { onPress } from "../buttons";
 import { Close } from "./Close";
 import { Scroll } from "./Scroll";
 import { setView, useView } from "../store";
-import { MENU_ITEMS, type View } from "../view";
+import { MENU_ITEMS, reduce, type View } from "../view";
 import { CV_URL, EMAIL, LINKEDIN } from "@/content/contact";
 import { DEGREES } from "@/content/degrees";
 import { PLACES } from "@/content/places";
@@ -13,13 +15,30 @@ import styles from "./ui.module.css";
 /** Every screen with text, over the world. initial: the view the page was rendered with. */
 export function Overlay({ initial }: { initial: View }) {
   const view = useView(initial);
+
+  // The arrows are game buttons, so Up/Down scroll long text (degrees, contracts) for keyboard players.
+  useEffect(
+    () =>
+      onPress((b) => {
+        if (b === "up" || b === "down") document.querySelector("[data-scrolls]")?.scrollBy({ top: b === "up" ? -64 : 64 });
+      }),
+    [],
+  );
+
   switch (view.kind) {
     case "world":
       return null;
     case "board":
       return <BoardView view={view} />;
-    case "scroll":
-      return <Scroll view={view} />;
+    case "scroll": {
+      const board = reduce(view, "b") as Extract<View, { kind: "board" }>; // the board this scroll rolls back to
+      return (
+        <>
+          <BoardView view={board} behind />
+          <Scroll view={view} />
+        </>
+      );
+    }
     case "dialogue":
       return (
         <div className={styles.layer}>
@@ -100,7 +119,7 @@ export function Overlay({ initial }: { initial: View }) {
       const degree = DEGREES.find((d) => d.slug === view.slug)!;
       return (
         <div className={styles.layer}>
-          <article className={`${styles.box} ${styles.panel} ${styles.long}`} aria-label={degree.title}>
+          <article className={`${styles.box} ${styles.panel} ${styles.long}`} aria-label={degree.title} data-scrolls>
             <Close view={view} />
             <h2>{degree.title}</h2>
             <p>{degree.subtitle}</p>
