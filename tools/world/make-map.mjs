@@ -42,7 +42,7 @@ for (let y = 0; y < H; y++)
     CORNERS.forEach(([dx, dy]) => (corner[y + dy][x + dx] = "water"));
     if (y !== ROAD && y !== ROAD + 1) block(x, y);
   }
-art("bridge", RIVER[0], ROAD, RIVER.length, 2, 0);
+art("bridge", RIVER[0] - 1, ROAD, RIVER.length + 2, 2, 0); // spans the soft banks too
 
 const lanes = [];
 /** A place: buildings left to right on one baseline; the first is the landmark whose door the hunter visits. */
@@ -61,6 +61,7 @@ function place(id, x, y, buildings, { board = true, boardSide = 2, academy = fal
 }
 const PT_HOUSE = { art: "house-pt", w: 3, h: 3 };
 const SE_HOUSE = { art: "house-se", w: 3, h: 3 };
+const BARRACKS = { art: "barracks-saab", w: 3, h: 3 };
 
 // Portugal
 place("childhood-house", 8, 3, [{ art: "house-childhood", w: 3, h: 3 }], { board: false });
@@ -70,9 +71,12 @@ place("deloitte", 3, 20, [{ art: "office-deloitte", w: 4, h: 4 }, PT_HOUSE, PT_H
 place("current-house", 33, 3, [{ art: "house-current", w: 3, h: 3 }]);
 place("ju", 39, 2, [{ art: "fortress-ju", w: 7, h: 5 }], { academy: true });
 place("effektify", 30, 9, [{ art: "hall-effektify", w: 4, h: 4 }, SE_HOUSE, SE_HOUSE], { boardSide: -2 });
-place("saab", 27, 19, [{ art: "compound-saab", w: 5, h: 4 }, SE_HOUSE, SE_HOUSE], { road: SOUTH_ROAD });
+place("saab", 27, 19, [{ art: "compound-saab", w: 5, h: 4 }, BARRACKS, BARRACKS], { road: SOUTH_ROAD });
 place("jordbruksverket", 33, 25, [{ art: "farmhouse", w: 3, h: 3 }, { art: "barn", w: 4, h: 3 }], { road: SOUTH_ROAD });
 for (let x = 42; x <= 45; x++) for (let y = 24; y <= 28; y++) paint(x, y, "crops");
+art("crops", 42, 24, 4, 5, 0); // walkable furrows over the crops ground
+art("cow", 41, 21, 2, 2);
+art("cow", 44, 22, 2, 2);
 
 // Spawn on the Swedish bank by the bridge, facing the main board, with the signs around it.
 thing("spawn", 27, ROAD);
