@@ -38,6 +38,7 @@ def material(name, hex_color):
     bsdf = m.node_tree.nodes["Principled BSDF"]
     bsdf.inputs["Base Color"].default_value = (*rgb, 1)
     bsdf.inputs["Roughness"].default_value = 1.0
+    m.diffuse_color = (*rgb, 1)  # what Blender's quick previews show
     _materials[name] = m
     return m
 

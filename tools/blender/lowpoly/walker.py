@@ -73,32 +73,105 @@ def sample(view, u, v):
     return "jacket"
 
 
+# The body is coloured by where a face is, with lines measured on the reference sheet (as a fraction of his height
+# from the top): projecting the image there bled colours across the seams, since the AI mesh doesn't match it exactly.
+# Only the head, where hair, beard and skin meet in no straight line, is projected.
+NECK, HEM, SHOE = 0.36, 0.656, 0.931
+CUFF = 0.8  # of the arm span from the centre; the hands start there
+
+# Cut the mesh along those lines first, so each seam is a straight edge instead of triangles zigzagging across it
+# (bmesh carries the skin weights over to the new vertices).
+import bmesh  # noqa: E402
+from mathutils import Vector  # noqa: E402
+
+to_local = body.matrix_world.inverted()
+bm = bmesh.new()
+bm.from_mesh(me)
+cuts = [((0, 0, mxz - f * (mxz - mnz)), (0, 0, 1)) for f in (HEM, SHOE)]
+cuts += [((side * CUFF * (mxx - mnx) / 2 + (mnx + mxx) / 2, 0, 0), (1, 0, 0)) for side in (-1, 1)]
+for co, no in cuts:
+    geom = bm.verts[:] + bm.edges[:] + bm.faces[:]
+    bmesh.ops.bisect_plane(bm, geom=geom, plane_co=to_local @ Vector(co),
+                           plane_no=(to_local.to_3x3() @ Vector(no)).normalized())
+bmesh.ops.triangulate(bm, faces=bm.faces[:])
+bm.to_mesh(me)
+bm.free()
+world = [body.matrix_world @ v.co for v in me.vertices]
 normal_mat = body.matrix_world.to_3x3()
-labels = []
+labels, head = [], []
 for p in me.polygons:
     cw = sum((world[i] for i in p.vertices), world[0] * 0) / len(p.vertices)
-    n = normal_mat @ p.normal
-    lbl = sample("front" if n.y >= 0 else "back", (cw.x - mnx) / (mxx - mnx), (mxz - cw.z) / (mxz - mnz))
-    labels.append("skin" if lbl == "eyes" else lbl)
+    u, fz = (cw.x - mnx) / (mxx - mnx), (mxz - cw.z) / (mxz - mnz)
+    if fz > SHOE:
+        lbl = "sole" if fz > 0.985 else "shoes"
+    elif fz > HEM:
+        lbl = "jeans"
+    elif fz > NECK:
+        lbl = "skin" if abs(u - 0.5) * 2 > CUFF else "jacket"
+    elif (normal_mat @ p.normal).y < 0:
+        # The back of the head, which the camera sees all the time, by shape too: hair down to the collar, skin only
+        # at the ears (measured on the sheet's back view).
+        if fz > 0.318:
+            lbl = "jacket"
+        else:
+            lbl = "skin" if 0.16 < fz < 0.29 and abs(u - 0.5) * 2 > 0.27 else "hair"
+    else:
+        lbl = sample("front", u, fz)
+        lbl = "skin" if lbl in ("eyes", "skin") else "hair"  # the beard is hair-coloured too
+        head.append(p.index)
+    labels.append(lbl)
 
-# Smooth: a face takes its neighbours' majority, so stray triangles at region edges (beard spikes, hem) disappear.
+# Smooth the head: a face takes its neighbours' majority, so stray triangles where hair meets skin disappear.
+in_head = set(head)
 edge_faces = {}
 for p in me.polygons:
     for ek in p.edge_keys:
         edge_faces.setdefault(ek, []).append(p.index)
-neighbours = [[f for ek in p.edge_keys for f in edge_faces[ek] if f != p.index] for p in me.polygons]
-for _ in range(2):
+neighbours = {i: [f for ek in me.polygons[i].edge_keys for f in edge_faces[ek] if f != i and f in in_head] for i in head}
+for _ in range(4):
     nxt = labels[:]
-    for i, nb in enumerate(neighbours):
+    for i, nb in neighbours.items():
         votes = [labels[j] for j in nb]
         best = max(set(votes), key=votes.count) if votes else labels[i]
         if votes.count(best) >= 2 and best != labels[i]:
             nxt[i] = best
     labels = nxt
+# Small islands of hair on the face (what's left of the eyes and brows) become skin.
+seen = set()
+for start in head:
+    if start in seen or labels[start] != "hair":
+        continue
+    island, todo = [], [start]
+    seen.add(start)
+    while todo:
+        i = todo.pop()
+        island.append(i)
+        for j in neighbours[i]:
+            if j not in seen and labels[j] == "hair":
+                seen.add(j)
+                todo.append(j)
+    if len(island) < 40:
+        for i in island:
+            labels[i] = "skin"
 for p, lbl in zip(me.polygons, labels):
     p.material_index = names.index(lbl)
     p.use_smooth = False
 c.tone(body)
+
+if os.environ.get("WALKER_PREVIEW"):  # a dir: front, back and three-quarter renders of the colours, in the rest pose
+    from mathutils import Vector
+    sc = bpy.context.scene
+    sc.render.engine, sc.display.shading.light, sc.display.shading.color_type = "BLENDER_WORKBENCH", "FLAT", "MATERIAL"
+    sc.render.resolution_x, sc.render.resolution_y = 600, 700
+    cam = bpy.data.objects.new("preview", bpy.data.cameras.new("preview"))
+    sc.collection.objects.link(cam)
+    sc.camera, cam.data.type, cam.data.ortho_scale = cam, "ORTHO", 2.1
+    for name, d in (("front", (0, 1, 0)), ("back", (0, -1, 0)), ("quarter", (0.6, -1, 0.4))):
+        d = Vector(d).normalized()
+        cam.location, cam.rotation_euler = Vector((0, 0, 0.9)) + d * 5, (-d).to_track_quat("-Z", "Y").to_euler()
+        sc.render.filepath = os.path.join(os.environ["WALKER_PREVIEW"], f"walker-{name}.png")
+        bpy.ops.render.render(write_still=True)
+    bpy.data.objects.remove(cam)
 arm.data.pose_position = "POSE"
 
 # Drawn unlit with baked tones: normals and UVs would only add weight.

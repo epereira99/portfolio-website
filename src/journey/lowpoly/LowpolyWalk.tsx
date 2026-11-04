@@ -1,11 +1,12 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { useAnimations, useGLTF } from "@react-three/drei";
-import { BackSide, Color, MeshBasicMaterial, type Group, type Mesh, type MeshStandardMaterial, type PerspectiveCamera } from "three";
+import { BackSide, Color, type Group, type Mesh, type PerspectiveCamera } from "three";
 import { getScreens } from "../progress";
-import { DAY, SLOTS, daylightAt, type Slot } from "./daylight";
+import { DAY, daylightAt } from "./daylight";
+import { figureMaterials, flatMaterials } from "./materials";
 import { cameraAt, distanceAt, pointAt } from "./path";
 import { Quiet } from "./Quiet";
 import { nextPosition, walkTime } from "./rig";
@@ -23,67 +24,36 @@ void main() { float h = max(vDir.y, 0.0);
 #include <colorspace_fragment>
 }`;
 
-/** Flat, unlit colour per slot (the mockup's look): Blender baked each face's tone into its vertex colour. */
-function useFlatMaterials(root: Group) {
-  return useMemo(() => {
-    const bySlot = new Map<Slot, MeshBasicMaterial>();
-    root.traverse((o) => {
-      const m = o as Mesh;
-      if (!m.isMesh) return;
-      const name = (m.material as MeshStandardMaterial).name as Slot;
-      if (!SLOTS.includes(name)) return;
-      if (!bySlot.has(name)) bySlot.set(name, new MeshBasicMaterial({ vertexColors: true }));
-      m.material = bySlot.get(name)!;
-    });
-    return bySlot;
-  }, [root]);
-}
-
-/** The walker keeps his own colours and baked tones, unlit, tinted by the time of day. */
-function useFigureMaterials(root: Group) {
-  return useMemo(() => {
-    const out: { material: MeshBasicMaterial; base: Color }[] = [];
-    root.traverse((o) => {
-      const m = o as Mesh;
-      if (!m.isMesh) return;
-      m.frustumCulled = false; // skinned: its bind-pose bounds don't follow the walk
-      const base = (m.material as MeshStandardMaterial).color.clone();
-      const material = new MeshBasicMaterial({ color: base, vertexColors: true });
-      m.material = material;
-      out.push({ material, base });
-    });
-    return out;
-  }, [root]);
-}
-
 function World() {
   const land = useGLTF(SCENE_URL);
   const walker = useGLTF(WALKER_URL);
   const { actions } = useAnimations(walker.animations, walker.scene);
-  const { camera, size } = useThree();
   const sky = useRef<Mesh>(null);
   const him = useRef<Group>(null);
   const shown = useRef(getScreens());
   const reduced = useMemo(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches, []);
   const uniforms = useMemo(() => ({ top: { value: new Color() }, mid: { value: new Color() }, horizon: { value: new Color() } }), []);
-  const flat = useFlatMaterials(land.scene);
-  const figure = useFigureMaterials(walker.scene);
+  const flat = useMemo(() => flatMaterials(land.scene), [land.scene]);
+  const figure = useMemo(() => figureMaterials(walker.scene), [walker.scene]);
   const tint = useMemo(() => new Color(), []);
 
   useEffect(() => {
     const walk = actions.Walk;
     if (walk) {
       walk.play();
+      // eslint-disable-next-line react-hooks/immutability -- three.js state, not React state
       walk.paused = true; // scrubbed by distance below, never by the clock
     }
   }, [actions]);
 
-  useFrame(() => {
+  // eslint-disable-next-line react-hooks/immutability -- scrubs the walk action's time: three.js state, not React state
+  useFrame(({ camera, size }) => {
     const p = (shown.current = nextPosition(shown.current, getScreens(), reduced));
     const w = pointAt(distanceAt(p));
     him.current!.position.set(w.x, 0, w.z);
     him.current!.rotation.y = w.heading;
     const walk = actions.Walk;
+    // eslint-disable-next-line react-hooks/immutability -- three.js state, not React state
     if (walk) walk.time = walkTime(p) * walk.getClip().duration;
 
     const cam = cameraAt(p, size.width / size.height);
