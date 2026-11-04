@@ -20,20 +20,29 @@ export function distanceAt(s: number): number {
   return Math.min(Math.max(s, 0), ENDING_START) * UNITS_PER_SCREEN;
 }
 
-/** The point d units along the path, and the yaw (around Y) that faces along it: 0 faces −Z. */
-export function pointAt(d: number): { x: number; z: number; heading: number } {
+function positionAt(d: number): { x: number; z: number } {
   let i = 1;
   while (i < LENGTHS.length - 1 && LENGTHS[i] < d) i++;
   const [x0, z0] = POINTS[i - 1];
   const [x1, z1] = POINTS[i];
   const t = Math.min(Math.max((d - LENGTHS[i - 1]) / (LENGTHS[i] - LENGTHS[i - 1]), 0), 1);
-  return { x: x0 + (x1 - x0) * t, z: z0 + (z1 - z0) * t, heading: Math.atan2(-(x1 - x0), -(z1 - z0)) };
+  return { x: x0 + (x1 - x0) * t, z: z0 + (z1 - z0) * t };
+}
+
+const TURN_SPAN = 3; // units looked ahead and behind for his heading: smooths the polyline's corners
+
+/** The point d units along the path, and the yaw (around Y) that faces along it: 0 faces −Z. */
+export function pointAt(d: number): { x: number; z: number; heading: number } {
+  const p = positionAt(d);
+  const a = positionAt(d - TURN_SPAN);
+  const b = positionAt(d + TURN_SPAN);
+  return { ...p, heading: Math.atan2(-(b.x - a.x), -(b.z - a.z)) };
 }
 
 const BACK = 11;
-const UP = 3.2;
+const UP = 2.2; // low enough that his feet clear the bottom bar
 const LOOK_AHEAD = 30;
-const LOOK_UP = 3;
+const LOOK_UP = 2.1;
 const H_FOV = 60;
 const MAX_V_FOV = 75;
 
