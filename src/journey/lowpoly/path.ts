@@ -3,7 +3,7 @@ import path from "./path.json";
 
 // The low-poly walk's ground path, shared with tools/blender/lowpoly (the scene is built along these same points).
 // World units: Y up, the path starts at the origin and runs toward −Z.
-export const UNITS_PER_SCREEN = 6;
+export const UNITS_PER_SCREEN = 14; // a real walk: ~100 units over the journey (Eduardo, 2026-11-04)
 /** Ground covered by one loop of the walker's Walk action: the Mixamo walk's own travel (tools/blender/lowpoly/walker.py). */
 export const STRIDE_UNITS = 1.06;
 

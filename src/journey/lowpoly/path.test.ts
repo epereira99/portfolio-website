@@ -1,6 +1,8 @@
 import { expect, test } from "vitest";
 import { ENDING_START } from "../timeline";
-import { cameraAt, distanceAt, pointAt } from "./path";
+import { UNITS_PER_SCREEN, cameraAt, distanceAt, pointAt } from "./path";
+
+const STEP = 0.01 * UNITS_PER_SCREEN; // ground covered per 0.01 screens of scrolling
 
 test("distance clamps to the walk: nothing before the start, nothing past the ending", () => {
   expect(distanceAt(-1)).toBe(0);
@@ -16,11 +18,15 @@ test("the path starts at the origin heading toward −Z", () => {
   expect(Math.abs(Math.sin(p.heading))).toBeLessThan(0.5); // mostly straight down −Z
 });
 
+test("the journey is a real walk, not a stroll", () => {
+  expect(distanceAt(ENDING_START)).toBeGreaterThanOrEqual(90);
+});
+
 test("walking never jumps", () => {
   let prev = pointAt(distanceAt(0));
   for (let s = 0.01; s <= ENDING_START; s += 0.01) {
     const p = pointAt(distanceAt(s));
-    expect(Math.hypot(p.x - prev.x, p.z - prev.z)).toBeLessThan(0.1);
+    expect(Math.hypot(p.x - prev.x, p.z - prev.z)).toBeLessThan(STEP * 1.05);
     prev = p;
   }
 });
@@ -38,7 +44,7 @@ test("he turns smoothly along the bends, so the camera behind him never jolts", 
   for (let s = 0; s < ENDING_START; s += 0.01) {
     const a = pointAt(distanceAt(s)).heading;
     const b = pointAt(distanceAt(s + 0.01)).heading;
-    expect(Math.abs(b - a)).toBeLessThan(0.002);
+    expect(Math.abs(b - a)).toBeLessThan(0.033 * STEP); // radians per unit walked
   }
 });
 
