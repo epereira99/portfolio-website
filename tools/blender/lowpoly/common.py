@@ -111,6 +111,19 @@ def tone(ob, fixed=None):
     return ob
 
 
+def soft_tone(ob):
+    """Like tone, but smooth: each corner's tone follows its own normal, for rounded models (KayKit)."""
+    me = ob.data
+    col = me.color_attributes.get("Col") or me.color_attributes.new("Col", "BYTE_COLOR", "CORNER")
+    me.color_attributes.active_color = col
+    to_world = ob.matrix_world.to_3x3()
+    for li, cn in enumerate(me.corner_normals):
+        d = max(0.0, sum(a * b for a, b in zip((to_world @ cn.vector).normalized(), LIGHT)))
+        t = 0.72 + 0.28 * d
+        col.data[li].color = (t, t, t, 1)
+    return ob
+
+
 def export(path, animations=False, **extra):
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     bpy.ops.export_scene.gltf(

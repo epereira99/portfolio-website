@@ -83,72 +83,119 @@ path = c.mesh("path", verts, faces, [M["path"]])
 c.tone(path, fixed=lambda poly: 1.0 if poly.index % 2 == 0 else 0.86)
 
 
-def pine(x, y, s, tiers):
-    z = ground_z(x, y) - 0.1
-    parts = [c.primitive("primitive_cylinder_add", M["trunk"], vertices=5, radius=0.18 * s, depth=1.2 * s,
-                         location=(x, y, z + 0.6 * s))]
-    for k in range(tiers):
-        r, h = (1.4 - 0.4 * k) * s, (3.6 - 0.8 * k) * s
-        parts.append(c.primitive("primitive_cone_add", M["tree"], vertices=6, radius1=r, depth=h,
-                                 location=(x, y, z + (1.0 + 1.3 * k) * s + h / 2)))
-    yaw = rnd.uniform(0, math.tau)
-    for p in parts:
-        p.rotation_euler.z = yaw
-    return parts
+# Trees, bushes and rocks: KayKit Forest Nature Pack (CC0, Kay Lousberg, art/raw/kaykit-forest). Each model's faces
+# get the scene's colour slots from the pack's palette texture (green leaves, brown trunks, grey stone), and a soft
+# tone from the scene's light, so they keep their rounded KayKit look while following the time of day.
+import bpy  # noqa: E402
+
+KIT = os.path.join(c.ROOT, "art", "raw", "kaykit-forest")
+ATLAS = bpy.data.images.load(os.path.join(KIT, "Textures", "forest_texture.png"))
+AW, AH = ATLAS.size
+APX = ATLAS.pixels[:]
 
 
-# Trees: a few clusters, not a scatter. The left side keeps its distance near the path: the sky behind the card stays
-# open there.
-trees = []
+def atlas_slot(uv):
+    k = (min(int(uv.y * AH), AH - 1) * AW + min(int(uv.x * AW), AW - 1)) * 4
+    r, g, b = APX[k : k + 3]
+    if g > r * 1.1 and g > b * 1.1:
+        return "tree"
+    if r > b * 1.25:
+        return "trunk"
+    return "rock"
+
+
+def kit_template(name):
+    """One pack model as a hidden template mesh, its faces on the scene's slot materials."""
+    before = set(bpy.data.objects)
+    bpy.ops.import_scene.gltf(filepath=os.path.join(KIT, "Assets", "gltf", f"{name}_Color1.gltf"))
+    new = [o for o in bpy.data.objects if o not in before]
+    meshes = [o for o in new if o.type == "MESH"]
+    ob = c.join(meshes, name)
+    for o in new:
+        if o is not ob and o.name in bpy.data.objects:
+            bpy.data.objects.remove(o)
+    me = ob.data
+    uvs = me.uv_layers.active.data
+    slots = [atlas_slot(sum((uvs[li].uv for li in p.loop_indices), uvs[p.loop_indices[0]].uv * 0) / p.loop_total)
+             for p in me.polygons]
+    me.materials.clear()
+    names = ["tree", "trunk", "rock"]
+    for n in names:
+        me.materials.append(M[n])
+    for p, slot in zip(me.polygons, slots):
+        p.material_index = names.index(slot)
+    ob.hide_render = True
+    zs = [v.co.z for v in me.vertices]
+    ob["height"] = max(zs) - min(zs)
+    ob["size"] = max(max(v.co[i] for v in me.vertices) - min(v.co[i] for v in me.vertices) for i in range(3))
+    bpy.context.scene.collection.objects.unlink(ob)  # kept as data only; placed copies are linked in
+    return ob
+
+
+def family(prefix):
+    files = sorted(f[: -len("_Color1.gltf")] for f in os.listdir(os.path.join(KIT, "Assets", "gltf"))
+                   if f.startswith(prefix) and f.endswith("_Color1.gltf") and "Singlesided" not in f)
+    return [kit_template(f) for f in files]
+
+
+PINES, ROUND, CUBE = family("Tree_4_"), family("Tree_1_"), family("Tree_2_")
+BUSHES = family("Bush_1_") + family("Bush_2_") + family("Bush_3_") + family("Bush_4_")
+# Boulders only: the pack's tall stacked cliffs would wall off the path.
+STONES = family("Rock_1_") + [t for t in family("Rock_3_") if t["height"] < 1.0]
+
+
+def place(templates, x, y, height):
+    """A copy of one of the templates, scaled so it stands `height` tall: the pack's models vary a lot in size."""
+    t = rnd.choice(templates)
+    s = height / t["height"]
+    ob = t.copy()
+    ob.data = ob.data.copy()
+    ob.hide_render = False
+    bpy.context.scene.collection.objects.link(ob)
+    ob.location = (x, y, ground_z(x, y) - 0.05)
+    ob.rotation_euler.z = rnd.uniform(0, math.tau)
+    ob.scale = (s, s, s)
+    return ob
+
+
+def any_tree():
+    k = rnd.random()
+    return PINES if k < 0.55 else ROUND if k < 0.85 else CUBE
+
+
+# Clusters: a few groves, not a scatter. The left side keeps its distance near the path: the sky behind the card
+# stays open there.
+trees, rocks = [], []
 for _ in range(14):
     cy = rnd.uniform(Y0 + 20, Y1 - 30)
     side = rnd.choice((-1, 1, 1))
-    cx = path_x(cy) + side * rnd.uniform(14 if side < 0 else 6, 70)
+    cx = path_x(cy) + side * rnd.uniform(14 if side < 0 else 7, 70)
     for _ in range(rnd.randint(2, 5)):
         x, y = cx + rnd.uniform(-5, 5), cy + rnd.uniform(-5, 5)
-        if abs(x - path_x(y)) > 4:
-            trees += pine(x, y, rnd.uniform(0.9, 1.6), rnd.choice((1, 2)))
+        if abs(x - path_x(y)) > 5:
+            trees.append(place(any_tree(), x, y, rnd.uniform(4.5, 7)))
 
-
-def bush(x, y, s):
-    ob = c.primitive("primitive_ico_sphere_add", M["tree"], subdivisions=1, radius=0.8 * s, location=(x, y, 0.35 * s))
-    ob.scale.z = 0.7
-    return ob
-
-
-def rock(x, y, r):
-    ob = c.primitive("primitive_ico_sphere_add", M["rock"], subdivisions=1, radius=r, location=(x, y, ground_z(x, y)))
-    ob.scale.z = 0.55
-    return ob
-
-
-# Roadside: things he walks past close by, every few steps, so the walk feels like progress. Tall pines only on the
-# right; the left keeps low bushes and rocks, so nothing rises into the card above it.
-roadside_rocks = []
-y = -8.0
+# Roadside: things he walks past, every few steps, so the walk feels like progress. Trees only on the right and a
+# little back from the edge, so they leave the frame before they loom; the left keeps bushes and rocks, below the card.
+y = 3.0  # ahead of where he starts: nothing stands between him and the camera
 while y < Y1 - 40:
     side = 1 if rnd.random() < 0.6 else -1
-    x = path_x(y) + side * (PATH_W / 2 + rnd.uniform(1.2, 4.5))
+    edge = PATH_W / 2
     kind = rnd.random()
-    if side > 0 and kind < 0.45:
-        trees += pine(x, y, rnd.uniform(0.7, 1.1), rnd.choice((1, 2)))
-    elif kind < 0.8:
-        trees.append(bush(x, y, rnd.uniform(0.7, 1.2)))
+    if side > 0 and kind < 0.35:
+        trees.append(place(any_tree(), path_x(y) + edge + rnd.uniform(4, 8), y, rnd.uniform(3.5, 5)))
+    elif kind < 0.75:
+        trees.append(place(BUSHES, path_x(y) + side * (edge + rnd.uniform(1, 3.5)), y, rnd.uniform(0.5, 0.9)))
     else:
-        roadside_rocks.append(rock(x, y, rnd.uniform(0.3, 0.7)))
-    y += rnd.uniform(2.5, 4.5)
-c.tone(c.join(trees, "trees"))
+        rocks.append(place(STONES, path_x(y) + side * (edge + rnd.uniform(1, 4)), y, rnd.uniform(0.3, 0.7)))
+    y += rnd.uniform(4, 7)
 
-# Rocks: a few, low, by the path.
-rocks = roadside_rocks
+# Rocks: a few more, farther out.
 for _ in range(14):
     y = rnd.uniform(Y0 + 30, Y1 - 40)
-    x = path_x(y) + rnd.choice((-1, 1)) * rnd.uniform(3, 25)
-    ob = c.primitive("primitive_ico_sphere_add", M["rock"], subdivisions=1, radius=rnd.uniform(0.4, 1.1),
-                     location=(x, y, ground_z(x, y)))
-    ob.scale.z = 0.55
-    rocks.append(ob)
-c.tone(c.join(rocks, "rocks"))
+    rocks.append(place(STONES, path_x(y) + rnd.choice((-1, 1)) * rnd.uniform(5, 25), y, rnd.uniform(0.6, 1.4)))
+c.soft_tone(c.join(trees, "trees"))
+c.soft_tone(c.join(rocks, "rocks"))
 
 # Mountains: three ridges of two-faced peaks, each farther, taller and paler (by colour slot), like the mockup.
 verts, faces, mats = [], [], []
@@ -177,4 +224,5 @@ for _ in range(6):
         puffs.append(ob)
 c.tone(c.join(puffs, "clouds"))
 
-c.export(c.out_path())
+# Drawn unlit with baked tones: normals and UVs would only add weight.
+c.export(c.out_path(), export_normals=False, export_texcoords=False)
