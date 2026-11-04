@@ -30,10 +30,10 @@ export function pointAt(d: number): { x: number; z: number; heading: number } {
   return { x: x0 + (x1 - x0) * t, z: z0 + (z1 - z0) * t, heading: Math.atan2(-(x1 - x0), -(z1 - z0)) };
 }
 
-const BACK = 7;
-const UP = 4;
-const LOOK_AHEAD = 3;
-const LOOK_UP = 1;
+const BACK = 11;
+const UP = 3.2;
+const LOOK_AHEAD = 30;
+const LOOK_UP = 3;
 const H_FOV = 60;
 const MAX_V_FOV = 75;
 

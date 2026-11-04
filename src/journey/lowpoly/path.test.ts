@@ -25,12 +25,12 @@ test("walking never jumps", () => {
   }
 });
 
-test("the camera sits 7 behind and 4 above him", () => {
+test("the camera sits 11 behind and 3.2 above him", () => {
   for (const s of [0, 1.7, 4.2, ENDING_START]) {
     const w = pointAt(distanceAt(s));
     const { position } = cameraAt(s, 16 / 9);
-    expect(position[1]).toBeCloseTo(4, 2);
-    expect(Math.hypot(position[0] - w.x, position[2] - w.z)).toBeCloseTo(7, 2);
+    expect(position[1]).toBeCloseTo(3.2, 2);
+    expect(Math.hypot(position[0] - w.x, position[2] - w.z)).toBeCloseTo(11, 2);
   }
 });
 
