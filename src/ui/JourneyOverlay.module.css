@@ -63,7 +63,7 @@
 
 .chapterTitle {
   margin: 6px 0 10px;
-  font-size: clamp(44px, 7vw, 84px);
+  font-size: clamp(40px, 5.5vw, 68px); /* the longest word ("Engineering") fits the 440px card */
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.03em;

@@ -67,13 +67,16 @@ for j in range(ny):
 c.tone(c.mesh("ground", verts, faces, [M["ground"]]))
 
 # Path: two strips along the polyline, the left one lit and the right one in shade, like the mockup.
+# The walk starts at the path's first point, but the camera sits behind him: run the road straight back past the
+# bottom of the screen so it doesn't begin under his feet.
+ROAD = [(PATH[0][0], PATH[0][1] + y) for y in range(-30, 0, 2)] + PATH
 verts, faces, mats = [], [], []
-for k, (x, y) in enumerate(PATH):
-    (xa, ya), (xb, yb) = PATH[max(k - 1, 0)], PATH[min(k + 1, len(PATH) - 1)]
+for k, (x, y) in enumerate(ROAD):
+    (xa, ya), (xb, yb) = ROAD[max(k - 1, 0)], ROAD[min(k + 1, len(ROAD) - 1)]
     t = Vector((xb - xa, yb - ya, 0)).normalized()
     n = Vector((-t.y, t.x, 0)) * (PATH_W / 2)
     verts += [(x + n.x, y + n.y, 0.06), (x, y, 0.06), (x - n.x, y - n.y, 0.06)]  # left, centre, right
-for k in range(len(PATH) - 1):
+for k in range(len(ROAD) - 1):
     a = 3 * k
     faces += [(a, a + 1, a + 4, a + 3), (a + 1, a + 2, a + 5, a + 4)]
 path = c.mesh("path", verts, faces, [M["path"]])
