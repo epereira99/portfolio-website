@@ -1,12 +1,12 @@
 import { expect, test } from "vitest";
-import { ENDING_START } from "../timeline";
+import { ENDING_START, TOTAL_SCREENS } from "../timeline";
 import { UNITS_PER_SCREEN, cameraAt, distanceAt, pointAt } from "./path";
 
 const STEP = 0.01 * UNITS_PER_SCREEN; // ground covered per 0.01 screens of scrolling
 
-test("distance clamps to the walk: nothing before the start, nothing past the ending", () => {
+test("distance clamps to the walk: nothing before the start, nothing past the end of the page", () => {
   expect(distanceAt(-1)).toBe(0);
-  expect(distanceAt(99)).toBe(distanceAt(ENDING_START));
+  expect(distanceAt(99)).toBe(distanceAt(TOTAL_SCREENS));
   expect(distanceAt(NaN)).toBe(0);
 });
 
@@ -16,6 +16,10 @@ test("the path starts at the origin heading toward −Z", () => {
   expect(p.z).toBeCloseTo(0, 6);
   expect(pointAt(1).z).toBeLessThan(0);
   expect(Math.abs(Math.sin(p.heading))).toBeLessThan(0.5); // mostly straight down −Z
+});
+
+test("he keeps walking while the ending fades in, so scrolling never stops moving him", () => {
+  expect(distanceAt(TOTAL_SCREENS)).toBeGreaterThan(distanceAt(ENDING_START));
 });
 
 test("the journey is a real walk, not a stroll", () => {

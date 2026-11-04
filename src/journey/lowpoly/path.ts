@@ -1,4 +1,4 @@
-import { ENDING_START } from "../timeline";
+import { TOTAL_SCREENS } from "../timeline";
 import path from "./path.json";
 
 // The low-poly walk's ground path, shared with tools/blender/lowpoly (the scene is built along these same points).
@@ -14,10 +14,11 @@ const LENGTHS = POINTS.reduce<number[]>((acc, p, i) => {
   return [...acc, acc[i - 1] + Math.hypot(p[0] - x0, p[1] - z0)];
 }, []);
 
-/** Distance walked at journey position s (screens); he stops at the ending. */
+/** Distance walked at journey position s (screens). He walks to the end of the page, through the ending's fade-in:
+ * stopping earlier left scrolling that moved nothing (Eduardo, 2026-11-04). */
 export function distanceAt(s: number): number {
   if (!Number.isFinite(s)) return 0;
-  return Math.min(Math.max(s, 0), ENDING_START) * UNITS_PER_SCREEN;
+  return Math.min(Math.max(s, 0), TOTAL_SCREENS) * UNITS_PER_SCREEN;
 }
 
 function positionAt(d: number): { x: number; z: number } {
