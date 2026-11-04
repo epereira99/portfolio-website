@@ -23,10 +23,11 @@ def out_path():
     return sys.argv[sys.argv.index("--") + 1]
 
 
-def read_path():
-    """The walk's path as Blender (x, y) points."""
+def read_path(lead=False):
+    """The walk's path as Blender (x, y) points; with lead, starting with the stretch drawn behind where he starts."""
     with open(os.path.join(ROOT, "src", "journey", "lowpoly", "path.json")) as f:
-        return [(x, -z) for x, z in json.load(f)["points"]]
+        path = json.load(f)
+    return [(x, -z) for x, z in (path["lead"] if lead else []) + path["points"]]
 
 
 def material(name, hex_color):
