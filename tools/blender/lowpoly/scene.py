@@ -1,8 +1,9 @@
 """blender -b -P tools/blender/lowpoly/scene.py -- public/models/walk-scene.glb
 
-The low-poly landscape he walks through: faceted ground, a dirt path along src/journey/lowpoly/path.json, sparse
-trees and rocks, a ring of far mountains and a few clouds. One mesh per part; the web lights it (time of day) and
-fogs it (depth), so colours here are mid-tones that read in morning and dusk light alike.
+The low-poly landscape he walks through, styled after the approved mockup (flat colours, two tones per face):
+broad faceted ground, a two-tone dirt path along src/journey/lowpoly/path.json, a few pine clusters, layered
+mountain ridges and a handful of clouds. Each material is named after a colour slot (src/journey/lowpoly/daylight.ts)
+that the web swaps per time of day; each face's tone is baked into a vertex colour (common.tone).
 """
 
 import math
@@ -16,20 +17,18 @@ sys.path.insert(0, os.path.dirname(__file__))
 import common as c  # noqa: E402
 
 c.setup()
-rnd = random.Random(7)
+rnd = random.Random(11)
 PATH = c.read_path()
-PATH_W = 2.4
-Y0, Y1 = -30, PATH[-1][1] + 30  # behind the camera's start, past where the walk stops
-X_HALF = 60
-CELL = 2.5
+PATH_W = 2.6
+Y0, Y1 = -40, 240  # behind the camera's start to where the near ridge stands
+X_HALF = 150
+CELL = 8
 
-GRASS = [c.material("grass", "#7d9a5e"), c.material("grass_light", "#8aa866"), c.material("grass_dark", "#6e8c54")]
-DIRT = c.material("dirt", "#b89070")
-BARK = c.material("bark", "#6b4f3a")
-LEAF = [c.material("pine", "#3f6b4f"), c.material("leaf", "#5f8a4a"), c.material("poplar", "#7a9a48")]
-ROCK = c.material("rock", "#8c8a86")
-MOUNTAIN = [c.material("mountain", "#8a8fa8"), c.material("mountain_far", "#9fa3b8")]
-CLOUD = c.material("cloud", "#f4f1ec")
+# The colours here are only for previews in Blender; the web replaces them by slot name.
+M = {k: c.material(k, h) for k, h in [
+    ("ground", "#4b5e5a"), ("path", "#b98b66"), ("tree", "#2f4a42"), ("trunk", "#3a2f2a"), ("rock", "#6b6a72"),
+    ("ridge_near", "#5d4c70"), ("ridge_mid", "#6f5a7e"), ("ridge_far", "#7d6788"), ("cloud", "#e9a88a"),
+]}
 
 
 def path_x(y):
@@ -42,126 +41,108 @@ def path_x(y):
     return PATH[-1][0]
 
 
+PHASES = [rnd.uniform(0, math.tau) for _ in range(4)]
+
+
 def ground_z(x, y):
-    """Flat by the path, rolling gently (≤ 1.5) further out."""
-    d = abs(x - path_x(y)) - 2
-    if d <= 0:
-        return 0.0
-    roll = 0.5 + 0.5 * math.sin(x * 0.11 + 1.3) * math.cos(y * 0.07)
-    return min(1.5, d * 0.08) * roll
+    """Flat along the path, rising into broad swells (up to ~5) away from it."""
+    d = max(0.0, abs(x - path_x(y)) - 12)  # wider than a ground cell, so no facet buries the path
+    swell = 0.5 + 0.25 * math.sin(x * 0.045 + PHASES[0]) + 0.25 * math.cos(y * 0.03 + PHASES[1])
+    return min(1.0, d / 40) * 5 * swell
 
 
-# Ground: a grid with jittered heights, each face one of three greens for the faceted look.
+# Ground: a coarse grid, so the facets are big and few; heights barely jittered.
 nx, ny = int(2 * X_HALF / CELL), int((Y1 - Y0) / CELL)
-verts, faces, mats = [], [], []
+verts, faces = [], []
 for j in range(ny + 1):
     for i in range(nx + 1):
         x, y = -X_HALF + i * CELL, Y0 + j * CELL
         z = ground_z(x, y)
-        if z > 0:
-            z += rnd.uniform(-0.15, 0.15)
-        verts.append((x, y, z))
+        verts.append((x, y, z + (rnd.uniform(-0.6, 0.6) if z > 0.5 else 0)))
 for j in range(ny):
     for i in range(nx):
         a = j * (nx + 1) + i
         b, d, e = a + 1, a + nx + 1, a + nx + 2
-        # two triangles per cell, diagonals alternating, so the facets read
-        tris = [(a, b, e), (a, e, d)] if (i + j) % 2 else [(a, b, d), (b, e, d)]
-        for t in tris:
-            faces.append(t)
-            mats.append(rnd.choice((0, 0, 1, 2)))
-c.mesh("ground", verts, faces, GRASS, mats)
+        faces += [(a, b, e), (a, e, d)] if (i + j) % 2 else [(a, b, d), (b, e, d)]
+c.tone(c.mesh("ground", verts, faces, [M["ground"]]))
 
-# Path: a strip along the polyline, just above the ground.
-verts, faces = [], []
+# Path: two strips along the polyline, the left one lit and the right one in shade, like the mockup.
+verts, faces, mats = [], [], []
 for k, (x, y) in enumerate(PATH):
     (xa, ya), (xb, yb) = PATH[max(k - 1, 0)], PATH[min(k + 1, len(PATH) - 1)]
     t = Vector((xb - xa, yb - ya, 0)).normalized()
     n = Vector((-t.y, t.x, 0)) * (PATH_W / 2)
-    verts += [(x - n.x, y - n.y, 0.02), (x + n.x, y + n.y, 0.02)]
+    verts += [(x + n.x, y + n.y, 0.06), (x, y, 0.06), (x - n.x, y - n.y, 0.06)]  # left, centre, right
 for k in range(len(PATH) - 1):
-    a = 2 * k
-    faces.append((a, a + 1, a + 3, a + 2))
-c.mesh("path", verts, faces, [DIRT])
+    a = 3 * k
+    faces += [(a, a + 1, a + 4, a + 3), (a + 1, a + 2, a + 5, a + 4)]
+path = c.mesh("path", verts, faces, [M["path"]])
+c.tone(path, fixed=lambda poly: 1.0 if poly.index % 2 == 0 else 0.86)
 
 
-def tree(kind, x, y, s):
+def pine(x, y, s, tiers):
     z = ground_z(x, y) - 0.1
-    parts = [c.primitive("primitive_cylinder_add", BARK, vertices=5, radius=0.15 * s, depth=1.2 * s,
+    parts = [c.primitive("primitive_cylinder_add", M["trunk"], vertices=5, radius=0.18 * s, depth=1.2 * s,
                          location=(x, y, z + 0.6 * s))]
-    if kind == "pine":
-        parts.append(c.primitive("primitive_cone_add", LEAF[0], vertices=6, radius1=1.1 * s, depth=3.2 * s,
-                                 location=(x, y, z + 2.6 * s)))
-    elif kind == "pine2":
-        parts.append(c.primitive("primitive_cone_add", LEAF[0], vertices=6, radius1=1.3 * s, depth=2.2 * s,
-                                 location=(x, y, z + 2.0 * s)))
-        parts.append(c.primitive("primitive_cone_add", LEAF[0], vertices=6, radius1=0.9 * s, depth=1.8 * s,
-                                 location=(x, y, z + 3.2 * s)))
-    elif kind == "broadleaf":
-        parts.append(c.primitive("primitive_ico_sphere_add", LEAF[1], subdivisions=1, radius=1.3 * s,
-                                 location=(x, y, z + 2.3 * s)))
-    else:  # poplar
-        parts.append(c.primitive("primitive_cone_add", LEAF[2], vertices=5, radius1=0.7 * s, radius2=0.2 * s,
-                                 depth=3.8 * s, location=(x, y, z + 2.9 * s)))
+    for k in range(tiers):
+        r, h = (1.4 - 0.4 * k) * s, (3.6 - 0.8 * k) * s
+        parts.append(c.primitive("primitive_cone_add", M["tree"], vertices=6, radius1=r, depth=h,
+                                 location=(x, y, z + (1.0 + 1.3 * k) * s + h / 2)))
     yaw = rnd.uniform(0, math.tau)
     for p in parts:
         p.rotation_euler.z = yaw
     return parts
 
 
-# Trees: sparse, never on the path; the left side stays clearer near the path so the sky behind the card stays open.
+# Trees: a few clusters, not a scatter. The left side keeps its distance near the path: the sky behind the card stays
+# open there.
 trees = []
-y = Y0
-while y < Y1:
-    for side in (-1, 1):
-        if rnd.random() < 0.55:
-            near = 7 if side < 0 else 3.5
-            x = path_x(y) + side * (near + rnd.random() ** 1.6 * 45)
-            trees += tree(rnd.choice(("pine", "pine2", "broadleaf", "poplar")), x, y + rnd.uniform(-1, 1),
-                          rnd.uniform(0.8, 1.3))
-    y += 2.2
-c.join(trees, "trees")
+for _ in range(14):
+    cy = rnd.uniform(Y0 + 20, Y1 - 30)
+    side = rnd.choice((-1, 1, 1))
+    cx = path_x(cy) + side * rnd.uniform(14 if side < 0 else 6, 70)
+    for _ in range(rnd.randint(2, 5)):
+        x, y = cx + rnd.uniform(-5, 5), cy + rnd.uniform(-5, 5)
+        if abs(x - path_x(y)) > 4:
+            trees += pine(x, y, rnd.uniform(0.9, 1.6), rnd.choice((1, 2)))
+c.tone(c.join(trees, "trees"))
 
-# Rocks: lumpy icospheres, half sunk.
+# Rocks: a few, low, by the path.
 rocks = []
-for _ in range(45):
-    y = rnd.uniform(Y0, Y1)
-    x = path_x(y) + rnd.choice((-1, 1)) * rnd.uniform(2.2, 30)
-    ob = c.primitive("primitive_ico_sphere_add", ROCK, subdivisions=1, radius=rnd.uniform(0.25, 0.9),
+for _ in range(14):
+    y = rnd.uniform(Y0 + 30, Y1 - 40)
+    x = path_x(y) + rnd.choice((-1, 1)) * rnd.uniform(3, 25)
+    ob = c.primitive("primitive_ico_sphere_add", M["rock"], subdivisions=1, radius=rnd.uniform(0.4, 1.1),
                      location=(x, y, ground_z(x, y)))
-    for v in ob.data.vertices:
-        v.co *= rnd.uniform(0.75, 1.25)
-    ob.scale.z = 0.6
+    ob.scale.z = 0.55
     rocks.append(ob)
-c.join(rocks, "rocks")
+c.tone(c.join(rocks, "rocks"))
 
-# Mountains: a ring of faceted peaks well past the fog's near edge, along both sides and across the far end.
-peaks = []
-spots = [(side * rnd.uniform(80, 120), y) for y in range(-20, int(Y1) + 60, 16) for side in (-1, 1)]
-spots += [(x, Y1 + rnd.uniform(50, 80)) for x in range(-130, 131, 22)]
-for x, y in spots:
-    h = rnd.uniform(20, 45)
-    ob = c.primitive("primitive_cone_add", rnd.choice(MOUNTAIN), vertices=rnd.choice((5, 6, 7)),
-                     radius1=h * rnd.uniform(0.7, 1.0), depth=h, location=(x, y, h / 2 - 2))
-    for v in ob.data.vertices:
-        if v.co.z < h / 2 - 0.01:  # leave the tip, push the base around
-            v.co.x *= rnd.uniform(0.8, 1.2)
-            v.co.y *= rnd.uniform(0.8, 1.2)
-    peaks.append(ob)
-c.join(peaks, "mountains")
+# Mountains: three ridges of two-faced peaks, each farther, taller and paler (by colour slot), like the mockup.
+verts, faces, mats = [], [], []
+for layer, (y, height, slot) in enumerate([(Y1 + 10, 30, 2), (Y1 + 90, 55, 1), (Y1 + 190, 90, 0)]):
+    x = -520.0
+    while x < 520:
+        w = rnd.uniform(50, 110) * (1 + layer * 0.4)
+        h = height * rnd.uniform(0.55, 1.0)
+        px = x + w * rnd.uniform(0.35, 0.65)
+        k = len(verts)
+        verts += [(x, y, -8), (px, y - w * 0.3, -8), (x + w, y, -8), (px, y, h)]  # left, front, right, peak
+        faces += [(k, k + 1, k + 3), (k + 1, k + 2, k + 3)]
+        mats += [slot, slot]
+        x += w * rnd.uniform(0.5, 0.8)  # overlap neighbours so the ridge reads as one line
+ridges = c.mesh("mountains", verts, faces, [M["ridge_far"], M["ridge_mid"], M["ridge_near"]], mats)
+c.tone(ridges, fixed=lambda poly: 1.0 if poly.index % 2 == 0 else 0.84)  # left faces lit, right in shade
 
-# Clouds: three shapes of clustered icospheres, high and far.
-SHAPES = [[(0, 0, 0, 3), (3, 0, -0.5, 2.2), (-3, 0.5, -0.6, 2)],
-          [(0, 0, 0, 2.5), (2.5, 0, 0.3, 2.5), (5, 0, -0.4, 1.8), (-2.2, 0, -0.5, 1.6)],
-          [(0, 0, 0, 2), (2, 0.5, -0.3, 1.5)]]
+# Clouds: a few flattened low-poly blobs, high up.
 puffs = []
-for k in range(12):
-    cx, cy, cz = rnd.uniform(-70, 70), rnd.uniform(30, Y1 + 40), rnd.uniform(32, 48)
-    for dx, dy, dz, r in SHAPES[k % 3]:
-        ob = c.primitive("primitive_ico_sphere_add", CLOUD, subdivisions=1, radius=r * 1.4,
-                         location=(cx + dx * 1.4, cy + dy, cz + dz))
-        ob.scale.z = 0.55
+for _ in range(6):
+    cx, cy, cz = rnd.uniform(-160, 160), rnd.uniform(120, Y1 + 200), rnd.uniform(55, 90)
+    for dx, r in ((0, 6), (7, 4.5), (-6.5, 4)):
+        ob = c.primitive("primitive_ico_sphere_add", M["cloud"], subdivisions=1, radius=r,
+                         location=(cx + dx, cy, cz))
+        ob.scale = (1.6, 1.0, 0.5)
         puffs.append(ob)
-c.join(puffs, "clouds")
+c.tone(c.join(puffs, "clouds"))
 
 c.export(c.out_path())

@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { ENDING_START } from "../timeline";
-import { DAY, daylightAt } from "./daylight";
+import { DAY, SLOTS, daylightAt } from "./daylight";
 
 test("the day starts in the morning and ends at dusk", () => {
   expect(daylightAt(0)).toEqual(DAY.braga);
@@ -8,16 +8,8 @@ test("the day starts in the morning and ends at dusk", () => {
   expect(daylightAt(99)).toEqual(DAY.stockholm);
 });
 
-test("the sun rises to midday then sets", () => {
-  expect(DAY.braga.sunElevation).toBeLessThan(DAY.porto.sunElevation);
-  expect(DAY.porto.sunElevation).toBeGreaterThan(DAY.jonkoping.sunElevation);
-  expect(DAY.jonkoping.sunElevation).toBeGreaterThan(DAY.stockholm.sunElevation);
-});
-
-test("the light changes smoothly with scroll", () => {
-  for (let s = 0; s < ENDING_START; s += 0.01) {
-    expect(Math.abs(daylightAt(s + 0.01).sunElevation - daylightAt(s).sunElevation)).toBeLessThan(1);
-  }
+test("every time of day colours every part of the scene", () => {
+  for (const d of Object.values(DAY)) for (const slot of SLOTS) expect(d.palette[slot]).toMatch(/^#[0-9a-f]{6}$/);
 });
 
 // Relative luminance of an sRGB hex colour (WCAG).
@@ -28,6 +20,20 @@ const luminance = (hex: string) => {
   });
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 };
+
+test("the colours change smoothly with scroll", () => {
+  for (let s = 0; s < ENDING_START; s += 0.01) {
+    const a = daylightAt(s);
+    const b = daylightAt(s + 0.01);
+    expect(Math.abs(luminance(a.palette.ground) - luminance(b.palette.ground))).toBeLessThan(0.01);
+    expect(Math.abs(luminance(a.skyTop) - luminance(b.skyTop))).toBeLessThan(0.01);
+  }
+});
+
+test("the day gets darker toward dusk", () => {
+  expect(luminance(DAY.porto.skyTop)).toBeGreaterThan(luminance(DAY.stockholm.skyTop));
+  expect(luminance(DAY.porto.palette.ground)).toBeGreaterThan(luminance(DAY.stockholm.palette.ground));
+});
 
 test("the sky behind the cards never gets too bright to read them", () => {
   for (const d of Object.values(DAY)) expect(luminance(d.skyTop)).toBeLessThanOrEqual(0.6);
