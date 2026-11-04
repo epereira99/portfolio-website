@@ -4,8 +4,8 @@ import path from "./path.json";
 // The low-poly walk's ground path, shared with tools/blender/lowpoly (the scene is built along these same points).
 // World units: Y up, the path starts at the origin and runs toward −Z.
 export const UNITS_PER_SCREEN = 6;
-/** Ground covered by one loop of the walker's Walk action (tools/blender/lowpoly/walker.py). */
-export const STRIDE_UNITS = 1.4;
+/** Ground covered by one loop of the walker's Walk action: the Mixamo walk's own travel (tools/blender/lowpoly/walker.py). */
+export const STRIDE_UNITS = 1.06;
 
 const POINTS = path.points as [number, number][];
 const LENGTHS = POINTS.reduce<number[]>((acc, p, i) => {

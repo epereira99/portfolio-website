@@ -86,26 +86,33 @@ def join(objs, name):
 LIGHT = (-0.61, -0.2, 0.76)  # from the upper left, toward the camera: lit faces on the left, like the mockup
 
 
+def fcurves(action):
+    """An action's F-curves (Blender 5 keeps them per layer, strip and slot)."""
+    return [fc for layer in action.layers for strip in layer.strips for slot in action.slots
+            for fc in strip.channelbag(slot).fcurves]
+
+
 def tone(ob, fixed=None):
     """Bake each face's tone (lit / mid / shade) into a vertex colour; the web multiplies its flat colour by it."""
     me = ob.data
     col = me.color_attributes.get("Col") or me.color_attributes.new("Col", "BYTE_COLOR", "CORNER")
     me.color_attributes.active_color = col
+    to_world = ob.matrix_world.to_3x3()
     for poly in me.polygons:
         if fixed is not None:
             t = fixed(poly)
         else:
-            d = sum(a * b for a, b in zip(poly.normal, LIGHT))
+            d = sum(a * b for a, b in zip((to_world @ poly.normal).normalized(), LIGHT))
             t = 1.0 if d > 0.72 else 0.86 if d > 0.4 else 0.74
         for li in poly.loop_indices:
             col.data[li].color = (t, t, t, 1)
     return ob
 
 
-def export(path, animations=False):
+def export(path, animations=False, **extra):
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     bpy.ops.export_scene.gltf(
         filepath=path, export_format="GLB", export_yup=True, export_apply=True, export_animations=animations,
-        export_cameras=False, export_lights=False, export_vertex_color="ACTIVE",
+        export_cameras=False, export_lights=False, export_vertex_color="ACTIVE", **extra,
     )
     print("wrote", path, flush=True)

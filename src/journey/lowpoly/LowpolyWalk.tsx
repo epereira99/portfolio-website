@@ -39,7 +39,7 @@ function useFlatMaterials(root: Group) {
   }, [root]);
 }
 
-/** The walker keeps his own colours, unlit, tinted by the time of day. */
+/** The walker keeps his own colours and baked tones, unlit, tinted by the time of day. */
 function useFigureMaterials(root: Group) {
   return useMemo(() => {
     const out: { material: MeshBasicMaterial; base: Color }[] = [];
@@ -48,7 +48,7 @@ function useFigureMaterials(root: Group) {
       if (!m.isMesh) return;
       m.frustumCulled = false; // skinned: its bind-pose bounds don't follow the walk
       const base = (m.material as MeshStandardMaterial).color.clone();
-      const material = new MeshBasicMaterial({ color: base });
+      const material = new MeshBasicMaterial({ color: base, vertexColors: true });
       m.material = material;
       out.push({ material, base });
     });
