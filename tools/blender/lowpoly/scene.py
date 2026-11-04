@@ -139,63 +139,111 @@ def family(prefix):
 
 
 PINES, ROUND, CUBE = family("Tree_4_"), family("Tree_1_"), family("Tree_2_")
+MUSHROOM, BARE = family("Tree_3_"), family("Tree_Bare_1_")
 BUSHES = family("Bush_1_") + family("Bush_2_") + family("Bush_3_") + family("Bush_4_")
 # Boulders only: the pack's tall stacked cliffs would wall off the path.
 STONES = family("Rock_1_") + [t for t in family("Rock_3_") if t["height"] < 1.0]
 
 
-def place(templates, x, y, height):
+# Every template is toned once and then placed by reference: the GLB stores each model once and the browser draws
+# the copies as GPU instances, so the kit can be used generously. Turns stay small so the baked light keeps its side.
+for t in PINES + ROUND + CUBE + MUSHROOM + BARE + BUSHES + STONES:
+    c.soft_tone(t)
+GROUPS = {}
+
+
+def place(templates, x, y, height, group="trees"):
     """A copy of one of the templates, scaled so it stands `height` tall: the pack's models vary a lot in size."""
     t = rnd.choice(templates)
     s = height / t["height"]
-    ob = t.copy()
-    ob.data = ob.data.copy()
+    ob = t.copy()  # shares t's mesh
     ob.hide_render = False
     bpy.context.scene.collection.objects.link(ob)
+    if group not in GROUPS:
+        GROUPS[group] = bpy.data.objects.new(group, None)
+        bpy.context.scene.collection.objects.link(GROUPS[group])
+    ob.parent = GROUPS[group]
     ob.location = (x, y, ground_z(x, y) - 0.05)
-    ob.rotation_euler.z = rnd.uniform(0, math.tau)
+    ob.rotation_euler.z = rnd.uniform(-0.5, 0.5)
     ob.scale = (s, s, s)
     return ob
 
 
-def any_tree():
+def any_tree(deep=1.0):
+    """Mostly pines; round and cube trees mixed in; mushroom and bare trees only toward a wood's thin edge."""
     k = rnd.random()
+    if deep < 0.6 and k < 0.15:
+        return MUSHROOM if k < 0.08 else BARE
     return PINES if k < 0.55 else ROUND if k < 0.85 else CUBE
 
 
-# Clusters: a few groves, not a scatter. The left side keeps its distance near the path: the sky behind the card
-# stays open there.
+GRASS = family("Grass_1_") + family("Grass_2_")
+for t in GRASS:
+    c.soft_tone(t)
+FPH = [rnd.uniform(0, math.tau) for _ in range(6)]
+
+
+def forest(x, y):
+    """0 (meadow) to 1 (deep wood): smooth, so trees gather into woods with open fields between them."""
+    v = (math.sin(x * 0.06 + FPH[0]) * math.cos(y * 0.05 + FPH[1])
+         + 0.6 * math.sin(x * 0.13 + y * 0.09 + FPH[2]) + 0.4 * math.cos(x * 0.21 - y * 0.17 + FPH[3]))
+    return min(1.0, max(0.0, 0.5 + v / 3.2))
+
+
+def open_near_path(x, y):
+    """How much the land by the path is kept clear: the left side stays open below the card, both sides near it."""
+    d = x - path_x(y)
+    clear = 14 if d < 0 else 6
+    return max(0.0, 1 - abs(d) / clear) if abs(d) < clear else 0.0
+
+
 trees, rocks = [], []
-for _ in range(14):
-    cy = rnd.uniform(Y0 + 20, Y1 - 30)
-    side = rnd.choice((-1, 1, 1))
-    cx = path_x(cy) + side * rnd.uniform(14 if side < 0 else 7, 70)
-    for _ in range(rnd.randint(2, 5)):
-        x, y = cx + rnd.uniform(-5, 5), cy + rnd.uniform(-5, 5)
-        if abs(x - path_x(y)) > 5:
-            trees.append(place(any_tree(), x, y, rnd.uniform(4.5, 7)))
+# Woods: a jittered grid, each spot planted by the forest's density; big trees deep in, small ones and bushes at the
+# edges, rocks in twos and threes at their feet.
+CELL_T = 4.5
+gy = Y0 + 10
+while gy < Y1 - 15:
+    gx = -X_HALF + 10
+    while gx < X_HALF - 10:
+        x, y = gx + rnd.uniform(-1.8, 1.8), gy + rnd.uniform(-1.8, 1.8)
+        gx += CELL_T
+        if abs(x - path_x(y)) < 5 or open_near_path(x, y) > 0.3:
+            continue
+        f = forest(x, y)
+        if rnd.random() < (f - 0.42) * 2.4:
+            trees.append(place(any_tree(f), x, y, 3.5 + 3.5 * f + rnd.uniform(-0.6, 0.6)))
+        elif 0.3 < f < 0.45 and rnd.random() < 0.35:  # a wood's edge
+            if rnd.random() < 0.7:
+                trees.append(place(BUSHES, x, y, rnd.uniform(0.6, 1.1)))
+            else:
+                for _ in range(rnd.randint(2, 3)):
+                    rocks.append(place(STONES, x + rnd.uniform(-1.2, 1.2), y + rnd.uniform(-1.2, 1.2), rnd.uniform(0.3, 0.9), "rocks"))
+    gy += CELL_T
 
-# Roadside: things he walks past, every few steps, so the walk feels like progress. Trees only on the right and a
-# little back from the edge, so they leave the frame before they loom; the left keeps bushes and rocks, below the card.
-y = 3.0  # ahead of where he starts: nothing stands between him and the camera
-while y < Y1 - 40:
-    side = 1 if rnd.random() < 0.6 else -1
-    edge = PATH_W / 2
-    kind = rnd.random()
-    if side > 0 and kind < 0.35:
-        trees.append(place(any_tree(), path_x(y) + edge + rnd.uniform(4, 8), y, rnd.uniform(3.5, 5)))
-    elif kind < 0.75:
-        trees.append(place(BUSHES, path_x(y) + side * (edge + rnd.uniform(1, 3.5)), y, rnd.uniform(0.5, 0.9)))
-    else:
-        rocks.append(place(STONES, path_x(y) + side * (edge + rnd.uniform(1, 4)), y, rnd.uniform(0.3, 0.7)))
-    y += rnd.uniform(4, 7)
+# Treeline: a continuous band of tall trees where the ground meets the mountains, so the land never just ends.
+x = -X_HALF
+while x < X_HALF:
+    for row in range(2):
+        y = Y1 - 18 + row * 6 + rnd.uniform(-2, 2)
+        trees.append(place(any_tree(), x + rnd.uniform(-1.5, 1.5), y, rnd.uniform(6, 9)))
+    x += rnd.uniform(3, 5)
 
-# Rocks: a few more, farther out.
-for _ in range(14):
-    y = rnd.uniform(Y0 + 30, Y1 - 40)
-    rocks.append(place(STONES, path_x(y) + rnd.choice((-1, 1)) * rnd.uniform(5, 25), y, rnd.uniform(0.6, 1.4)))
-c.soft_tone(c.join(trees, "trees"))
-c.soft_tone(c.join(rocks, "rocks"))
+# The path's edges: grass tufts all along, and now and then a clump of bushes or rocks, so something always passes
+# close by as he walks.
+y = 2.0  # from just ahead of where he starts: nothing stands between him and the camera
+while y < Y1 - 30:
+    for side in (-1, 1):
+        if rnd.random() < 0.7:
+            trees.append(place(GRASS, path_x(y) + side * (PATH_W / 2 + rnd.uniform(0.1, 1.2)), y + rnd.uniform(-0.8, 0.8),
+                               rnd.uniform(0.25, 0.45), "grass"))
+    if rnd.random() < 0.18:
+        side = rnd.choice((-1, 1))
+        cx = path_x(y) + side * (PATH_W / 2 + rnd.uniform(1.2, 3))
+        for _ in range(rnd.randint(1, 3)):
+            trees.append(place(BUSHES, cx + rnd.uniform(-0.8, 0.8), y + rnd.uniform(-0.8, 0.8), rnd.uniform(0.4, 0.8)))
+        if rnd.random() < 0.5:
+            rocks.append(place(STONES, cx + rnd.uniform(-1, 1), y + rnd.uniform(-1, 1), rnd.uniform(0.25, 0.5), "rocks"))
+    y += rnd.uniform(1.2, 2.2)
 
 # Mountains: three ridges of two-faced peaks, each farther, taller and paler (by colour slot), like the mockup.
 verts, faces, mats = [], [], []
@@ -225,4 +273,4 @@ for _ in range(6):
 c.tone(c.join(puffs, "clouds"))
 
 # Drawn unlit with baked tones: normals and UVs would only add weight.
-c.export(c.out_path(), export_normals=False, export_texcoords=False)
+c.export(c.out_path(), export_normals=False, export_texcoords=False, export_gpu_instances=True)
