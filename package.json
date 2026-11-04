@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "e2e": "playwright test",
+    "gen:lowpoly": "B=/Applications/Blender.app/Contents/MacOS/Blender; $B -b -P tools/blender/lowpoly/scene.py -- public/models/walk-scene.glb && $B -b -P tools/blender/lowpoly/walker.py -- public/models/walker.glb",
     "gen:map": "node tools/map/make-europe.mjs",
     "gen:landmarks": "for id in arcada bom_jesus uminho dom_luis clerigos jonkoping_university stadshuset; do /Applications/Blender.app/Contents/MacOS/Blender -b -P tools/blender/landmarks/$id.py -- public/models/landmarks/$(echo $id | tr _ -).glb | grep -E 'wrote|Error' || exit 1; done",
     "gen:walk": "sh tools/walk/make-walk.sh",
