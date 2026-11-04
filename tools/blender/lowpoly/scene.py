@@ -108,10 +108,39 @@ for _ in range(14):
         x, y = cx + rnd.uniform(-5, 5), cy + rnd.uniform(-5, 5)
         if abs(x - path_x(y)) > 4:
             trees += pine(x, y, rnd.uniform(0.9, 1.6), rnd.choice((1, 2)))
+
+
+def bush(x, y, s):
+    ob = c.primitive("primitive_ico_sphere_add", M["tree"], subdivisions=1, radius=0.8 * s, location=(x, y, 0.35 * s))
+    ob.scale.z = 0.7
+    return ob
+
+
+def rock(x, y, r):
+    ob = c.primitive("primitive_ico_sphere_add", M["rock"], subdivisions=1, radius=r, location=(x, y, ground_z(x, y)))
+    ob.scale.z = 0.55
+    return ob
+
+
+# Roadside: things he walks past close by, every few steps, so the walk feels like progress. Tall pines only on the
+# right; the left keeps low bushes and rocks, so nothing rises into the card above it.
+roadside_rocks = []
+y = -8.0
+while y < Y1 - 40:
+    side = 1 if rnd.random() < 0.6 else -1
+    x = path_x(y) + side * (PATH_W / 2 + rnd.uniform(1.2, 4.5))
+    kind = rnd.random()
+    if side > 0 and kind < 0.45:
+        trees += pine(x, y, rnd.uniform(0.7, 1.1), rnd.choice((1, 2)))
+    elif kind < 0.8:
+        trees.append(bush(x, y, rnd.uniform(0.7, 1.2)))
+    else:
+        roadside_rocks.append(rock(x, y, rnd.uniform(0.3, 0.7)))
+    y += rnd.uniform(2.5, 4.5)
 c.tone(c.join(trees, "trees"))
 
 # Rocks: a few, low, by the path.
-rocks = []
+rocks = roadside_rocks
 for _ in range(14):
     y = rnd.uniform(Y0 + 30, Y1 - 40)
     x = path_x(y) + rnd.choice((-1, 1)) * rnd.uniform(3, 25)
