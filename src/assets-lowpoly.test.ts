@@ -52,3 +52,17 @@ describe("walk-scene.glb", () => {
     expect(max[2] - min[2]).toBeGreaterThanOrEqual(100);
   });
 });
+
+describe("walker.glb", () => {
+  test("is light and carries a Walk action", () => {
+    const { size, gltf } = read("walker.glb");
+    expect(size).toBeLessThanOrEqual(500 * 1024);
+    expect(gltf.animations?.map((a) => a.name)).toContain("Walk");
+  });
+
+  test("stands 1.7–1.9 tall on the ground", () => {
+    const { min, max } = bounds(read("walker.glb").gltf);
+    expect(max[1] - min[1]).toBeGreaterThanOrEqual(1.7);
+    expect(max[1] - min[1]).toBeLessThanOrEqual(1.9);
+  });
+});
