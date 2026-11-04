@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { render } from "@testing-library/react";
 import { createElement } from "react";
-import { SCROLL_PER_SCREEN, getScreens, readScreensFromWindow, scrollToScreens, setScreens, subscribe } from "./progress";
+import { SCROLL_PER_SCREEN, easeProgress, getScreens, readScreensFromWindow, scrollToScreens, setScreens, subscribe } from "./progress";
 import { ScrollDriver } from "./ScrollDriver";
 import { TOTAL_SCREENS } from "./timeline";
 
@@ -60,4 +60,12 @@ describe("ScrollDriver", () => {
     window.dispatchEvent(new Event("resize"));
     expect(scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 3000 }));
   });
+});
+
+test("easing follows the scroll, and snaps on big jumps", () => {
+  expect(easeProgress(0, 0.1)).toBeGreaterThan(0);
+  expect(easeProgress(0, 0.1)).toBeLessThan(0.1);
+  expect(easeProgress(0, 3)).toBe(3);
+  expect(easeProgress(5, 3.5)).toBe(3.5);
+  expect(easeProgress(1, 1.00001)).toBe(1.00001);
 });

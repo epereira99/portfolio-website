@@ -33,3 +33,9 @@ export function scrollToScreens(s: number, behavior: ScrollBehavior = "auto"): v
 export function readScreensFromWindow(): number {
   return window.innerHeight > 0 ? window.scrollY / (window.innerHeight * SCROLL_PER_SCREEN) : 0; // zero-height windows (hidden panes) exist
 }
+
+/** One frame of smoothing toward the scroll position; big jumps (header clicks, reloads) snap instead of spinning the walk. */
+export function easeProgress(current: number, target: number): number {
+  const gap = Math.abs(target - current);
+  return gap > 1 || gap < 0.0005 ? target : current + (target - current) * 0.12;
+}
