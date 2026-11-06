@@ -12,7 +12,7 @@ test("from spawn, A reads the main board and a contract opens at its own URL", a
   await expect(page.getByRole("button", { name: /^Saab/ })).toHaveAttribute("aria-current", "true");
   await page.keyboard.press("z");
   await expect(page).toHaveURL(/\/contracts\/saab-thesis$/);
-  await expect(page.getByRole("heading", { name: "Predicting shooting performance from motion" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "AI Driven Sensor Optimization for Marksman Posture Analysis - Master Thesis" })).toBeVisible();
   await page.goBack();
   await expect(page.getByRole("button", { name: /^Saab/ })).toHaveAttribute("aria-current", "true");
   await expect(page).toHaveURL(/\/world$/);

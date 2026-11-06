@@ -78,8 +78,28 @@ test("degree cards have no image on top; the BSc logo sits at the top right, bes
   expect(logo.closest("header")).toContainElement(screen.getByRole("heading", { name: "BSc Computer Science" }));
 });
 
-test("project cards keep their graphic on top", () => {
+test("a project's photo is a captioned polaroid outside the card", () => {
+  goTo("/?project=jibs-case-competition");
+  render(<ProjectDialog />);
+  const photo = screen.getByRole("img", { name: /Winner cheque/ });
+  expect(photo).toHaveAttribute("src", "/projects/jibs-case-competition.webp");
+  expect(photo.closest("figure")).toHaveTextContent("1st place, again!");
+  expect(screen.getByRole("heading", { name: "JIBS 24h Case Competition" }).closest("div[class*=card]")).not.toContainElement(photo);
+});
+
+test("clicking the polaroid enlarges it; Escape shrinks it without closing the dialog", () => {
+  goTo("/?project=jibs-case-competition");
+  render(<ProjectDialog />);
+  fireEvent.click(screen.getByRole("button", { name: "Enlarge photo" }));
+  const shrink = screen.getByRole("button", { name: "Shrink photo" });
+  expect(shrink).toBeInTheDocument();
+  fireEvent.keyDown(shrink, { key: "Escape" });
+  expect(screen.getByRole("button", { name: "Enlarge photo" })).toBeInTheDocument();
+  expect(screen.getByRole("dialog", { name: "JIBS 24h Case Competition" })).toBeInTheDocument();
+});
+
+test("project cards have no colour band on top", () => {
   goTo("/?project=financial-hub");
   render(<ProjectDialog />);
-  expect(screen.getByRole("dialog", { name: "Financial Hub" }).querySelector("[data-graphic]")).not.toBeNull();
+  expect(screen.getByRole("dialog", { name: "Financial Hub" }).querySelector("[data-graphic]")).toBeNull();
 });

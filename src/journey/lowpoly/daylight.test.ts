@@ -2,10 +2,10 @@ import { expect, test } from "vitest";
 import { ENDING_START } from "../timeline";
 import { DAY, SLOTS, daylightAt } from "./daylight";
 
-test("the day starts in the morning and ends at dusk", () => {
+test("the day starts in the morning and ends at dusk, in the last stage", () => {
   expect(daylightAt(0)).toEqual(DAY.braga);
-  expect(daylightAt(ENDING_START)).toEqual(DAY.stockholm);
-  expect(daylightAt(99)).toEqual(DAY.stockholm);
+  expect(daylightAt(ENDING_START)).toEqual(DAY.personal);
+  expect(daylightAt(99)).toEqual(DAY.personal);
 });
 
 test("every time of day colours every part of the scene", () => {
@@ -32,7 +32,8 @@ test("the colours change smoothly with scroll", () => {
 
 test("the day gets darker toward dusk", () => {
   expect(luminance(DAY.porto.skyTop)).toBeGreaterThan(luminance(DAY.stockholm.skyTop));
-  expect(luminance(DAY.porto.palette.ground)).toBeGreaterThan(luminance(DAY.stockholm.palette.ground));
+  expect(luminance(DAY.stockholm.skyTop)).toBeGreaterThan(luminance(DAY.personal.skyTop)); // golden hour, then sunset
+  expect(luminance(DAY.porto.palette.ground)).toBeGreaterThan(luminance(DAY.personal.palette.ground));
 });
 
 test("the sky behind the cards never gets too bright to read them", () => {

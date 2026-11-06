@@ -3,43 +3,159 @@
   left: max(16px, 6vw);
   top: 16vh;
   z-index: 10;
-  max-width: min(440px, calc(100vw - 32px));
+  width: min(440px, calc(100vw - 32px)); /* every card the same width; the height follows its content */
   color: var(--text);
   text-shadow: 0 1px 10px #0007;
   animation: in 0.3s ease-out both;
 }
 
-/* Soft scrim keeps the text readable over bright skies (spec §10) */
+/* A glass card keeps the text readable over the bright road (spec §10), matching the story card. */
 .block::before {
   content: "";
   position: absolute;
-  inset: -48px -64px;
+  inset: -20px -24px;
   z-index: -1;
-  background: radial-gradient(closest-side, #0d0f14a6, #0d0f1400);
+  border: 1px solid var(--glass-line);
+  border-radius: 16px;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
   pointer-events: none;
 }
 
-.photo {
-  width: 84px;
-  height: 84px;
-  margin-bottom: 18px;
-  border-radius: 50%;
-  border: 2px solid #fff8;
-  background: #ffffff33;
+/* Kept for search engines and screen readers; on screen, he introduces himself. */
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-.name {
+/* The tutorial prompt, like a game's: big and see-through over the grass to his side, low on the screen, popping in
+   once he's said hello, its mouse wheel rolling down (a finger swiping up, on touch screens). */
+.scrollHint {
+  position: fixed;
+  left: max(16px, 5vw);
+  top: 75%; /* over the meadow in front of the cottages */
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
   margin: 0;
-  font-size: clamp(34px, 5vw, 56px);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  color: #fffe;
+  font: 800 clamp(20px, 2.5vw, 32px) / 1 var(--font);
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 2px 14px #0009;
+  pointer-events: none;
+  translate: 0 -50%;
+  animation: pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) 2.2s both, bob 1.8s ease-in-out 2.7s infinite;
 }
 
-.role {
-  margin: 8px 0 12px;
-  color: var(--accent);
-  font-size: 18px;
-  font-weight: 600;
+.mouse {
+  position: relative;
+  width: clamp(34px, 4vw, 50px);
+  aspect-ratio: 5 / 8;
+  border: 4px solid currentColor;
+  border-radius: 999px;
+  filter: drop-shadow(0 2px 10px #0009);
+}
+
+.mouse::after {
+  content: "";
+  position: absolute;
+  top: 14%;
+  left: 50%;
+  width: 6px;
+  height: 18%;
+  border-radius: 3px;
+  background: var(--accent);
+  translate: -50% 0;
+  animation: wheel 1.4s ease-in infinite;
+}
+
+.touch {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .desktop {
+    display: none;
+  }
+
+  .touch {
+    display: inline;
+  }
+
+  /* a fingertip, swiping up */
+  .mouse {
+    aspect-ratio: 1;
+    animation: swipe 1.4s ease-in-out infinite;
+  }
+
+  .mouse::after {
+    display: none;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+}
+
+@keyframes bob {
+  50% {
+    translate: 0 calc(-50% - 8px);
+  }
+}
+
+@keyframes wheel {
+  70%,
+  100% {
+    opacity: 0;
+    translate: -50% 120%;
+  }
+}
+
+@keyframes swipe {
+  from {
+    translate: 0 14px;
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    translate: 0 -14px;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollHint,
+  .mouse,
+  .mouse::after {
+    animation: none;
+  }
+}
+
+/* A chapter's logo sits in the card's top corner, level with the "Chapter n · City" line. */
+.logo {
+  position: absolute;
+  top: -6px;
+  right: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+}
+
+.withLogo .chapterTitle {
+  padding-right: 52px; /* the title wraps before it reaches the logo */
 }
 
 .stage {
@@ -51,9 +167,28 @@
 }
 
 .title {
+  margin: 0;
+  font-size: clamp(22px, 2.8vw, 30px);
+  line-height: 1.15;
+}
+
+/* a project's partner logo sits in the card's right column, under the chapter's own logo */
+.projectHead {
+  position: relative;
   margin: 6px 0 8px;
-  font-size: clamp(26px, 3.4vw, 38px);
-  line-height: 1.1;
+}
+
+.projectHead:has(.projectLogo) .title {
+  padding-right: 52px; /* the title wraps before it reaches the logo */
+}
+
+.projectLogo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
 }
 
 .project {
@@ -108,3 +243,62 @@
     transform: translateY(8px);
   }
 }
+
+/* His words beside him: chat bubbles stacked upward, the newest nearest his head with a tail pointing at him. Same
+   glass and type as the cards, so they belong to the page. */
+.bubbles {
+  position: fixed;
+  /* Beside his head: the diorama scene sets where it is on screen; without it, the screen's centre (the classic walk). */
+  left: clamp(16px, calc(var(--head-x, 50vw) + 56px), calc(100vw - min(360px, 32vw) - 16px));
+  bottom: clamp(120px, calc(100vh - var(--head-y, 50vh)), calc(100vh - 160px));
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: min(360px, 32vw);
+}
+
+.bubble {
+  position: relative;
+  margin: 0;
+  padding: 11px 16px;
+  border: 1px solid var(--glass-line);
+  border-radius: 18px 18px 18px 6px;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.45;
+  animation: in 0.35s ease-out both;
+}
+
+.bubble:last-child::after {
+  content: "";
+  position: absolute;
+  left: -1px;
+  bottom: -10px;
+  border-style: solid;
+  border-width: 10px 12px 0 0;
+  border-color: var(--glass) transparent transparent transparent;
+}
+
+/* No room beside him on a phone: it sits low, over his legs, clear of the bottom bar. */
+@media (max-width: 640px) {
+  .bubbles {
+    left: 16px;
+    right: 16px;
+    bottom: 112px; /* clear of the bottom bar */
+    width: auto;
+  }
+
+  .bubble:last-child::after {
+    display: none;
+  }
+
+  /* Only the latest two fit beside him on a phone. */
+  .bubble:not(:nth-last-child(-n + 2)) {
+    display: none;
+  }
+}
+

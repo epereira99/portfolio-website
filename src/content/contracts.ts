@@ -33,10 +33,11 @@ const FIELDS: Record<string, Omit<Contract, keyof Project>> = {
       "feature-importance and ablation analyses to find the minimum sensor configuration that preserves predictive performance.",
   },
   "financial-hub": { ...soon, places: ["current-house"], date: "2026–now", done: false },
-  "effektify-reconciliation": { ...soon, places: ["effektify"], date: "2026–now", done: false },
+  "effektify-reconciliation": { ...soon, places: ["effektify"], date: "Aug–Oct 2026", done: false },
 };
 
-export const CONTRACTS: Contract[] = PROJECTS.map((p) => ({ ...p, ...FIELDS[p.slug] }));
+// Only projects with a place on the boards: newer ones (Jönköpings Södra, the case competitions) aren't placed yet.
+export const CONTRACTS: Contract[] = PROJECTS.filter((p) => p.slug in FIELDS).map((p) => ({ ...p, ...FIELDS[p.slug] }));
 
 export function contractBySlug(slug: string): Contract | undefined {
   return CONTRACTS.find((c) => c.slug === slug);

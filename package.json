@@ -10,20 +10,21 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "gen:lowpoly": "B=/Applications/Blender.app/Contents/MacOS/Blender; $B -b -P tools/blender/lowpoly/scene.py -- public/models/walk-scene.glb && $B -b -P tools/blender/lowpoly/walker.py -- public/models/walker.glb",
-    "gen:map": "node tools/map/make-europe.mjs",
-    "gen:landmarks": "for id in arcada bom_jesus uminho dom_luis clerigos jonkoping_university stadshuset; do /Applications/Blender.app/Contents/MacOS/Blender -b -P tools/blender/landmarks/$id.py -- public/models/landmarks/$(echo $id | tr _ -).glb | grep -E 'wrote|Error' || exit 1; done",
     "gen:walk": "sh tools/walk/make-walk.sh",
-    "gen:memories": "sh tools/walk/make-memories.sh",
     "gen:world": "node tools/world/make-map.mjs",
-    "art:normalize": "node tools/art/normalize.mjs"
+    "art:normalize": "node tools/art/normalize.mjs",
+    "gen:road": "node tools/road/make-sprites.mjs",
+    "gen:walk-cartoon": "sh tools/walk/make-walk-cartoon.sh"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
+    "@react-three/postprocessing": "^3.2.2",
     "gsap": "^3.15.0",
     "next": "16.4.3",
     "phaser": "4.2.1",
+    "postprocessing": "^6.39.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "three": "^0.187.0"

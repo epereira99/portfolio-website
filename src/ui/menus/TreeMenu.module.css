@@ -1,0 +1,229 @@
+/* the button stays a plain item of the bar; the tree is placed against the bar itself */
+.root {
+  display: contents;
+}
+
+/* Folders nearest the button, the open folder's projects above them */
+.tree {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 40px);
+  width: min(940px, calc(100vw - 32px));
+  translate: -50% 0;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 52px; /* room for the branches */
+}
+
+.tree ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.folders {
+  gap: 14px;
+}
+
+.leaves {
+  gap: 12px;
+}
+
+.folder,
+.leaf {
+  border: 1px solid var(--glass-line);
+  background: var(--glass);
+  backdrop-filter: blur(14px);
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: 0 16px 36px -14px #000c;
+}
+
+.folder {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 8px 8px;
+  border-radius: 16px;
+  font: 700 15px/1 var(--font);
+  transition: background 0.2s, border-color 0.25s, box-shadow 0.25s, filter 0.25s; /* never opacity: the script animates it */
+}
+
+.folder:hover {
+  background: var(--glass-hover);
+}
+
+.folder[aria-expanded="true"] {
+  border-color: var(--tint);
+  background: color-mix(in srgb, var(--tint) 16%, #15121f);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tint) 16%, transparent), 0 16px 36px -14px #000c;
+}
+
+.folder[data-dim] {
+  filter: saturate(0.4) brightness(0.65);
+}
+
+.folder[data-dim]:hover,
+.folder[data-dim]:focus-visible {
+  filter: none;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--tint) 18%, transparent);
+  color: var(--tint);
+}
+
+.icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.count {
+  min-width: 22px;
+  margin-left: 2px;
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: #ffffff14;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+  transition: background 0.25s, color 0.25s;
+}
+
+.folder[aria-expanded="true"] .count {
+  background: var(--tint);
+  color: #0d0f14;
+}
+
+.leaf {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 216px;
+  height: 100%;
+  min-height: 62px;
+  padding: 10px 14px 10px 10px;
+  border-radius: 16px;
+  text-align: left;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.leaf:hover {
+  background: var(--glass-hover);
+  border-color: color-mix(in srgb, var(--tint) 65%, transparent);
+}
+
+.folder:focus-visible,
+.leaf:focus-visible {
+  outline: 2px solid var(--tint);
+  outline-offset: 3px;
+}
+
+.mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  font-size: 17px;
+}
+
+.leafTitle {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font: 600 13.5px/1.3 var(--font);
+}
+
+/* the branches, drawn in the bar's coordinates */
+.lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.lines path {
+  fill: none;
+  stroke: #ffffff8c;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+}
+
+.branch path {
+  stroke: var(--tint);
+  stroke-opacity: 0.8;
+}
+
+/* Phones: three compact folders on one row, projects two to a row */
+@media (max-width: 767px) {
+  .tree {
+    bottom: calc(100% + 28px);
+    gap: 38px;
+  }
+
+  .tree .folders {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  .folder {
+    gap: 5px;
+    padding: 5px 7px 5px 5px;
+    border-radius: 13px;
+    font-size: 13px;
+  }
+
+  .icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+  }
+
+  .icon svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .count {
+    min-width: 18px;
+    padding: 3px 5px;
+    font-size: 11px;
+  }
+
+  .leaves {
+    gap: 8px;
+  }
+
+  .leaves li {
+    width: calc(50% - 4px);
+  }
+
+  .leaf {
+    width: 100%;
+    gap: 9px;
+    padding: 8px 10px 8px 8px;
+  }
+
+  .mark {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .leafTitle {
+    font-size: 12.5px;
+  }
+}

@@ -7,10 +7,16 @@ export const DEGREES: Project[] = [
     title: "BSc Computer Science",
     stage: "braga",
     order: 0,
-    stageLabel: "Braga · Universidade do Minho",
     subtitle: "Licenciatura in Computer Science at Universidade do Minho, 2017–2022.",
     tags: ["Universidade do Minho", "Bachelor's degree", "2017–2022"],
     logo: { src: "/degrees/uminho-symbol.png", alt: "University of Minho" },
+    images: [
+      {
+        src: "/projects/bsc-computer-science.webp",
+        alt: "Eduardo in his academic dress, with his mother, above Braga",
+        caption: "Graduation day, Braga",
+      },
+    ],
     sections: [
       {
         heading: "The degree",
@@ -82,9 +88,16 @@ export const DEGREES: Project[] = [
     title: "MSc AI Engineering",
     stage: "jonkoping",
     order: 0,
-    stageLabel: "Jönköping · Jönköping University",
     subtitle: "Master of Science (120 credits) in Computer Science, specialising in AI Engineering, 2024–2026.",
     tags: ["Jönköping University", "120 ECTS", "2024–2026"],
+    logo: { src: "/ju-mark.png", alt: "Jönköping University" },
+    images: [
+      {
+        src: "/projects/msc-ai-engineering.webp",
+        alt: "Eduardo in a graduation sash, holding his Jönköping University diploma",
+        caption: "Graduation day, Jönköping",
+      },
+    ],
     sections: [
       {
         heading: "The degree",

@@ -4,8 +4,8 @@ import { PROJECTS, projectBySlug, projectsForStage } from "./projects";
 import { DEGREES } from "./degrees";
 
 describe("stages", () => {
-  test("are the four cities in journey order", () => {
-    expect(STAGES.map((s) => s.id)).toEqual(["braga", "porto", "jonkoping", "stockholm"]);
+  test("are the four cities in journey order, then his personal projects", () => {
+    expect(STAGES.map((s) => s.id)).toEqual(["braga", "porto", "jonkoping", "stockholm", "personal"]);
   });
 
   test("carry the exact stage headers from the spec", () => {
@@ -13,7 +13,8 @@ describe("stages", () => {
       "BSc Computer Science · Universidade do Minho · 2017–2022",
       "Deloitte · Cloud & DevOps → Integration Software · 2022–2024",
       "MSc AI Engineering · Jönköping University · 2024–2026",
-      "Effektify & personal projects · 2026–now",
+      "Effektify · Growth & AI · Aug–Oct 2026",
+      "Personal projects",
     ]);
   });
 });
@@ -25,25 +26,31 @@ describe("chapters", () => {
       "Deloitte",
       "MSc AI Engineering",
       "Effektify",
+      "Personal projects",
     ]);
     expect(STAGES.map((s) => s.chapter.detail)).toEqual([
       "Universidade do Minho · 2017–2022",
       "Cloud & DevOps → Integration Software · 2022–2024",
       "Jönköping University · 2024–2026",
-      "Growth & AI · personal projects · 2026–now",
+      "Growth & AI · Aug–Oct 2026",
+      "Built in my own time",
     ]);
   });
 });
 
 describe("projects", () => {
-  test("have unique slugs matching the initial dataset", () => {
+  test("have unique slugs: the initial dataset plus OutSystems–Salesforce, Jönköpings Södra and the case competitions", () => {
     const slugs = PROJECTS.map((p) => p.slug);
     expect(new Set(slugs).size).toBe(slugs.length);
     expect(new Set(slugs)).toEqual(
       new Set([
         "mambu-migration",
         "azure-ml-integrations",
+        "outsystems-salesforce",
         "unet-segmentation",
+        "jonkoping-sodra",
+        "jibs-entrepreneurship-challenge",
+        "jibs-case-competition",
         "saab-thesis",
         "financial-hub",
         "effektify-reconciliation",
@@ -54,9 +61,16 @@ describe("projects", () => {
   test("are grouped per stage in order", () => {
     const slugs = (id: Parameters<typeof projectsForStage>[0]) => projectsForStage(id).map((p) => p.slug);
     expect(slugs("braga")).toEqual([]);
-    expect(slugs("porto")).toEqual(["mambu-migration", "azure-ml-integrations"]);
-    expect(slugs("jonkoping")).toEqual(["unet-segmentation", "saab-thesis"]);
-    expect(slugs("stockholm")).toEqual(["financial-hub", "effektify-reconciliation"]);
+    expect(slugs("porto")).toEqual(["mambu-migration", "azure-ml-integrations", "outsystems-salesforce"]);
+    expect(slugs("jonkoping")).toEqual([
+      "unet-segmentation",
+      "jonkoping-sodra",
+      "jibs-entrepreneurship-challenge",
+      "jibs-case-competition",
+      "saab-thesis",
+    ]);
+    expect(slugs("stockholm")).toEqual(["effektify-reconciliation"]);
+    expect(slugs("personal")).toEqual(["financial-hub"]);
   });
 
   test("never link to GitHub", () => {

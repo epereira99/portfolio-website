@@ -10,5 +10,5 @@ test("every contract is pre-rendered at its own URL", async () => {
 
 test("contract pages are titled for sharing", async () => {
   const meta = await generateMetadata({ params: Promise.resolve({ slug: "saab-thesis" }) });
-  expect(meta.title).toBe("Predicting shooting performance from motion · Contracts · Eduardo Pereira");
+  expect(meta.title).toBe("AI Driven Sensor Optimization for Marksman Posture Analysis - Master Thesis · Contracts · Eduardo Pereira");
 });

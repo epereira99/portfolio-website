@@ -28,7 +28,7 @@ test("the main board pins all six contracts with the selected one marked", () =>
 
 test("a scroll shows the header fields and body in order", () => {
   show({ kind: "scroll", place: "all", slug: "saab-thesis" });
-  expect(screen.getByRole("heading", { name: "Predicting shooting performance from motion" })).toBeVisible();
+  expect(screen.getByRole("heading", { name: "AI Driven Sensor Optimization for Marksman Posture Analysis - Master Thesis" })).toBeVisible();
   expect(screen.getByText("Saab · Jönköping")).toBeVisible();
   expect(screen.getAllByRole("term").map((t) => t.textContent)).toEqual(["Village", "Date", "Duration", "Reason", "Goal", "Work"]);
   expect(screen.getByLabelText("Contract completed")).toBeVisible();
@@ -54,7 +54,7 @@ test("Up and Down scroll a long degree for keyboard players", () => {
 
 test("an open scroll sits over its board, which is inert", () => {
   const { container } = show({ kind: "scroll", place: "ju", slug: "saab-thesis" });
-  expect(container.querySelector("[inert] [aria-current]")).toHaveAttribute("aria-label", "Saab · Jönköping · Predicting shooting performance from motion");
+  expect(container.querySelector("[inert] [aria-current]")).toHaveAttribute("aria-label", "Saab · Jönköping · AI Driven Sensor Optimization for Marksman Posture Analysis - Master Thesis");
 });
 
 test("Start-menu items can be clicked or tapped", () => {

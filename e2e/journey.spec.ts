@@ -7,15 +7,14 @@ const scrollToScreens = (page: Page, s: number) =>
 
 test("the intro and navigation show before the walk frames load", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Eduardo Pereira" })).toBeVisible({ timeout: 2000 });
+  await expect(page.getByText("Hey, great to see you here.")).toBeVisible({ timeout: 2000 });
   await expect(page.getByRole("button", { name: "Projects" })).toBeVisible();
 });
 
 test("walking into Porto shows its stage and first project, and a project opens and closes in place", async ({ page }) => {
   await page.goto("/");
   await scrollToScreens(page, 2);
-  const journey = page.getByRole("navigation", { name: "Journey" });
-  await expect(journey.getByRole("button", { name: "Porto" })).toHaveAttribute("aria-current", "step");
+  await expect(page.getByRole("heading", { level: 2, name: "Deloitte" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Mambu migration tool" })).toBeVisible();
 
   await page.getByRole("button", { name: "Read more" }).click();
@@ -43,114 +42,40 @@ test("a shared project link opens its dialog", async ({ page }) => {
   await expect(page.getByRole("dialog").getByRole("heading", { name: "Financial Hub" })).toBeVisible();
 });
 
-test("the Projects fan opens a project", async ({ page }) => {
+test("the Projects tree opens a project", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Projects" }).click();
+  await page.getByRole("button", { name: /^AI/ }).click();
   await page.getByRole("button", { name: /U-Net/ }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
 });
 
-test("navigation is never lost, even at sea", async ({ page }) => {
-  await page.goto("/");
-  await scrollToScreens(page, 4);
-  await expect(page.getByText("At sea · Porto → Jönköping")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Projects" })).toBeVisible();
-});
-
-const MAP = "Map: sailing from Porto to Jönköping";
-
-const settle = async (page: Page) => {
-  // wait until scrollY has been stable for 300ms (smooth scrolling done)
-  await page.waitForFunction(
-    () =>
-      new Promise<boolean>((resolve) => {
-        const y = window.scrollY;
-        setTimeout(() => resolve(window.scrollY === y), 300);
-      }),
-  );
-};
-
-test("mid-voyage the map shows and navigation stays", async ({ page }) => {
-  await page.goto("/");
-  await scrollToScreens(page, 4.3);
-  await expect(page.getByRole("img", { name: MAP })).toBeVisible();
-  await expect(page.getByText("At sea · Porto → Jönköping")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Projects" })).toBeVisible();
-});
-
-test("the map is gone once you land", async ({ page }) => {
-  await page.goto("/");
-  await scrollToScreens(page, 4.3);
-  await expect(page.getByRole("img", { name: MAP })).toBeVisible();
-  await scrollToScreens(page, 5.2);
-  await expect(page.getByRole("img", { name: MAP })).toHaveCount(0);
-});
-
-test("jumping to Jönköping from Porto leaves no map behind", async ({ page }) => {
-  await page.goto("/");
-  await scrollToScreens(page, 2);
-  const journey = page.getByRole("navigation", { name: "Journey" });
-  await journey.getByRole("button", { name: "Jönköping" }).click();
-  await expect(journey.getByRole("button", { name: "Jönköping" })).toHaveAttribute("aria-current", "step");
-  await settle(page);
-  const screens = await page.evaluate((k) => window.scrollY / (window.innerHeight * k), SCROLL_PER_SCREEN);
-  expect(screens).toBeCloseTo(5, 1);
-  await expect(page.getByRole("img", { name: MAP })).toHaveCount(0);
-});
-
-test.describe("on a phone", () => {
-  test.use({ viewport: { width: 375, height: 812 } });
-
-  test("both ends of the voyage fit on screen", async ({ page }) => {
-    await page.goto("/");
-    await scrollToScreens(page, 4.3);
-    for (const name of ["Porto", "Jönköping"]) {
-      const box = (await page.getByRole("img", { name: MAP }).getByText(name, { exact: true }).boundingBox())!;
-      expect(box.x).toBeGreaterThanOrEqual(0);
-      expect(box.y).toBeGreaterThanOrEqual(0);
-      expect(box.x + box.width).toBeLessThanOrEqual(375);
-      expect(box.y + box.height).toBeLessThanOrEqual(812);
-    }
-  });
-});
-
-test("with reduced motion the map's ship holds still", async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
-  await scrollToScreens(page, 4.3);
-  const bob = page.locator('[data-part="ship"] > g');
-  await expect(bob).toHaveCount(1);
-  expect(await bob.evaluate((el) => getComputedStyle(el).animationIterationCount)).toBe("1");
-});
-
-test("entering Porto announces the Deloitte chapter, and the header keeps it in view", async ({ page }) => {
+test("entering Porto announces the Deloitte chapter, and its card stays for the stage", async ({ page }) => {
   await page.goto("/");
   await scrollToScreens(page, 1.6);
   await expect(page.getByRole("heading", { level: 2, name: "Deloitte" })).toBeVisible();
-  await expect(page.getByText("Chapter 2 · Porto")).toBeVisible();
+  await expect(page.getByText("Cloud & DevOps → Integration Software · 2022–2024")).toBeVisible();
   await scrollToScreens(page, 2.2);
-  await expect(page.getByRole("navigation", { name: "Journey" }).getByText("Deloitte", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Deloitte" })).toBeVisible();
 });
 
 test.describe("the ending", () => {
   test("invites the visitor with ways to get in touch, navigation still there", async ({ page }) => {
     await page.goto("/");
-    await scrollToScreens(page, 9);
+    await scrollToScreens(page, 11);
     await expect(page.getByRole("heading", { name: "The next chapter starts here." })).toBeVisible();
     await expect(page.getByRole("link", { name: "Email me" })).toHaveAttribute("href", "mailto:eduardoluisvp99@gmail.com");
     await expect(page.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("target", "_blank");
     await expect(page.getByRole("button", { name: "Projects" })).toBeVisible();
   });
 
-  test("scrolling back out of the ending returns to Stockholm", async ({ page }) => {
+  test("scrolling back out of the ending returns to the journey", async ({ page }) => {
     await page.goto("/");
-    await scrollToScreens(page, 9);
+    await scrollToScreens(page, 11);
     await expect(page.getByRole("heading", { name: "The next chapter starts here." })).toBeVisible();
-    await scrollToScreens(page, 8.0);
+    await scrollToScreens(page, 6.8);
     await expect(page.getByRole("heading", { name: "The next chapter starts here." })).toHaveCount(0);
-    await expect(
-      page.getByRole("navigation", { name: "Journey" }).getByRole("button", { name: "Stockholm" }),
-    ).toHaveAttribute("aria-current", "step");
+    await expect(page.getByRole("heading", { level: 2, name: "MSc AI Engineering" })).toBeVisible();
   });
 
   test("scrolling past the very bottom keeps the ending and throws nothing", async ({ page }) => {
@@ -164,8 +89,9 @@ test.describe("the ending", () => {
   });
 });
 
-test("Eduardo walks on the starry night, with no 3D on the page", async ({ page }) => {
+test("Eduardo walks down the road, with his stage's story beside him", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator('img[src^="/walk/"]')).toBeVisible();
-  await expect(page.locator("canvas[data-engine]")).toHaveCount(0); // three.js tags every canvas it renders to
+  await scrollToScreens(page, 1.6);
+  await expect(page.getByRole("complementary")).toBeVisible();
 });

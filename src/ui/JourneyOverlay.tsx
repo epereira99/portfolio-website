@@ -2,11 +2,43 @@
 
 import { projectBySlug } from "@/content/projects";
 import { STAGES } from "@/content/stages";
+import { ENDING_STORY, INTRO_STORY, STORIES } from "@/content/stories";
 import { CV_URL, EMAIL, ENDING, LINKEDIN } from "@/content/contact";
 import { useScreens } from "@/journey/progress";
-import { chapterAt, overlayAt } from "@/journey/timeline";
+import { INTRO_END, chapterAt, chapterProgress, overlayAt } from "@/journey/timeline";
+import { bubblesAt } from "@/journey/beats";
+import { MAX_BUBBLES, revealed } from "./story";
 import { useOpenProject } from "./useOpenProject";
 import styles from "./JourneyOverlay.module.css";
+
+/** His words beside him as chat bubbles: at most MAX_BUBBLES, the newest nearest him; fade is the block's opacity. */
+function Story({ bubbles, fade = 1 }: { bubbles: { index: number; text: string }[]; fade?: number }) {
+  if (bubbles.length === 0) return null;
+  return (
+    <aside className={styles.bubbles} style={{ opacity: fade }}>
+      {bubbles.slice(-MAX_BUBBLES).map(({ index, text }) => (
+        // keyed by its place in the block, so the stack shifts up and only the new one fades in
+        <p className={styles.bubble} data-testid="bubble" key={index}>
+          {text}
+        </p>
+      ))}
+    </aside>
+  );
+}
+
+const HINT_GONE = 0.08; // screens of scroll by which the tutorial prompt has faded out
+
+/** A game-style tutorial prompt: it pops in after his hello and fades away as soon as you start walking. */
+function ScrollHint({ s }: { s: number }) {
+  if (s >= HINT_GONE) return null;
+  return (
+    <p className={styles.scrollHint} style={{ opacity: 1 - s / HINT_GONE }}>
+      <span className={styles.mouse} aria-hidden />
+      <span className={styles.desktop}>Scroll to walk</span>
+      <span className={styles.touch}>Swipe up to walk</span>
+    </p>
+  );
+}
 
 export function JourneyOverlay() {
   const s = useScreens();
@@ -15,77 +47,90 @@ export function JourneyOverlay() {
 
   if (overlay.kind === "intro") {
     return (
-      <div className={styles.block} key="intro">
-        <div className={styles.photo} aria-label="Photo of Eduardo Pereira (coming soon)" role="img" />
-        <h1 className={styles.name}>Eduardo Pereira</h1>
-        <p className={styles.role}>AI / ML / Software Engineer</p>
-        <p className={styles.text}>
-          MSc in AI Engineering. Based in Stockholm, open to new roles. Scroll to walk through my journey from Braga to
-          Stockholm.
-        </p>
-      </div>
+      <>
+        <Story bubbles={revealed(INTRO_STORY, s / INTRO_END)} key="story-intro" />
+        {/* he introduces himself in the bubbles; the name stays for search engines and screen readers */}
+        <h1 className={styles.hidden}>Eduardo Pereira · AI / ML / Software Engineer</h1>
+        <ScrollHint s={s} />
+      </>
     );
   }
 
   if (overlay.kind === "ending") {
     return (
-      <div className={styles.block} key="ending" style={{ opacity: Math.min(overlay.t / 0.4, 1) }}>
-        <p className={styles.stage}>Stockholm · Today</p>
-        <h2 className={styles.chapterTitle}>{ENDING.title}</h2>
-        <p className={styles.text}>{ENDING.line}</p>
-        <div className={styles.actions}>
-          <a className={styles.more} href={`mailto:${EMAIL}`}>
-            Email me
-          </a>
-          <a className={styles.more} href={LINKEDIN} target="_blank" rel="noopener noreferrer">
-            LinkedIn
-          </a>
-          {CV_URL && (
-            <a className={styles.more} href={CV_URL} download>
-              Download CV
+      <>
+        <Story bubbles={revealed(ENDING_STORY, overlay.t)} key="story-ending" />
+        <div className={styles.block} key="ending">
+          <h2 className={styles.chapterTitle}>{ENDING.title}</h2>
+          <p className={styles.text}>{ENDING.detail}</p>
+          <div className={styles.actions}>
+            <a className={styles.more} href={`mailto:${EMAIL}`}>
+              Email me
             </a>
-          )}
+            <a className={styles.more} href={LINKEDIN} target="_blank" rel="noopener noreferrer">
+              LinkedIn
+            </a>
+            {CV_URL && (
+              <a className={styles.more} href={CV_URL} download>
+                Download CV
+              </a>
+            )}
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   const stage = chapterAt(s);
   if (!stage) return null;
-  const index = STAGES.findIndex((st) => st.id === stage);
-  const { city, chapter, degree } = STAGES[index];
-  const project = overlay.kind === "project" ? projectBySlug(overlay.slug) : undefined;
+  const { chapter, degree } = STAGES.find((st) => st.id === stage)!;
+  const projects = overlay.kind === "project" ? overlay.slugs.map(projectBySlug).filter((p) => p !== undefined) : [];
+  const { block, lines, fade } = bubblesAt(STORIES[stage], chapterProgress(s));
 
-  // The chapter stays for the whole stage; its projects fade in under it one at a time (each keyed so it fades in).
+  // The chapter stays for the whole stage; beside him, the stage's story in bubbles; under the chapter, the projects
+  // the story is talking about, fading in when first mentioned and out with their block's bubbles.
   return (
-    <div className={styles.block} key={`chapter-${stage}`}>
-      <p className={styles.stage}>
-        Chapter {index + 1} · {city}
-      </p>
-      <h2 className={styles.chapterTitle}>
-        {chapter.title}
-        {chapter.dot && (
-          <span data-dot aria-hidden style={{ color: chapter.dot }}>
-            .
-          </span>
+    <>
+      <Story
+        bubbles={lines.map((line, index) => ({ index, text: line.say }))}
+        fade={fade}
+        key={`story-${stage}-${block}`}
+      />
+      <div className={`${styles.block} ${chapter.logo ? styles.withLogo : ""}`} key={`chapter-${stage}`}>
+        {chapter.logo && (
+          // eslint-disable-next-line @next/next/no-img-element -- a small static logo
+          <img className={styles.logo} src={chapter.logo.src} alt={chapter.logo.alt} />
         )}
-      </h2>
-      <p className={styles.text}>{chapter.detail}</p>
-      {degree && (
-        <button type="button" className={styles.more} onClick={() => open(degree)}>
-          About the degree
-        </button>
-      )}
-      {project && (
-        <div className={styles.project} key={project.slug}>
-          <p className={styles.stage}>{project.stageLabel}</p>
-          <h3 className={styles.title}>{project.title}</h3>
-          <p className={styles.text}>{project.subtitle}</p>
-          <button type="button" className={styles.more} onClick={() => open(project.slug)}>
-            Read more
+        <h2 className={styles.chapterTitle}>
+          {chapter.title}
+          {chapter.dot && (
+            <span data-dot aria-hidden style={{ color: chapter.dot }}>
+              .
+            </span>
+          )}
+        </h2>
+        <p className={styles.text}>{chapter.detail}</p>
+        {degree && (
+          <button type="button" className={styles.more} onClick={() => open(degree)}>
+            About the degree
           </button>
-        </div>
-      )}
-    </div>
+        )}
+        {projects.map((project) => (
+          <div className={styles.project} key={project.slug} style={{ opacity: fade }}>
+            <div className={styles.projectHead}>
+              {/* the partner's logo; Effektify's already marks its chapter, so it isn't repeated */}
+              {project.logo && project.logo.src !== chapter.logo?.src && (
+                // eslint-disable-next-line @next/next/no-img-element -- a small static logo
+                <img className={styles.projectLogo} src={project.logo.src} alt={project.logo.alt} />
+              )}
+              <h3 className={styles.title}>{project.title}</h3>
+            </div>
+            <button type="button" className={styles.more} onClick={() => open(project.slug)}>
+              Read more
+            </button>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }

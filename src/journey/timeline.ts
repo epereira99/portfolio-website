@@ -1,15 +1,16 @@
-import { projectsForStage } from "@/content/projects";
+import { STORIES } from "@/content/stories";
+import { shownProjects } from "./beats";
 import type { StageId } from "@/content/stages";
 
-export type SegmentId = StageId | "voyage";
+export type SegmentId = StageId;
 
 // Length budget in screens (spec §6).
 export const SEGMENTS: { id: SegmentId; screens: number }[] = [
   { id: "braga", screens: 1.5 },
-  { id: "porto", screens: 2 },
-  { id: "voyage", screens: 1.5 },
-  { id: "jonkoping", screens: 2 },
-  { id: "stockholm", screens: 2 }, // 1.5 + the ending (plan 3)
+  { id: "porto", screens: 3 }, // Porto and Jönköping have the most story to tell (content/stories.ts)
+  { id: "jonkoping", screens: 3 },
+  { id: "stockholm", screens: 1.5 },
+  { id: "personal", screens: 2 }, // 1.5 + the ending
 ];
 
 export const TOTAL_SCREENS = SEGMENTS.reduce((sum, s) => sum + s.screens, 0);
@@ -50,20 +51,13 @@ export function chapterAt(s: number): StageId | null {
   if (s < INTRO_END || s >= ENDING_START) return null;
   const x = clamp(s);
   const id = segmentAt(x);
-  return id === "voyage" || x < segmentStart(id) + chapterDelay(id) ? null : id;
-}
-
-export function stageProgress(s: number): number {
-  const x = clamp(s);
-  const id = segmentAt(x);
-  const seg = SEGMENTS.find((g) => g.id === id)!;
-  return Math.min((x - segmentStart(id)) / seg.screens, 1);
+  return x < segmentStart(id) + chapterDelay(id) ? null : id;
 }
 
 export type Overlay =
   | { kind: "intro" }
   | { kind: "chapter"; stage: StageId; t: number }
-  | { kind: "project"; slug: string }
+  | { kind: "project"; slugs: string[] }
   | { kind: "ending"; t: number }
   | { kind: "none" };
 
@@ -72,18 +66,19 @@ export function overlayAt(s: number): Overlay {
   if (s >= ENDING_START) return { kind: "ending", t: Math.min((s - ENDING_START) / ENDING_SCREENS, 1) };
   const x = clamp(s);
   const id = segmentAt(x);
-  if (id === "voyage") return { kind: "none" };
   const chapterFrom = segmentStart(id) + chapterDelay(id);
   if (x < chapterFrom) return { kind: "none" };
   if (x - chapterFrom < CHAPTER_SCREENS) return { kind: "chapter", stage: id, t: (x - chapterFrom) / CHAPTER_SCREENS };
-  const projects = projectsForStage(id);
-  if (projects.length === 0) return { kind: "none" };
+  // Projects come in with the line of the story that mentions them (content/stories.ts).
+  const slugs = shownProjects(STORIES[id], chapterProgress(x));
+  return slugs.length ? { kind: "project", slugs } : { kind: "none" };
+}
+
+/** How far through its chapter's time on screen the journey is (0–1): Braga's chapter starts after the intro. */
+export function chapterProgress(s: number): number {
+  const x = clamp(s);
+  const id = segmentAt(x);
+  const start = segmentStart(id) + chapterDelay(id);
   const seg = SEGMENTS.find((g) => g.id === id)!;
-  const from = chapterFrom + CHAPTER_SCREENS; // projects begin where the chapter title ends
-  const until = Math.min(segmentStart(id) + seg.screens, ENDING_START); // Stockholm's projects end where the ending begins
-  const slot = (until - from) / projects.length;
-  const k = Math.floor((x - from) / slot);
-  if (k < 0 || k >= projects.length) return { kind: "none" };
-  const local = x - from - k * slot;
-  return local >= 0.15 * slot && local < 0.85 * slot ? { kind: "project", slug: projects[k].slug } : { kind: "none" };
+  return Math.min(Math.max((x - start) / (seg.screens - chapterDelay(id)), 0), 1);
 }

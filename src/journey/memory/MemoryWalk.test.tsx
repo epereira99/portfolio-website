@@ -1,8 +1,6 @@
-import { readFileSync } from "node:fs";
 import { afterEach, expect, test, vi } from "vitest";
 import { act, render } from "@testing-library/react";
 import { setScreens } from "../progress";
-import { MEMORIES } from "./memories";
 import { MemoryWalk } from "./MemoryWalk";
 import { walkFrame, walkFrameUrl } from "./walk";
 
@@ -26,18 +24,11 @@ const stubImages = (ok: boolean) =>
 
 const twoFrames = () => act(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
 
-test("renders the walker on the still frame, one node per painted memory, aria-hidden", () => {
+test("renders the walker on the still frame over the road, aria-hidden", () => {
   const { container } = render(<MemoryWalk />);
   expect(container.firstElementChild!.getAttribute("aria-hidden")).toBe("true");
+  expect(container.querySelector("canvas")).not.toBeNull();
   expect(container.querySelector("img")!.getAttribute("src")).toBe("/walk/walk-000.webp");
-  expect(container.querySelectorAll("[data-memory]")).toHaveLength(MEMORIES.filter((m) => m.src).length);
-});
-
-test("memories without a painting yet aren't shown at all", () => {
-  const pending = MEMORIES.find((m) => !m.src)!;
-  const { container } = render(<MemoryWalk />);
-  expect(container.querySelector(`[data-memory="${pending.id}"]`)).toBeNull();
-  expect(container.textContent).not.toContain(pending.label);
 });
 
 test("scrubs to the frame for the current position once every frame has loaded", async () => {
@@ -54,20 +45,6 @@ test("keeps the still frame when frames fail to load", async () => {
   const { container } = render(<MemoryWalk />);
   await twoFrames();
   expect(container.querySelector("img")!.getAttribute("src")).toBe("/walk/walk-000.webp");
-});
-
-test("a memory alongside the walker is visible, one far ahead is not", async () => {
-  const arcada = MEMORIES.find((m) => m.id === "arcada")!;
-  act(() => setScreens(arcada.at));
-  const { container } = render(<MemoryWalk />);
-  await twoFrames();
-  expect((container.querySelector('[data-memory="arcada"]') as HTMLElement).style.opacity).toBe("1");
-  expect((container.querySelector('[data-memory="nau"]') as HTMLElement).style.opacity).toBe("0");
-});
-
-test("does not pull in three.js", () => {
-  const src = readFileSync("src/journey/memory/MemoryWalk.tsx", "utf8");
-  expect(src).not.toMatch(/three|@react-three|\/scene\/|\/art\/|\.\.\/path/);
 });
 
 test("with reduced motion the walk frames are never downloaded", async () => {

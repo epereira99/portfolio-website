@@ -1,0 +1,25 @@
+.mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  object-fit: cover;
+  background: var(--tint, var(--accent));
+  color: #0d0f14;
+  font-family: var(--font);
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* Darkens the scene under an open menu, from the bottom where the menu grows. It sits inside the fixed bar, so it is
+   sized to cover the screen from there */
+.scrim {
+  position: absolute;
+  left: 50%;
+  bottom: -40px;
+  z-index: -1;
+  width: 300vw;
+  height: 110vh;
+  translate: -50% 0;
+  background: radial-gradient(ellipse 45% 75% at 50% 100%, #07090dd9 0%, #07090d99 45%, transparent 80%);
+  pointer-events: none;
+}
