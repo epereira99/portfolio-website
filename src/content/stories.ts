@@ -18,7 +18,7 @@ export const STORIES: Record<StageId, Beat[][]> = {
     [
       { say: "This is where it all started." },
       { say: "I was 17, and I jumped into the world of computer science." },
-      { say: "Yes, back in the dark ages, when there was no AI." },
+      { say: "Yes, back in the dark ages, when there was no AI to bail you out." },
       {
         say: "When all we had was Stack Overflow, coffee, and that random guy who somehow fixed your three-day bug in 10 minutes.",
       },
@@ -26,7 +26,7 @@ export const STORIES: Record<StageId, Beat[][]> = {
         say: "Courses were very demanding, but it built the foundation for my career.",
       },
       {
-        say: "I learned a lot, and I made some amazing friends, who are still my friends today.",
+        say: "I learned a lot, and I made some amazing friends, who are still close friends today.",
       },
     ],
   ],
@@ -37,7 +37,7 @@ export const STORIES: Record<StageId, Beat[][]> = {
       { say: "Deloitte is where I became a professional." },
       { say: "I started out working with cloud and infrastructure." },
       {
-        say: "And I used APIs to build an automation tool for a real project for Western Union.",
+        say: "And I used APIs to build an automation tool for a project at Western Union.",
         show: "mambu-migration",
       },
       { say: "It was later sold to other clients in the financial services sector." },
@@ -74,8 +74,8 @@ export const STORIES: Record<StageId, Beat[][]> = {
     ],
     [
       { say: "Now I knew AI, and I had my degree. I was ready to go home." },
-      { say: "But Sweden stole my heart, one Swede in particular." },
-      { say: "One Swede in particular stole my heart." },
+      { say: "But Sweden stole my heart." },
+      { say: "Well, one Swede in particular stole my heart." },
     ],
   ],
 
@@ -106,5 +106,5 @@ export const INTRO_STORY: string[] = [
   "I'm a yapper, so let's take a walk and I'll tell you all about my journey.",
 ];
 
-export const ENDING_STORY: string[] = ["It's been a crazy journey!", "And i would love you to be a part of it!"];
+export const ENDING_STORY: string[] = ["It's been a crazy journey!", "And i would love you to be a part of it!", "So sent me an email, or a message on LinkedIn, and let's talk for real!"];
   
