@@ -15,7 +15,7 @@ export const SEGMENTS: { id: SegmentId; screens: number }[] = [
 
 export const TOTAL_SCREENS = SEGMENTS.reduce((sum, s) => sum + s.screens, 0);
 export const INTRO_END = 0.5;
-export const ENDING_SCREENS = 0.5;
+const ENDING_SCREENS = 0.5;
 export const ENDING_START = TOTAL_SCREENS - ENDING_SCREENS;
 
 const clamp = (s: number) => Math.min(Math.max(s, 0), TOTAL_SCREENS);

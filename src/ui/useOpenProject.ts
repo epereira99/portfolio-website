@@ -16,7 +16,7 @@ function set(next: string | null) {
 }
 
 /** returnTo: where focus goes on close, for openers that disappear (e.g. a fan card). */
-export function openProject(next: string, returnTo?: HTMLElement | null): void {
+function openProject(next: string, returnTo?: HTMLElement | null): void {
   returnFocus = returnTo ?? null;
   set(next);
 }

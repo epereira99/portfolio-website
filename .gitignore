@@ -47,3 +47,6 @@ next-env.d.ts
 
 # reference photos for generating memory paintings (not ours to publish)
 /art/references/
+
+# python
+__pycache__/

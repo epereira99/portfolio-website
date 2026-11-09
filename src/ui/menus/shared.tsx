@@ -17,7 +17,7 @@ export const tint = (id: TopicId) => ({ "--tint": TINT[id] }) as CSSProperties;
 export const topicLabel = (id: TopicId) => TOPICS.find((t) => t.id === id)!.label;
 export const folderLabel = (id: TopicId) => `${topicLabel(id)}, ${projectsForTopic(id).length} projects`;
 
-export const reducedMotion = () =>
+const reducedMotion = () =>
   typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 /** Plays a paused timeline, or jumps straight to its end (callbacks included) when the visitor prefers less motion. */

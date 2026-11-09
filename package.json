@@ -9,21 +9,14 @@
     "lint": "eslint",
     "test": "vitest run",
     "e2e": "playwright test",
-    "gen:lowpoly": "B=/Applications/Blender.app/Contents/MacOS/Blender; $B -b -P tools/blender/lowpoly/scene.py -- public/models/walk-scene.glb && $B -b -P tools/blender/lowpoly/walker.py -- public/models/walker.glb",
-    "gen:walk": "sh tools/walk/make-walk.sh",
-    "gen:world": "node tools/world/make-map.mjs",
-    "art:normalize": "node tools/art/normalize.mjs",
-    "gen:road": "node tools/road/make-sprites.mjs",
-    "gen:walk-cartoon": "sh tools/walk/make-walk-cartoon.sh"
+    "gen:lowpoly": "B=/Applications/Blender.app/Contents/MacOS/Blender; $B -b -P tools/blender/lowpoly/scene.py -- public/models/walk-scene.glb && $B -b -P tools/blender/lowpoly/walker.py -- public/models/walker.glb"
   },
   "dependencies": {
-    "@gsap/react": "^2.1.2",
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
     "@react-three/postprocessing": "^3.2.2",
     "gsap": "^3.15.0",
     "next": "16.4.3",
-    "phaser": "4.2.1",
     "postprocessing": "^6.39.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -33,21 +26,15 @@
     "@playwright/test": "^1.64.1",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
-    "@types/d3-geo": "^3.1.1",
     "@types/node": "^24.19.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.187.0",
-    "@types/topojson-client": "^3.1.5",
     "@vitejs/plugin-react": "^6.1.2",
-    "d3-geo": "^3.1.1",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
     "jsdom": "^30.1.3",
-    "sharp": "^0.35.5",
-    "topojson-client": "^3.1.0",
     "typescript": "^5",
-    "vitest": "^5.0.5",
-    "world-atlas": "^2.0.2"
+    "vitest": "^5.0.5"
   }
 }
