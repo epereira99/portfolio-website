@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import { ENDING_START, TOTAL_SCREENS } from "../timeline";
-import { FRAMES_PER_SCREEN, WALK_FRAMES, easeProgress, stepFrame, walkFrame, walkFrameUrl } from "./walk";
+import { easeProgress } from "../progress";
+import { FRAMES_PER_SCREEN, WALK_FRAMES, stepFrame, walkFrame, walkFrameUrl, CARTOON_WALK } from "./walk";
 
 test("frame advances with distance and wraps inside [0, 139)", () => {
   expect(WALK_FRAMES).toBe(139);
@@ -20,14 +21,6 @@ test("walking back plays frames in reverse; negative progress still valid", () =
 test("he stops at the ending", () => {
   expect(walkFrame(ENDING_START + 0.3)).toBe(walkFrame(ENDING_START));
   expect(walkFrame(TOTAL_SCREENS + 1)).toBe(walkFrame(ENDING_START));
-});
-
-test("easing follows the scroll, and snaps on big jumps", () => {
-  expect(easeProgress(0, 0.1)).toBeGreaterThan(0);
-  expect(easeProgress(0, 0.1)).toBeLessThan(0.1);
-  expect(easeProgress(0, 3)).toBe(3);
-  expect(easeProgress(5, 3.5)).toBe(3.5);
-  expect(easeProgress(1, 1.00001)).toBe(1.00001);
 });
 
 test("frame urls are 3-digit", () => {
@@ -51,4 +44,11 @@ test("stepFrame takes the short way round the loop and lands when close", () => 
   expect(stepFrame(10, 60)).toBe(13);
   expect(stepFrame(137, 1)).toBe(1);
   expect(stepFrame(1, 130)).toBe(137);
+});
+
+test("the cartoon walk keeps its own loop length and pace", () => {
+  expect(walkFrame(1, CARTOON_WALK)).toBe(80 % 32);
+  for (let s = 0; s < 7; s += 0.13) expect(walkFrame(s, CARTOON_WALK)).toBeLessThan(32);
+  expect(walkFrameUrl(5, CARTOON_WALK)).toBe("/walk-cartoon/walk-005.webp");
+  expect(stepFrame(31, 1, 3, 32)).toBe(1); // the short way round its 32-frame loop
 });

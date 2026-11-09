@@ -1,0 +1,35 @@
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y pinch-zoom; /* sideways drags look around him; up and down still scroll */
+}
+
+.scene[data-dragging] {
+  cursor: grabbing;
+}
+
+/* A quiet first-visit nudge, gone once they've looked around. */
+.hint {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  z-index: 10;
+  margin: 0;
+  padding: 7px 14px;
+  border: 1px solid var(--glass-line);
+  border-radius: 999px;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  font-size: 13px;
+  pointer-events: none;
+  transform: translateX(-50%);
+  transition: opacity 0.6s ease;
+}
+
+.hint[data-hidden] {
+  opacity: 0;
+}

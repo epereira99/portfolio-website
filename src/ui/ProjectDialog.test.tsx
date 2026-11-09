@@ -59,3 +59,47 @@ test("opening a project pauses the walk and closing resumes from the same spot",
   expect(document.documentElement.style.overflow).toBe("");
   expect(scrollTo).not.toHaveBeenCalled();
 });
+
+test("a degree opens with its description and every subject", () => {
+  goTo("/?project=msc-ai-engineering");
+  render(<ProjectDialog />);
+  const dialog = screen.getByRole("dialog", { name: "MSc AI Engineering" });
+  expect(dialog).toHaveTextContent("AI Driven Sensor Optimization For Marksman Posture Analysis");
+  expect(screen.getByRole("list", { name: "Courses" }).querySelectorAll("li")).toHaveLength(12);
+});
+
+test("degree cards have no image on top; the BSc logo sits at the top right, beside the title", () => {
+  goTo("/?project=bsc-computer-science");
+  render(<ProjectDialog />);
+  const dialog = screen.getByRole("dialog", { name: "BSc Computer Science" });
+  expect(dialog.querySelector("[data-graphic]")).toBeNull();
+  const logo = screen.getByRole("img", { name: "University of Minho" });
+  expect(logo).toHaveAttribute("src", "/degrees/uminho-symbol.png");
+  expect(logo.closest("header")).toContainElement(screen.getByRole("heading", { name: "BSc Computer Science" }));
+});
+
+test("a project's photo is a captioned polaroid outside the card", () => {
+  goTo("/?project=jibs-case-competition");
+  render(<ProjectDialog />);
+  const photo = screen.getByRole("img", { name: /Winner cheque/ });
+  expect(photo).toHaveAttribute("src", "/projects/jibs-case-competition.webp");
+  expect(photo.closest("figure")).toHaveTextContent("1st place, again!");
+  expect(screen.getByRole("heading", { name: "JIBS 24h Case Competition" }).closest("div[class*=card]")).not.toContainElement(photo);
+});
+
+test("clicking the polaroid enlarges it; Escape shrinks it without closing the dialog", () => {
+  goTo("/?project=jibs-case-competition");
+  render(<ProjectDialog />);
+  fireEvent.click(screen.getByRole("button", { name: "Enlarge photo" }));
+  const shrink = screen.getByRole("button", { name: "Shrink photo" });
+  expect(shrink).toBeInTheDocument();
+  fireEvent.keyDown(shrink, { key: "Escape" });
+  expect(screen.getByRole("button", { name: "Enlarge photo" })).toBeInTheDocument();
+  expect(screen.getByRole("dialog", { name: "JIBS 24h Case Competition" })).toBeInTheDocument();
+});
+
+test("project cards have no colour band on top", () => {
+  goTo("/?project=financial-hub");
+  render(<ProjectDialog />);
+  expect(screen.getByRole("dialog", { name: "Financial Hub" }).querySelector("[data-graphic]")).toBeNull();
+});

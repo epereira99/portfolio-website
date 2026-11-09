@@ -44,3 +44,6 @@ next-env.d.ts
 # Playwright output
 /test-results
 /playwright-report
+
+# reference photos for generating memory paintings (not ours to publish)
+/art/references/

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { getScreens, readScreensFromWindow, scrollToScreens, setScreens } from "./progress";
+import { SCROLL_PER_SCREEN, getScreens, readScreensFromWindow, scrollToScreens, setScreens } from "./progress";
 import { TOTAL_SCREENS } from "./timeline";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -35,5 +35,5 @@ export function ScrollDriver() {
   }, []);
 
   // lvh, not svh: on phones innerHeight can exceed svh, and the ending must stay reachable
-  return <div ref={ref} aria-hidden style={{ height: `${(TOTAL_SCREENS + 1) * 100}lvh` }} />;
+  return <div ref={ref} aria-hidden style={{ height: `${(TOTAL_SCREENS * SCROLL_PER_SCREEN + 1) * 100}lvh` }} />;
 }

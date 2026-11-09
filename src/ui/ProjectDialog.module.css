@@ -46,20 +46,233 @@
   cursor: pointer;
 }
 
-.graphic {
-  height: 220px;
+/* Holds the card and its polaroids, which sit outside the card's scroll */
+.frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(720px, 100%);
+}
+
+/* Narrow screens: the polaroids sit in a row above the card, their bottoms tucked over the card's top edge */
+.polaroids {
+  display: flex;
+  gap: 12px;
+  align-self: flex-end;
+  margin: 0 64px -32px 0; /* clear of the close button */
+  z-index: 1;
+  cursor: zoom-in;
+  animation: drop 0.6s 0.25s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+.polaroid button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: inherit;
+}
+
+/* Enlarged: the photo in its own modal, the whole picture, still in its polaroid frame */
+.zoom {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  padding: 16px;
+  border: 0;
+  background: transparent;
+  cursor: zoom-out;
+  pointer-events: auto; /* the polaroids around it let clicks through to the card */
+}
+
+.zoom[open] {
+  display: grid;
+  place-items: center;
+}
+
+.zoom::backdrop {
+  background: #000b;
+}
+
+.zoom .polaroid {
+  rotate: none; /* any tilt makes the browser resample the photo: about a quarter of its sharpness gone */
+  translate: none;
+  padding: 16px 16px 0;
+  animation: enlarge 0.35s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+.zoom .polaroid img {
+  width: auto;
+  max-width: 86vw;
+  max-height: 74vh;
+  aspect-ratio: auto;
+}
+
+.zoom .polaroid figcaption {
+  font-size: 34px;
+}
+
+/* A 16:9 screenshot: shown whole on the small polaroid, which is wider to keep it legible */
+.polaroids > .polaroid.wide img {
+  aspect-ratio: 16 / 9;
+  object-position: top;
+}
+
+/* A long document: its top on the small polaroid; enlarged, read at full width and scrolled */
+.polaroid.long img {
+  object-position: top;
+}
+
+.zoom:has(.long) {
+  overflow-y: auto;
+}
+
+.zoom .polaroid.long {
+  align-self: start;
+  margin-block: 24px;
+}
+
+.zoom .polaroid.long img {
+  width: min(900px, 86vw);
+  max-width: none;
+  max-height: none;
+}
+
+@keyframes enlarge {
+  from {
+    opacity: 0;
+    scale: 0.4;
+  }
+}
+
+.frame:has(.polaroids) .card {
+  max-height: calc(88vh - 190px);
+}
+
+/* Wide screens: taped over the card's edges, alternating right and left, each pair lower down */
+@media (min-width: 1200px) {
+  .polaroids {
+    position: absolute;
+    inset: 0;
+    align-self: stretch; /* flex-end from above would shrink it to nothing at the card's bottom */
+    margin: 0;
+    pointer-events: none; /* the card underneath stays clickable; the photos themselves take clicks */
+  }
+
+  .polaroids > .polaroid {
+    position: absolute;
+    width: 230px;
+    pointer-events: auto;
+  }
+
+  .polaroids > .polaroid.wide {
+    width: min(300px, calc((100vw - 720px) / 2 - 4px)); /* as wide as the margin beside the card allows */
+  }
+
+  .polaroids > .polaroid:nth-child(odd) {
+    left: calc(100% - 12px);
+  }
+
+  .polaroids > .polaroid:nth-child(even) {
+    right: calc(100% - 12px);
+  }
+
+  .polaroids > .polaroid:nth-child(-n + 2) {
+    top: 36px;
+  }
+
+  .polaroids > .polaroid:nth-child(n + 3) {
+    top: 380px;
+  }
+
+  .frame:has(.polaroids) .card {
+    max-height: 88vh;
+  }
+}
+
+.polaroid {
+  position: relative;
+  margin: 0;
+  padding: 10px 10px 0;
+  background: #f6f3ec;
+  box-shadow: 0 10px 28px #0008;
+  rotate: 4deg;
+}
+
+/* the small ones in the row above the card; around it they are 230px, and the enlarged one has its own size */
+@media (max-width: 1199px) {
+  .polaroids > .polaroid {
+    width: 150px;
+  }
+
+  .polaroids > .polaroid.wide {
+    width: 140px; /* two side by side still clear the close button on a phone */
+  }
+}
+
+.polaroids > .polaroid:nth-child(even) {
+  rotate: -5deg;
+}
+
+.polaroid img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: 50% 30%; /* group photos: keep the faces */
+}
+
+.polaroid figcaption {
+  padding: 6px 0 10px;
+  color: #2b2b2b;
+  font-family: var(--font-hand), cursive;
+  font-size: 22px;
+  line-height: 1.1;
+  text-align: center;
+}
+
+/* a strip of tape across each photo's top edge */
+.polaroid::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  width: 84px;
+  height: 26px;
+  translate: -50% 0;
+  rotate: -6deg;
+  background: #fff6;
+  backdrop-filter: blur(1px);
+}
+
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translateY(-24px) rotate(10deg);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-right: 48px; /* room for the close button in the corner */
+}
+
+/* an institution's symbol beside the title */
+.logo {
+  flex: none;
+  height: 72px;
+  margin-top: 4px;
+  border-radius: 13px; /* the chapter card's 8px corners, scaled up from 44px */
 }
 
 .body {
   padding: 20px 24px 26px;
-}
-
-.stage {
-  margin: 0;
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
 }
 
 .title {
@@ -82,6 +295,14 @@
   background: #202633;
   color: #c5cbd8;
   font-size: 12px;
+}
+
+.link {
+  display: inline-block;
+  margin-top: 6px;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .heading {
@@ -107,5 +328,22 @@
   from {
     opacity: 0;
     transform: scale(0.6);
+  }
+}
+
+/* a degree's subjects: short items, so two columns where there is room */
+.list {
+  margin: 0;
+  padding-left: 1.1em;
+  columns: 2;
+  column-gap: 28px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+@media (max-width: 640px) {
+  .list {
+    columns: 1;
   }
 }

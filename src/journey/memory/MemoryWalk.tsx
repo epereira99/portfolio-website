@@ -1,28 +1,33 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { getScreens } from "../progress";
-import { voyageState } from "../voyage/phase";
-import { BOARD_FROM, END_PERSON, boardingProgress, boardingTransform, plankPoint } from "./boarding";
-import { MEMORIES, memoryPose } from "./memories";
-import { WALK_FRAMES, easeProgress, stepFrame, walkFrame, walkFrameUrl } from "./walk";
+import { easeProgress, getScreens } from "../progress";
+import { ENDING_START, segmentAt, segmentStart } from "../timeline";
+import { SPRITES, drawRoad, type Sprites } from "./road";
+import { CARTOON_WALK, WALK, stepFrame, walkFrame, walkFrameUrl } from "./walk";
 import styles from "./MemoryWalk.module.css";
 
-const STARS = 420;
-const NAU = MEMORIES.findIndex((m) => m.id === "nau");
-
-/** The Journey's world: a starry night, painted memories, and Eduardo walking, all driven by scroll (spec 2026-11-02). */
+/** The Journey's world: Eduardo walking a sunny road that turns to snow and pines in Sweden, all driven by scroll. */
 export function MemoryWalk() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const walkerRef = useRef<HTMLImageElement>(null);
-  const memoryRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const phone = window.matchMedia("(max-width: 640px)");
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d");
-    const stars = Array.from({ length: STARS }, () => ({ x: Math.random() * 2 - 1, y: Math.random() * 2 - 1, z: Math.random() }));
+    // Art direction being compared (Eduardo, 2026-11-04): ?style=painted or ?style=cartoon draws generated sprites,
+    // and the cartoon walker once its frames exist; without it the scene draws its own shapes.
+    const style = new URLSearchParams(location.search).get("style");
+    const sprites: Sprites = {};
+    if (style === "painted" || style === "cartoon") {
+      for (const name of SPRITES) {
+        const im = new Image();
+        im.src = `/road/${style}/${name}.webp`; // a missing one just never loads, and its shapes stay
+        sprites[name] = im;
+      }
+    }
+    const walk = style === "cartoon" ? CARTOON_WALK : WALK;
 
     const resize = () => {
       canvas.width = innerWidth * devicePixelRatio;
@@ -35,13 +40,13 @@ export function MemoryWalk() {
     // Reduced motion never scrubs, so it never downloads them.
     let ready = false;
     let loaded = 0;
-    for (let i = 0; i < (reducedMotion ? 0 : WALK_FRAMES); i++) {
+    for (let i = 0; i < (reducedMotion ? 0 : walk.frames); i++) {
       const im = new Image();
       im.onload = () => {
         loaded += 1;
-        ready = loaded === WALK_FRAMES;
+        ready = loaded === walk.frames;
       };
-      im.src = walkFrameUrl(i);
+      im.src = walkFrameUrl(i, walk);
     }
 
     let p = getScreens();
@@ -52,52 +57,17 @@ export function MemoryWalk() {
     const tick = () => {
       p = easeProgress(p, getScreens());
 
-      if (ctx) {
-        const { width: w, height: h } = canvas;
-        ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = "#dfe6ff";
-        for (const st of stars) {
-          // Depth follows distance walked, so the stars rush past going forward and recede going back.
-          const z = (reducedMotion ? st.z : (((st.z - p * 0.4) % 1) + 1) % 1) + 0.02;
-          ctx.globalAlpha = Math.min(Math.max((1 - z) * 1.4, 0), 1);
-          ctx.beginPath();
-          ctx.arc(w / 2 + (st.x / z) * w * 0.25, h * 0.42 + (st.y / z) * h * 0.25, Math.max(0.5, (1 - z) * 2.2) * devicePixelRatio, 0, 7);
-          ctx.fill();
-        }
-        ctx.globalAlpha = 1;
-      }
-
-      MEMORIES.forEach((m, i) => {
-        const el = memoryRefs.current[i];
-        if (!el) return;
-        const pose = memoryPose(m, p, reducedMotion);
-        el.style.opacity = String(pose.opacity);
-        el.style.transform = `translateX(${phone.matches ? 0 : pose.x}vw) scale(${pose.scale})`;
-      });
+      // The scenery stops where he does, at the ending. With reduced motion it holds still at the start of each stage.
+      if (ctx) drawRoad(ctx, canvas.width, canvas.height, reducedMotion ? segmentStart(segmentAt(p)) : Math.min(p, ENDING_START), sprites);
 
       const walker = walkerRef.current!;
-      walker.style.opacity = String(1 - voyageState(p).mapOpacity);
-      // At the ship he walks up its gangplank into the painting (art/memories/nau.png).
-      const t = reducedMotion || p < BOARD_FROM ? 0 : boardingProgress(p);
-      const nau = memoryRefs.current[NAU];
-      if (t > 0 && nau && walker.offsetHeight > 0) {
-        const box = nau.getBoundingClientRect();
-        const { ty, scale } = boardingTransform(t, {
-          feetY: walker.offsetTop + walker.offsetHeight,
-          plankY: plankPoint(box).y,
-          startHeight: walker.offsetHeight,
-          endHeight: END_PERSON * Math.max(box.width, box.height),
-        });
-        walker.style.transform = `translateX(-50%) translateY(${ty}px) scale(${scale})`;
-      } else {
-        walker.style.transform = "";
-      }
       if (ready && !reducedMotion) {
         // Step a few frames at a time while scrubbing; land directly on the first frame shown and after a snap.
-        const f = scrubbing && Math.abs(p - last) <= 1 ? stepFrame(shown, walkFrame(p)) : walkFrame(p);
+        const target = walkFrame(p, walk);
+        const f = scrubbing && Math.abs(p - last) <= 1 ? stepFrame(shown, target, 3, walk.frames) : target;
         scrubbing = true;
-        if (f !== shown) {
-          walker.src = walkFrameUrl(f); // already in the browser cache from the preload
+        if (f !== shown || walker.src.indexOf(`/${walk.dir}/`) < 0) {
+          walker.src = walkFrameUrl(f, walk); // already in the browser cache from the preload
           shown = f;
         }
       }
@@ -115,20 +85,7 @@ export function MemoryWalk() {
 
   return (
     <div className={styles.scene} aria-hidden>
-      <canvas ref={canvasRef} className={styles.stars} />
-      {MEMORIES.map((m, i) => (
-        <div
-          key={m.id}
-          data-memory={m.id}
-          ref={(el) => {
-            memoryRefs.current[i] = el;
-          }}
-          className={`${styles.memory} ${m.layout === "centre" ? styles.centre : styles.side} ${m.src ? "" : styles.placeholder}`}
-          style={m.src ? { backgroundImage: `url(${m.src})` } : undefined}
-        >
-          {!m.src && <span>{m.label}</span>}
-        </div>
-      ))}
+      <canvas ref={canvasRef} className={styles.road} />
       {/* eslint-disable-next-line @next/next/no-img-element -- frames are swapped per animation frame; next/image would fight that */}
       <img ref={walkerRef} className={styles.walker} src={walkFrameUrl(0)} alt="" />
     </div>
