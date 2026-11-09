@@ -7,9 +7,9 @@ beforeEach(() => {
   window.history.replaceState(null, "", "/");
 });
 
-test("About me links to the about page", () => {
+test("About me takes you to the camp (#about)", () => {
   render(<BottomBar />);
-  expect(screen.getByRole("link", { name: "About me" })).toHaveAttribute("href", "/about");
+  expect(screen.getByRole("link", { name: "About me" })).toHaveAttribute("href", "#about");
 });
 
 test("every project sits in exactly one folder", () => {

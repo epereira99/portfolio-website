@@ -1,0 +1,95 @@
+/* To black and back, going to the camp or leaving it: the world swaps what it draws at the darkest point. */
+.fade {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  animation: through-black 0.9s ease-in-out;
+}
+
+@keyframes through-black {
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade {
+    animation: none;
+  }
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The name of whatever is under the pointer, floating above it. */
+.label {
+  display: block;
+  padding: 6px 12px;
+  border: 1px solid var(--glass-line);
+  border-radius: 999px;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  font: 600 13px/1 var(--font);
+  white-space: nowrap;
+}
+
+/* Off screen for the mouse (you click the things themselves); shown while a keyboard is in it. */
+.things:not(:focus-within) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.things {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  z-index: 30;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  transform: translateX(-50%);
+}
+
+.thing,
+.back {
+  padding: 9px 16px;
+  border: 1px solid var(--glass-line);
+  border-radius: 999px;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  font: 600 14px/1 var(--font);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.thing:hover,
+.back:hover {
+  background: var(--glass-hover);
+  transform: translateY(-2px);
+}
+
+.back {
+  position: fixed;
+  top: 18px;
+  left: 16px;
+  z-index: 30;
+}

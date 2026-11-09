@@ -1,14 +1,6 @@
-import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export const metadata = { title: "About · Eduardo Pereira" };
-
-// Placeholder until the About page is designed (spec §11).
+// About me is the camp by the road near the journey's end, in the home page's 3D world (src/about/Campfire.tsx).
 export default function About() {
-  return (
-    <main style={{ maxWidth: 640, margin: "0 auto", padding: "20vh 16px" }}>
-      <h1>About me</h1>
-      <p>Coming soon.</p>
-      <Link href="/">← Back to the journey</Link>
-    </main>
-  );
+  redirect("/#about");
 }

@@ -17,6 +17,9 @@ import { Quiet } from "../lowpoly/Quiet";
 import { nextPosition, walkTime } from "../lowpoly/rig";
 import { RIGS, place, shotAt, sunAt, turnTo, weatherAt, type Rig, type Weather } from "./shots";
 import { addFace, toonFigure, toonScene, wind } from "./toon";
+import { Camp } from "@/about/Campfire";
+import { campCamera, campSpot, campToWorld, campView } from "@/about/camp";
+import { TOTAL_SCREENS } from "../timeline";
 import styles from "./DioramaWalk.module.css";
 
 const SCENE_URL = "/models/walk-scene.glb";
@@ -41,6 +44,7 @@ const TURN = Math.PI * 2;
 const HEAD_YAW = 1.1;
 const HEAD_PITCH = 0.35;
 const HEAD_HEIGHT = 1.6; // his face, where the bubbles' tail points
+const SEATED_HEAD = 1.05; // the same, sitting on his log at the camp (about/Campfire.tsx)
 const UP = new Vector3(0, 1, 0);
 const _q = new Quaternion();
 const _parent = new Quaternion();
@@ -89,6 +93,7 @@ function World({ look }: { look: React.RefObject<Look> }) {
     return neck && head ? { neck: turned(neck), head: turned(head) } : null;
   }, [walker.scene]);
   const white = useMemo(() => new Color("#ffffff"), []);
+  const spot = useMemo(() => campSpot(), []);
 
   useEffect(() => {
     const walk = actions.Walk;
@@ -114,7 +119,11 @@ function World({ look }: { look: React.RefObject<Look> }) {
     const prev = shown.current;
     const p = (shown.current = nextPosition(shown.current, getScreens(), reduced));
     const w = pointAt(distanceAt(p));
-    him.current!.position.set(w.x, 0, w.z);
+    // At the camp (About me), his seated self there takes over: the walker hides, and the sun's shadow box and the
+    // air, which follow this group, move to the camp.
+    const camping = campView.shown;
+    him.current!.visible = !camping;
+    him.current!.position.set(camping ? spot.x : w.x, 0, camping ? spot.z : w.z);
     him.current!.rotation.y = w.heading;
     const walk = actions.Walk;
     // eslint-disable-next-line react-hooks/immutability -- three.js state, not React state
@@ -132,14 +141,14 @@ function World({ look }: { look: React.RefObject<Look> }) {
 
     // The directed shot, swung round him between shots; a jump along the journey (or reduced motion) cuts to it.
     const want = RIGS[shotAt(p)];
-    if (!rig.current || reduced || Math.abs(p - prev) > 0.9) rig.current = { ...want };
+    if (camping || !rig.current || reduced || Math.abs(p - prev) > 0.9) rig.current = { ...want }; // cuts, under the fade
     else {
       const r = rig.current;
       const k = damp(1.6, dt); // unhurried, so turning to face him reads as a moment
       r.around += turnTo(r.around, want.around) * k;
       for (const key of ["dist", "height", "ahead", "lookUp", "hfov"] as const) r[key] += (want[key] - r[key]) * k;
     }
-    const cam = place(rig.current, p, size.width / size.height, l.yaw);
+    const cam = camping ? campCamera(size.width / size.height, l.yaw) : place(rig.current, p, size.width / size.height, l.yaw);
     camera.position.set(...cam.position);
     camera.lookAt(...cam.target);
     (camera as PerspectiveCamera).fov = cam.fov;
@@ -147,21 +156,23 @@ function World({ look }: { look: React.RefObject<Look> }) {
     sky.current!.position.copy(camera.position);
 
     // Daylight: the classic palette, now lit by a moving sun and the sky's own light, fading into the horizon.
-    const d = daylightAt(p);
+    const lit = camping ? TOTAL_SCREENS : p; // the camp sits in the journey's last light, whatever the scroll
+    const d = daylightAt(lit);
     uniforms.top.value.set(d.skyTop);
     uniforms.mid.value.set(d.skyMid);
     uniforms.horizon.value.set(d.skyHorizon);
     for (const [slot, material] of slots) material.color.set(d.palette[slot]);
     fog.current!.color.set(d.skyHorizon);
-    const toSun = sunAt(p);
-    sun.current!.position.set(w.x + toSun[0] * 60, toSun[1] * 60, w.z + toSun[2] * 60);
+    const toSun = sunAt(lit);
+    const c = him.current!.position;
+    sun.current!.position.set(c.x + toSun[0] * 60, toSun[1] * 60, c.z + toSun[2] * 60);
     sun.current!.color.set(d.skyHorizon).lerp(white, Math.min(toSun[1] * 1.6, 0.85));
     sun.current!.intensity = 1.2 + 1.4 * Math.min(toSun[1] * 2, 1);
     hemi.current!.color.set(d.skyTop);
     hemi.current!.groundColor.set(d.palette.ground);
 
     // He looks at you when you're in front of or beside him, and down the road when you're behind.
-    if (bones) {
+    if (bones && !camping) {
       bones.head.bone.getWorldPosition(_head);
       _forward.set(-Math.sin(w.heading), 0, -Math.cos(w.heading));
       _to.copy(camera.position).sub(_head);
@@ -178,9 +189,12 @@ function World({ look }: { look: React.RefObject<Look> }) {
       turnBone(bones.head, half);
     }
 
-    // Where his head is on screen, for the bubbles beside him (ui/JourneyOverlay.module.css reads these).
+    // Where his head is on screen, for the bubbles beside him (ui/JourneyOverlay.module.css reads these): on the road,
+    // or sitting by the fire, where he speaks about the things you click.
     camera.updateMatrixWorld();
-    _head.set(w.x, HEAD_HEIGHT, w.z).project(camera);
+    if (camping) _head.set(...campToWorld(0, SEATED_HEAD, 0));
+    else _head.set(w.x, HEAD_HEIGHT, w.z);
+    _head.project(camera);
     if (_head.z < 1) {
       const at = `${Math.round(((_head.x + 1) / 2) * size.width)},${Math.round(((1 - _head.y) / 2) * size.height)}`;
       if (at !== anchor.current) {
@@ -217,6 +231,7 @@ function World({ look }: { look: React.RefObject<Look> }) {
       <group ref={him}>
         <primitive object={walker.scene} />
       </group>
+      <Camp />
       {!reduced && <Air him={him} />}
     </>
   );
