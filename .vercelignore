@@ -1,0 +1,5 @@
+# Not part of the site: source art and references (the build never reads them), and personal photos not yet used,
+# which anything in public/ would publish.
+/art
+/public/personal
+**/__pycache__
