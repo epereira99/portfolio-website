@@ -50,3 +50,11 @@ next-env.d.ts
 
 # python
 __pycache__/
+
+# local only: not used by the site, and not for a public repo
+/public/personal/
+/art/raw/road/
+/art/raw/*.pdf
+/art/raw/*.zip
+/art/raw/white_mesh.glb
+*.blend1
