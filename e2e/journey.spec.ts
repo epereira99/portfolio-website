@@ -62,7 +62,7 @@ test("entering Porto announces the Deloitte chapter, and its card stays for the 
 test.describe("the ending", () => {
   test("invites the visitor with ways to get in touch, navigation still there", async ({ page }) => {
     await page.goto("/");
-    await scrollToScreens(page, 11);
+    await scrollToScreens(page, 11.5);
     await expect(page.getByRole("heading", { name: "The next chapter starts here." })).toBeVisible();
     await expect(page.getByRole("link", { name: "Email me" })).toHaveAttribute("href", "mailto:eduardoluisvp99@gmail.com");
     await expect(page.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("target", "_blank");
@@ -71,7 +71,7 @@ test.describe("the ending", () => {
 
   test("scrolling back out of the ending returns to the journey", async ({ page }) => {
     await page.goto("/");
-    await scrollToScreens(page, 11);
+    await scrollToScreens(page, 11.5);
     await expect(page.getByRole("heading", { name: "The next chapter starts here." })).toBeVisible();
     await scrollToScreens(page, 6.8);
     await expect(page.getByRole("heading", { name: "The next chapter starts here." })).toHaveCount(0);
@@ -91,7 +91,7 @@ test.describe("the ending", () => {
 
 test("Eduardo walks down the road, with his stage's story beside him", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator('img[src^="/walk/"]')).toBeVisible();
+  await expect(page.locator("canvas")).toBeVisible(); // the 3D world he walks through
   await scrollToScreens(page, 1.6);
   await expect(page.getByRole("complementary")).toBeVisible();
 });

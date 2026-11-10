@@ -10,7 +10,7 @@ export const SEGMENTS: { id: SegmentId; screens: number }[] = [
   { id: "porto", screens: 3 }, // Porto and Jönköping have the most story to tell (content/stories.ts)
   { id: "jonkoping", screens: 3 },
   { id: "stockholm", screens: 1.5 },
-  { id: "personal", screens: 2 }, // 1.5 + the ending
+  { id: "personal", screens: 2.5 }, // 2 + the ending: three projects to tell (content/stories.ts)
 ];
 
 export const TOTAL_SCREENS = SEGMENTS.reduce((sum, s) => sum + s.screens, 0);

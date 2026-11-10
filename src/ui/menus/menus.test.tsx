@@ -29,7 +29,7 @@ describe("the Projects menu", () => {
     expect(projects()).toHaveAttribute("aria-expanded", "false");
     fireEvent.click(projects());
     expect(projects()).toHaveAttribute("aria-expanded", "true");
-    expect(folder("Software")).toHaveAccessibleName("Software, 4 projects");
+    expect(folder("Software")).toHaveAccessibleName("Software, 5 projects");
     expect(folder("AI")).toBeInTheDocument();
     expect(folder("Awards")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Financial Hub" })).toBeNull();

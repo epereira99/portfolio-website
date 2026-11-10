@@ -131,14 +131,14 @@ describe("his story beside him (content/stories.ts)", () => {
   });
 
   test("the ending has its own closing lines", () => {
-    at(10.9);
+    at(11.4);
     expect(screen.getByText("It's been a crazy journey!")).toBeInTheDocument();
   });
 });
 
 describe("the ending", () => {
   test("invites the visitor into the next chapter with ways to get in touch", () => {
-    at(11);
+    at(11.5);
     expect(screen.getByRole("heading", { name: "The next chapter starts here." })).toBeInTheDocument();
     expect(screen.getByText("Stockholm · Today")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Email me" })).toHaveAttribute("href", "mailto:eduardoluisvp99@gmail.com");

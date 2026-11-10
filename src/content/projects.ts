@@ -404,6 +404,71 @@ export const PROJECTS: Project[] = [
     ],
   },
   {
+    slug: "portfolio-website",
+    title: "This website",
+    stage: "personal",
+    topic: "software",
+    order: 1,
+    subtitle: "A more interesting version of my CV.",
+    tags: ["Next.js", "TypeScript", "React Three Fiber", "three.js", "Blender"],
+    color: "#1f3a2c",
+    sections: [
+      {
+        heading: "The problem",
+        body:
+          "CVs can be boring and generic. I wanted to distinguish myself by giving recuirters a more interesting experience." +
+          "Where they can walk through my story with me instead of skimming my CV.",
+      },
+      {
+        heading: "What I built",
+        body:
+          "A Next.js site where scrolling makes a low-poly version of me walk down a road, " +
+          "telling my story, as it my character talks about each chapter or project a card for that section appears and the user can expand it for more information. " +
+          "The world is drawn with React Three Fiber and toon shading, the landscape and the walking character are generated in Blender from Python scripts. " +
+          "About me section is a campfire by the road near the end, in the same world: you can click my things to hear about them, " +
+          "or ask me anything, answered by my RAG assistant. ",
+      },
+      {
+        heading: "Result",
+        body: "This wonderfull website you are in right now!",
+      },
+    ],
+  },
+  {
+    slug: "portfolio-rag",
+    title: "Ask-me-anything RAG assistant",
+    stage: "personal",
+    topic: "ai",
+    order: 2,
+    subtitle: "The assistant at the campfire: answers about me in my own voice.",
+    tags: ["Python", "FastAPI", "Qdrant", "Claude API", "Promptfoo", "Langfuse", "Fly.io"],
+    color: "#3a2a1c",
+    sections: [
+      {
+        heading: "The problem",
+        body:
+          "It is more fun and interative if you can me a questions instead of reading a huge text about me. With this being an AI Engineer website " +
+          "it only makes sense to build such a feature. It is possible that a large system prompt about me and my story could be enough. " +
+          "I built a retrieval-augmented generation (RAG) system not only to make sure the answers are accurate and faithful to my story, but also so I could get some experience building a more advanced system.",
+      },
+      {
+        heading: "What I built",
+        body:
+          "A FastAPI service over a knowledge base I wrote myself with my education, projects and interests. " +
+          "Retrieval is hybrid: dense embeddings and BM25 in Qdrant, fused with reciprocal rank fusion. " +
+          "Claude Haiku answers in the first person with citations, which become read-more links and photos on the site. " +
+          "Guardrails handle off-topic questions, prompt injection and non-English questions, and every step is traced in Langfuse. " +
+          "It runs in Docker on Fly.io.",
+      },
+      {
+        heading: "Result",
+        body:
+          "93–97% across two identical runs of a 60-question test set (faithfulness 97–100%), the gap being the set's run-to-run noise. " +
+          "Answers take about 1.2 seconds and cost about $0.17 per 1,000 questions.",
+      },
+    ],
+  },
+  {
     slug: "effektify-reconciliation",
     title: "Deal reconciliation agents",
     stage: "stockholm",

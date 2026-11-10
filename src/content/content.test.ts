@@ -39,7 +39,7 @@ describe("chapters", () => {
 });
 
 describe("projects", () => {
-  test("have unique slugs: the initial dataset plus OutSystems–Salesforce, Jönköpings Södra and the case competitions", () => {
+  test("have unique slugs: the initial dataset plus OutSystems–Salesforce, Jönköpings Södra, the case competitions, this site and its RAG assistant", () => {
     const slugs = PROJECTS.map((p) => p.slug);
     expect(new Set(slugs).size).toBe(slugs.length);
     expect(new Set(slugs)).toEqual(
@@ -53,6 +53,8 @@ describe("projects", () => {
         "jibs-case-competition",
         "saab-thesis",
         "financial-hub",
+        "portfolio-website",
+        "portfolio-rag",
         "effektify-reconciliation",
       ]),
     );
@@ -70,7 +72,7 @@ describe("projects", () => {
       "saab-thesis",
     ]);
     expect(slugs("stockholm")).toEqual(["effektify-reconciliation"]);
-    expect(slugs("personal")).toEqual(["financial-hub"]);
+    expect(slugs("personal")).toEqual(["financial-hub", "portfolio-website", "portfolio-rag"]);
   });
 
   test("never link to GitHub", () => {

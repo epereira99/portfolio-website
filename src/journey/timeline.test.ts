@@ -13,8 +13,8 @@ import {
 
 describe("segments", () => {
   test("follow the spec's length budget", () => {
-    expect(TOTAL_SCREENS).toBe(11);
-    expect(ENDING_START).toBe(10.5);
+    expect(TOTAL_SCREENS).toBe(11.5);
+    expect(ENDING_START).toBe(11);
     expect(INTRO_END).toBe(0.5);
     expect(segmentStart("porto")).toBe(1.5);
     expect(segmentStart("jonkoping")).toBe(4.5); // Porto and Jönköping have the most to tell: 3 screens each
@@ -91,15 +91,27 @@ describe("overlayAt", () => {
 
 describe("ending", () => {
   test("the last half screen is the ending, and stays the ending past the end", () => {
-    expect(overlayAt(10.5)).toEqual({ kind: "ending", t: 0 });
-    const mid = overlayAt(10.75);
+    expect(overlayAt(11)).toEqual({ kind: "ending", t: 0 });
+    const mid = overlayAt(11.25);
     expect(mid.kind === "ending" && mid.t).toBeCloseTo(0.5);
     expect(overlayAt(50)).toEqual({ kind: "ending", t: 1 });
   });
 
-  test("Effektify comes with its line in Stockholm, Financial Hub with its line in Personal projects", () => {
+  test("Effektify comes with its line in Stockholm; Personal projects brings Financial Hub, this site, then its RAG assistant", () => {
     expect(overlayAt(8.0)).toEqual({ kind: "project", slugs: ["effektify-reconciliation"] });
-    expect(overlayAt(10.4)).toEqual({ kind: "project", slugs: ["financial-hub"] }); // just before the ending
+    expect(overlayAt(9.7)).toEqual({ kind: "project", slugs: ["financial-hub"] });
+    expect(overlayAt(10.2)).toEqual({ kind: "project", slugs: ["portfolio-website"] });
+    expect(overlayAt(10.7)).toEqual({ kind: "project", slugs: ["portfolio-rag"] });
+  });
+
+  test("the three personal projects are on screen for the same time", () => {
+    const time: Record<string, number> = {};
+    for (let s = segmentStart("personal"); s < ENDING_START; s += 0.01) {
+      const o = overlayAt(s);
+      if (o.kind === "project") for (const slug of o.slugs) time[slug] = (time[slug] ?? 0) + 0.01;
+    }
+    expect(Object.keys(time)).toEqual(["financial-hub", "portfolio-website", "portfolio-rag"]);
+    for (const t of Object.values(time)) expect(t).toBeCloseTo(time["financial-hub"], 1);
   });
 });
 

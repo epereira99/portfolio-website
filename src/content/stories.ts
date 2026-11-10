@@ -90,11 +90,15 @@ export const STORIES: Record<StageId, Beat[][]> = {
   ],
 
   // Personal projects
+  // Five equal blocks, so the three projects get the same time: the empty first one sits under the chapter title, the
+  // empty last one under the ending (both take that part of this stage's time).
   personal: [
-    [
-      // A draft so Financial Hub has a line to come in with: rewrite it in your own words.
-      { say: "And in my own time, I build things like Financial Hub.", show: "financial-hub" },
-    ],
+    [],
+    // Drafts, so each project has a line to come in with: rewrite them in your own words.
+    [{ say: "And in my own time, I build things like Financial Hub.", show: "financial-hub" }],
+    [{ say: "And this website, every tree and campfire on it.", show: "portfolio-website" }],
+    [{ say: "Plus the AI that answers as me at the campfire. Go ask it something!", show: "portfolio-rag" }],
+    [],
   ],
 };
 

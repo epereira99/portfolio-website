@@ -1,9 +1,9 @@
 import { useSyncExternalStore } from "react";
 import { pointAt } from "@/journey/lowpoly/path";
 
-/** How far along the road the camp is (world units; he covers 14 a screen and stops at 154), and how far off its
+/** How far along the road the camp is (world units; he covers 14 a screen and stops at 161: the camp stays just short of it), and how far off its
  * left side: the meadow there is kept clear of trees (tools/blender/lowpoly/scene.py, open_near_path). */
-export const CAMP_ALONG = 150;
+export const CAMP_ALONG = 157;
 export const CAMP_OFF = 7.5;
 
 /** The camp's centre (where he sits) and its turn: the camp's own +Z, the way he faces, points back at the road. */
