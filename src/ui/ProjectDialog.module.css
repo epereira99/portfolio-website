@@ -105,6 +105,7 @@
 }
 
 .zoom .polaroid img {
+  margin-inline: auto; /* a narrow photo under a wider caption stays in the middle of the frame */
   width: auto;
   max-width: 86vw;
   max-height: 74vh;
