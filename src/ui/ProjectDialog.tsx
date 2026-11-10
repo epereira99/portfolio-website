@@ -103,22 +103,9 @@ type Photo = NonNullable<Project["images"]>[number];
  * clicking again puts it back. */
 function Polaroids({ images }: { images: Photo[] }) {
   const [big, setBig] = useState<number | null>(null);
-  const zoom = useRef<HTMLDialogElement>(null);
   const shown = big === null ? undefined : images[big];
-  useEffect(() => {
-    if (big === null || !zoom.current) return;
-    zoom.current.showModal(); // its own top layer: full screen whatever the card around it does
-    zoom.current.scrollTop = 0; // focusing the button scrolls a long document to its middle; start at the top
-  }, [big]);
   return (
-    <div
-      className={styles.polaroids}
-      onKeyDown={(e) => {
-        if (e.key !== "Escape" || big === null) return;
-        e.stopPropagation(); // shrink the photo, not close the whole dialog
-        setBig(null);
-      }}
-    >
+    <div className={styles.polaroids}>
       {images.map((img, i) => (
         // the button carries keyboard and screen-reader use; the figure catches clicks on the frame and caption too
         <figure
@@ -134,23 +121,38 @@ function Polaroids({ images }: { images: Photo[] }) {
           {img.caption && <figcaption>{img.caption}</figcaption>}
         </figure>
       ))}
-      {shown && (
-        <dialog
-          ref={zoom}
-          className={styles.zoom}
-          aria-label="Photo"
-          onCancel={(e) => e.preventDefault()}
-          onClick={() => setBig(null)}
-        >
-          <figure className={`${styles.polaroid} ${shown.long ? styles.long : ""} ${shown.wide ? styles.wide : ""}`}>
-            <button type="button" aria-label="Shrink photo">
-              {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized webp */}
-              <img src={shown.src} alt={shown.alt} />
-            </button>
-            {shown.caption && <figcaption>{shown.caption}</figcaption>}
-          </figure>
-        </dialog>
-      )}
+      {shown && <PhotoZoom photo={shown} onClose={() => setBig(null)} />}
     </div>
+  );
+}
+
+/** A photo enlarged in its own modal, whole and in its polaroid frame; a click or Escape puts it back. */
+export function PhotoZoom({ photo, onClose }: { photo: Photo; onClose: () => void }) {
+  const zoom = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    zoom.current!.showModal(); // its own top layer: full screen whatever is around it
+    zoom.current!.scrollTop = 0; // focusing the button scrolls a long document to its middle; start at the top
+  }, []);
+  return (
+    <dialog
+      ref={zoom}
+      className={styles.zoom}
+      aria-label="Photo"
+      onCancel={(e) => e.preventDefault()}
+      onKeyDown={(e) => {
+        if (e.key !== "Escape") return;
+        e.stopPropagation(); // shrink the photo, not close a project dialog around it
+        onClose();
+      }}
+      onClick={onClose}
+    >
+      <figure className={`${styles.polaroid} ${photo.long ? styles.long : ""} ${photo.wide ? styles.wide : ""}`}>
+        <button type="button" aria-label="Shrink photo">
+          {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized webp */}
+          <img src={photo.src} alt={photo.alt} />
+        </button>
+        {photo.caption && <figcaption>{photo.caption}</figcaption>}
+      </figure>
+    </dialog>
   );
 }

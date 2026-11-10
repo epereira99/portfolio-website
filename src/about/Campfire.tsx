@@ -9,10 +9,14 @@ import {
   type Group, type PointLight, type Points,
 } from "three";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
-import { CAMP_ITEMS, type CampItemId } from "@/content/about";
+import { CAMP_ITEMS, CHAT_NOTICE, STARTERS, type CampItemId } from "@/content/about";
 import { addFace, toon, toonFigure } from "@/journey/diorama/toon";
 import bubbleStyles from "@/ui/JourneyOverlay.module.css";
+import { MAX_BUBBLES } from "@/ui/story";
+import { PhotoZoom } from "@/ui/ProjectDialog";
+import { useOpenProject } from "@/ui/useOpenProject";
 import { campSpot, campView, leaveCamp, openThing, useCamp, useOpenThing } from "./camp";
+import { MAX_QUESTION, askChat, failLine, linkSlug, type ChatImage, type ChatLink } from "./chat";
 import styles from "./Campfire.module.css";
 
 const WALKER_URL = "/models/walker.glb";
@@ -501,12 +505,56 @@ export function Camp() {
   );
 }
 
+type Answer = { bubbles: string[]; links: ChatLink[]; images: ChatImage[] };
+
 /** The page's side of the camp: the fade there and back, the way back to the journey, the things as buttons (for
- * keyboards and screen readers), and his bubble about whichever thing you last clicked. */
+ * keyboards and screen readers), his bubble about whichever thing you last clicked, and asking him anything: his
+ * answer in speech bubbles, the photos it mentions (or his thinking) in a thought bubble. */
 export function CampScreen() {
   const camp = useCamp();
   const openId = useOpenThing();
   const item = camp ? CAMP_ITEMS.find((i) => i.id === openId) : undefined;
+  const { open } = useOpenProject();
+  const [question, setQuestion] = useState("");
+  const [asked, setAsked] = useState(false);
+  const [thinking, setThinking] = useState(false);
+  const [answer, setAnswer] = useState<Answer | null>(null);
+  const [big, setBig] = useState<ChatImage | null>(null); // the photo enlarged, as on a project's polaroids
+  const pending = useRef<AbortController | null>(null);
+
+  async function ask(q: string) {
+    q = q.trim();
+    if (!q || thinking) return;
+    openThing(null); // his answer takes the place of whatever thing he was talking about
+    setQuestion("");
+    setAsked(true);
+    setThinking(true);
+    setAnswer({ bubbles: [], links: [], images: [] });
+    const ctrl = (pending.current = new AbortController());
+    try {
+      await askChat(
+        q,
+        (e) => {
+          if (e.event === "bubble") setThinking(false);
+          setAnswer((a) =>
+            e.event === "bubble" ? { ...a!, bubbles: [...a!.bubbles, e.data.text] }
+            : e.event === "links" ? { ...a!, links: e.data }
+            : e.event === "images" ? { ...a!, images: e.data }
+            : a,
+          );
+        },
+        ctrl.signal,
+      );
+    } catch (err) {
+      if (!ctrl.signal.aborted) setAnswer({ bubbles: [failLine((err as { status?: number }).status)], links: [], images: [] });
+    } finally {
+      setThinking(false);
+    }
+  }
+
+  const said = item ? [item.body] : (answer?.bubbles ?? []);
+  const links = item ? [] : (answer?.links ?? []);
+  const images = item ? [] : (answer?.images ?? []);
   // A fade to black and back each time the camp comes or goes; the world swaps what it draws under the black.
   const [seen, setSeen] = useState(camp);
   const [fades, setFades] = useState(0);
@@ -525,6 +573,7 @@ export function CampScreen() {
       clearTimeout(swap);
       root.style.overflow = "";
       openThing(null);
+      pending.current?.abort(); // leaving mid-answer: drop it
     };
   }, [camp]);
 
@@ -546,13 +595,82 @@ export function CampScreen() {
             ))}
           </nav>
           {/* he tells you about the thing you clicked, in a bubble beside him like on the road */}
-          <aside className={bubbleStyles.bubbles} aria-live="polite">
-            {item && (
-              <p className={bubbleStyles.bubble} key={item.id}>
-                {item.body}
+          {/* ...and answers what you ask him there, a sentence a bubble */}
+          <aside className={`${bubbleStyles.bubbles} ${styles.campBubbles}`} aria-live="polite">
+            {said.slice(-MAX_BUBBLES).map((text, i, shown) => (
+              <p className={bubbleStyles.bubble} data-testid="bubble" key={`${item?.id ?? "a"}-${said.length - shown.length + i}`}>
+                {text}
+                {i === shown.length - 1 &&
+                  links.map((l) => {
+                    const slug = linkSlug(l.url);
+                    return (
+                      slug && (
+                        <button key={l.url} type="button" className={styles.readMore} onClick={() => open(slug)}>
+                          Read more: {l.title}
+                        </button>
+                      )
+                    );
+                  })}
               </p>
+            ))}
+          </aside>
+          {/* what he's picturing: the photos his answer mentions, or the dots while he thinks */}
+          <aside className={styles.thought} aria-live="polite" hidden={!thinking && images.length === 0}>
+            {thinking ? (
+              <span className={styles.dots} role="status" aria-label="Thinking">
+                <i />
+                <i />
+                <i />
+              </span>
+            ) : (
+              images.map((img) => (
+                // the button carries keyboard and screen-reader use; the figure catches clicks on the caption too
+                <figure key={img.src} className={styles.photo} onClick={() => setBig(img)}>
+                  <button type="button" aria-label="Enlarge photo">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- a photo the API picked, already sized webp */}
+                    <img src={img.src} alt={img.alt} />
+                  </button>
+                  {img.caption && <figcaption>{img.caption}</figcaption>}
+                </figure>
+              ))
             )}
           </aside>
+          {big && <PhotoZoom photo={big} onClose={() => setBig(null)} />}
+          <form
+            className={styles.chat}
+            onSubmit={(e) => {
+              e.preventDefault();
+              ask(question);
+            }}
+          >
+            {!asked && (
+              <div className={styles.starters}>
+                {STARTERS.map((q) => (
+                  <button key={q} type="button" className={styles.thing} onClick={() => ask(q)}>
+                    {q}
+                  </button>
+                ))}
+              </div>
+            )}
+            <div className={styles.ask}>
+              <label htmlFor="camp-ask" className={styles.hidden}>
+                Ask me anything
+              </label>
+              <input
+                id="camp-ask"
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                maxLength={MAX_QUESTION}
+                placeholder="Ask me anything…"
+                autoComplete="off"
+                enterKeyHint="send"
+              />
+              <button type="submit" disabled={thinking || !question.trim()}>
+                Ask
+              </button>
+            </div>
+            <p className={styles.notice}>{CHAT_NOTICE}</p>
+          </form>
         </>
       )}
     </>

@@ -52,7 +52,13 @@ next-env.d.ts
 __pycache__/
 
 # local only: not used by the site, and not for a public repo
-/public/personal/
+/public/personal/*
+# ...except the photos the chat's answers cite (portfolio-rag corpus/personal/*.md); add a line per new one.
+!/public/personal/football-fc-tadim-u19-title-celebration.webp
+!/public/personal/football-fc-tadim-u19-trophy.webp
+!/public/personal/football-sporting-with-dad.webp
+!/public/personal/football-u17-cup-vigneux.webp
+!/public/personal/snowboarding-trip-2024.webp
 /art/raw/road/
 /art/raw/*.pdf
 /art/raw/*.zip
